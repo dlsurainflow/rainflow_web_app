@@ -18,6 +18,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 // import Alert from "@material-ui/lab/Alert";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
+import { Redirect } from "react-router-dom";
 
 import AlertMessage from "../components/AlertMessage";
 
@@ -107,8 +108,12 @@ export const SignIn = (props) => {
           console.log(response);
           setIsLoading(false);
           if (response.status === 200) {
-            localStorage.setItem("user", response.data);
+            console.log("userID: " + response.data.data.userID);
+            console.log("token: " + response.data.data.token);
+            localStorage.setItem("userID", response.data.data.userID);
+            localStorage.setItem("token", response.data.data.token);
             props.history.push("/");
+            // return <Redirect to="/" />;
           }
         },
         (error) => {

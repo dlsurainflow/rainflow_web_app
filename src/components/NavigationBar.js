@@ -7,6 +7,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import IconButton from "@material-ui/core/IconButton";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Menu from "@material-ui/core/Menu";
+import grey from "@material-ui/core/colors/red";
+import { Router } from "react-router-dom";
 
 export const NavigationBar = (props) => {
   // const localUser = JSON.parse(localStorage.getItem("user")) || {};
@@ -30,7 +32,12 @@ export const NavigationBar = (props) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    useHistory.push("/");
+    // useHistory.push("/");
+    // Router.go({ path: "Home" });
+    // props.
+    // return <Redirect to="/" />;
+    props.history.push("/");
+    // this.router.push("/");
   };
 
   return (
@@ -62,7 +69,7 @@ export const NavigationBar = (props) => {
             onClick={handleMenu}
             color="inherit"
           >
-            <AccountCircle />
+            <AccountCircle style={{ color: "white" }} />
           </IconButton>
           <Menu
             id="menu-appbar"
@@ -79,7 +86,9 @@ export const NavigationBar = (props) => {
             open={open}
             onClose={handleClose}
           >
-            <Nav.Link href="/report">Report</Nav.Link>
+            <Nav.Link href="/report" style={{ color: "black" }}>
+              Report
+            </Nav.Link>
             {/* <MenuItem onClick={props.history.}>Report</MenuItem> */}
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>

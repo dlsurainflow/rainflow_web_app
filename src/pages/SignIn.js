@@ -20,7 +20,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { Redirect } from "react-router-dom";
 
-import AlertMessage from "../components/AlertMessage";
+// import AlertMessage from "../components/AlertMessage";
 
 function Copyright() {
   return (
@@ -65,6 +65,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const SignIn = (props) => {
   const classes = useStyles();
+  console.log("Props: " + props);
 
   //   handleChange(e) {
   // // this.setState({ username: event.state.username, password: event.state.password });
@@ -112,8 +113,10 @@ export const SignIn = (props) => {
             console.log("token: " + response.data.data.token);
             localStorage.setItem("userID", response.data.data.userID);
             localStorage.setItem("token", response.data.data.token);
-            props.history.push("/");
-            // return <Redirect to="/" />;
+            localStorage.setItem("username", response.data.data.username);
+            this.props.setIsLoggedin(true);
+            // props.history.push("/");
+            return <Redirect to="/" />;
           }
         },
         (error) => {
@@ -133,7 +136,7 @@ export const SignIn = (props) => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Log in
+          Login
         </Typography>
         <form className={classes.form} noValidate>
           <TextField
@@ -171,11 +174,11 @@ export const SignIn = (props) => {
             {isLoading ? <CircularProgress /> : "Log In"}
           </Button>
           <Grid container>
-            {/* <Grid item xs>
-              <Link href="#" variant="body2">
+            <Grid item xs>
+              <Link href="/forgot-password" variant="body2">
                 Forgot password?
               </Link>
-            </Grid> */}
+            </Grid>
             <Grid item>
               <Link href="#" variant="body2">
                 {"Don't have an account? Sign Up"}

@@ -14,6 +14,7 @@ import { About } from "./pages/About";
 import { ResetPassword } from "./pages/ResetPassword";
 import { ResetPasswordWithParams } from "./pages/ResetPasswordWithParams";
 import { ForgotPassword } from "./pages/ForgotPassword";
+import { ChangePassword } from "./pages/ChangePassword";
 import { Logout } from "./pages/Logout";
 import { Layout } from "./components/Layout";
 import { NavigationBar } from "./components/NavigationBar";
@@ -77,7 +78,7 @@ function App(props) {
       />
       <Route exact path="/reset-password/" component={ResetPassword} />
       <Route exact path="/forgot-password" component={ForgotPassword} />
-
+      <Route exact path="/change-password" component={ChangePassword} />
       <Route
         exact
         path="/login"

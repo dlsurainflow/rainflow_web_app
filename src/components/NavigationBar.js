@@ -43,7 +43,7 @@ export const NavigationBar = (props) => {
 
   return (
     <Navbar bg="dark" variant="dark" expands="lg">
-      <Navbar.Brand href="#home">
+      <Navbar.Brand href="/">
         <img
           alt=""
           src={logo}
@@ -55,6 +55,8 @@ export const NavigationBar = (props) => {
       <Nav className="mr-auto">
         <Nav.Link href="/">Home</Nav.Link>
         <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+        <Nav.Link href="/about">About</Nav.Link>
+        <Nav.Link href="/docs">Docs</Nav.Link>
       </Nav>
 
       {/* {auth && (

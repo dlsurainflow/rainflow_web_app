@@ -80,8 +80,8 @@ export const ForgotPassword = () => {
     if (validator.isEmail(email)) {
       axios
         .post(
-          // "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/forgot-password",
-          "http://localhost:8085/users/forgot-password",
+          "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/forgot-password",
+          // "http://localhost:8085/users/forgot-password",
           {
             email: email,
           }
@@ -153,8 +153,8 @@ export const ForgotPassword = () => {
           autoHideDuration={6000}
           onClose={handleClose}
         >
-          <Alert onClose={handleClose} severity="warning">
-            Unable to log in using provided credentials.
+          <Alert onClose={handleClose} severity="error">
+            Error. Please try again.
           </Alert>
         </Snackbar>
         <Snackbar

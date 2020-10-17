@@ -25,8 +25,8 @@ function Map() {
 
 export const Home = () => {
   return (
-    // <Container>
-    <Map />
-    // </Container>
+    <Container>
+      <Map />
+    </Container>
   );
 };

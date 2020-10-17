@@ -7,14 +7,20 @@ import { Typography } from "@material-ui/core";
 import { Modal, Button } from "react-bootstrap";
 import moment from "moment";
 import Image from "react-bootstrap/Image";
-import { Map, TileLayer, Marker, Popup } from "react-leaflet";
+// import { Map, TileLayer, Marker, Popup } from "react-leaflet";
+import ReactMapGL, { Marker } from "react-map-gl";
 import leaflet from "leaflet";
+import HashLoader from "react-spinners/HashLoader";
+import LocationOnIcon from "@material-ui/icons/LocationOn";
 
 export const Report = () => {
   // const classes = useStyles();
-  const [rows, setRows] = useState([]);
+  const [rowsActive, setRowsActive] = useState([]);
+  const [rowsArchived, setRowsArchived] = useState([]);
   const [modalInfo, setModalInfo] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [withoutNoDataText, setwithoutNoDataText] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -33,14 +39,13 @@ export const Report = () => {
     getGitHubUserWithFetch();
   }, []);
 
-  const getReportDetails = async () => {
-    try {
-    } catch (e) {
-      console.error(e);
-    }
+  const options = {
+    noDataText: "No reports found.",
+    withoutNoDataText: true,
   };
 
   const getGitHubUserWithFetch = async () => {
+    setLoading(true);
     const userID = localStorage.getItem("userID");
     const token = localStorage.getItem("token");
     // console.log("User: " + user);
@@ -54,10 +59,18 @@ export const Report = () => {
         }
       )
       .then((response) => {
+        setLoading(false);
         console.log(response);
         console.log("Data: " + response.data);
         // rows = response.data;
-        setRows(response.data);
+        // setRows(response.data);
+        // console.log(response.data);
+        setRowsActive(response.data.active);
+        setRowsArchived(response.data.archive);
+        console.log(!Object.keys(response.data.active).length);
+        if (!Object.keys(response.data).length) {
+          setwithoutNoDataText(true);
+        }
         console.log("Rows: " + JSON.stringify(response.data));
       });
   };
@@ -83,6 +96,20 @@ export const Report = () => {
       iconUrl: require("leaflet/dist/images/marker-icon.png"),
       // shadowUrl: require ("leaflet/dist/images/marker-shadow.png"),
     });
+    var imgExists;
+    if (modalInfo.image === null) imgExists = false;
+    else imgExists = true;
+
+    const viewport = {
+      width: "22.5vw",
+      height: "25vh",
+      latitude: modalInfo.latitude,
+      longitude: modalInfo.longitude,
+      zoom: 16,
+    };
+
+    const TOKEN =
+      "pk.eyJ1Ijoid2lseWZyZWRkaWUiLCJhIjoiY2s0bTQ4dWkzMTNhZDNrcThkcWRnZG00aiJ9.uSqu6RO986ym7qQt_guHSg";
 
     return (
       <Modal show={show} onHide={handleClose}>
@@ -98,19 +125,34 @@ export const Report = () => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {/* <Container>
-              <Map center={position} zoom="15">
-                <TileLayer
-                  // attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={position} icon={icon}>
-                  <Popup>
-                    A pretty CSS3 popup. <br /> Easily customizable.
-                  </Popup>
+            <div>
+              <h6>Location</h6>
+            </div>
+            <div>
+              <ReactMapGL mapboxApiAccessToken={TOKEN} {...viewport}>
+                <Marker
+                  latitude={modalInfo.latitude}
+                  longitude={modalInfo.longitude}
+                  offsetLeft={-20}
+                  offsetTop={-10}
+                >
+                  <LocationOnIcon style={{ color: "#d50000" }} />
                 </Marker>
-              </Map>
-            </Container> */}
+              </ReactMapGL>
+              {/*<div>
+                <Map center={position} zoom="15">
+                  <TileLayer
+                    // attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={position} icon={icon}>
+                    <Popup>
+                      A pretty CSS3 popup. <br /> Easily customizable.
+                    </Popup>
+                  </Marker>
+                </Map>
+              </div> */}
+            </div>
             <div>
               <h6>Rainfall Amount</h6> {modalInfo.rainfall_rate}
             </div>
@@ -118,12 +160,16 @@ export const Report = () => {
               <h6>Flood Depth</h6>
               {modalInfo.flood_depth}
             </div>
-            <div>
-              <h6>Image</h6>
-            </div>
-            <div>
-              <Image src={imgURI} fluid />
-            </div>
+            {imgExists ? (
+              <div>
+                <div>
+                  <h6>Image</h6>
+                </div>
+                <div>
+                  <Image src={imgURI} fluid />
+                </div>
+              </div>
+            ) : null}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
@@ -135,20 +181,71 @@ export const Report = () => {
     );
   };
 
+  const style = {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+  };
+
   return (
-    <Container>
+    <Container alignItems="center">
       {/* <div className={classes.paper}> */}
-      <Typography component="h1" variant="h5">
-        Report History
-      </Typography>
+
+      {loading ? (
+        <div style={style}>
+          <HashLoader
+            // css={override}
+            size={100}
+            color={"#26c6da"}
+            loading={loading}
+          />
+        </div>
+      ) : (
+        <Container>
+          <Typography component="h1" variant="h4">
+            Report History
+          </Typography>
+          <Typography component="h5" variant="h6">
+            Active
+          </Typography>
+          <BootstrapTable
+            keyField="id"
+            data={rowsActive}
+            columns={columns}
+            pagination={paginationFactory()}
+            rowEvents={rowEvents}
+            options={options}
+          />
+          <Typography component="h5" variant="h6">
+            Archived
+          </Typography>
+          <BootstrapTable
+            keyField="id"
+            data={rowsArchived}
+            columns={columns}
+            pagination={paginationFactory()}
+            rowEvents={rowEvents}
+            options={options}
+          />
+        </Container>
+      )}
+      {/* <HashLoader
+        // css={override}
+        size={150}
+        color={"#123abc"}
+        loading={loading}
+      />
       <BootstrapTable
         keyField="id"
         data={rows}
         columns={columns}
         pagination={paginationFactory()}
         rowEvents={rowEvents}
-      />
+        options={options}
+      /> */}
       {show ? <ModalContent /> : null}
+      {/* </div> */}
       {/* </div> */}
     </Container>
   );

@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
 export const ResetPasswordWithParams = (props) => {
   let { token_params, email_params } = useParams();
   const classes = useStyles();
-  const [token, setToken] = useState(token_params);
+  const [token, setToken] = useState(decodeURIComponent(token_params));
   const [email, setEmail] = useState(email_params);
   const [tokenDisabled, setTokenDisabled] = useState(true);
   const [emailDisabled, setEmailDisabled] = useState(true);

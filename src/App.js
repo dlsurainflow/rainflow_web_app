@@ -18,8 +18,9 @@ import { Logout } from "./pages/Logout";
 import { Layout } from "./components/Layout";
 import { NavigationBar } from "./components/NavigationBar";
 import { MobileMap } from "./pages/MobileMap";
-import PublicRoute from "./auth/PublicRoute";
-import PrivateRoute from "./auth/PrivateRoute";
+import { Docs } from "./pages/Docs";
+// import PublicRoute from "./auth/PublicRoute";
+// import PrivateRoute from "./auth/PrivateRoute";
 import Container from "@material-ui/core/Container";
 
 function App(props) {
@@ -51,6 +52,7 @@ function App(props) {
       <Route exact path="/register" component={SignUp} />
       <Route exact path="/report" component={Report} />
       <Route exact path="/about" component={About} />
+      <Route exact path="/docs" component={Docs} />
       <Route
         exact
         path="/logout"

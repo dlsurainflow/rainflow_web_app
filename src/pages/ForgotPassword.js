@@ -80,7 +80,8 @@ export const ForgotPassword = () => {
     if (validator.isEmail(email)) {
       axios
         .post(
-          "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/forgot-password",
+          // "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/forgot-password",
+          "http://localhost:8085/users/forgot-password",
           {
             email: email,
           }

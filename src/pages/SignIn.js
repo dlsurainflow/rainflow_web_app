@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 
 // export const Report = () => {};
 
-export const SignIn = (props) => {
+export const SignIn = (props, setLoggedIn) => {
   const classes = useStyles();
   console.log("Props: " + props);
 
@@ -85,6 +85,10 @@ export const SignIn = (props) => {
     setOpenWarning(false);
     setOpenError(false);
   };
+
+  function setLoggedIn() {
+    props.handleLoggedIn();
+  }
 
   function handleSubmit(event) {
     setIsLoading(true);
@@ -114,9 +118,11 @@ export const SignIn = (props) => {
             localStorage.setItem("userID", response.data.data.userID);
             localStorage.setItem("token", response.data.data.token);
             localStorage.setItem("username", response.data.data.username);
-            this.props.setIsLoggedin(true);
-            // props.history.push("/");
-            return <Redirect to="/" />;
+            // this.props.setIsLoggedin(true);
+
+            setLoggedIn();
+            props.history.push("/");
+            // <Redirect to="/" />;
           }
         },
         (error) => {

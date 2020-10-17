@@ -1,4 +1,13 @@
-import React from "react";
+import React, { Fragment, useEffect } from "react";
 import { Container } from "react-bootstrap";
+import { NavigationBar } from "./NavigationBar";
+import { useLocation } from "react-router-dom";
 
-export const Layout = (props) => <Container>{props.children}</Container>;
+export const Layout = (props) => {
+  return (
+    <Fragment>
+      <NavigationBar isLoggedin={props.isLoggedin} />
+      <Container>{props.children}</Container>
+    </Fragment>
+  );
+};

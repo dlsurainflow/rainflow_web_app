@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactMapGL from "react-map-gl";
 import Container from "@material-ui/core/Container";
 
@@ -23,10 +23,11 @@ function Map() {
   );
 }
 
-export const Home = () => {
+export const MobileMap = (props) => {
+  // useEffect(() => props.setIsNavBarHidden(true));
   return (
-    <Container>
-      <Map />
-    </Container>
+    // <Container>
+    <Map />
+    // </Container>
   );
 };

@@ -1,14 +1,15 @@
 import React from "react";
 import { Navbar, Nav } from "react-bootstrap";
-import Styled from "styled-components";
-import { useHistory } from "react-router-dom";
+// import Styled from "styled-components";
+// import { useHistory } from "react-router-dom";
 import logo from "../assets/rainflow_logo.png";
 import MenuItem from "@material-ui/core/MenuItem";
 import IconButton from "@material-ui/core/IconButton";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Menu from "@material-ui/core/Menu";
-import grey from "@material-ui/core/colors/red";
-import { Router } from "react-router-dom";
+// import grey from "@material-ui/core/colors/red";
+// import { Router } from "react-router-dom";
+import username from "../services/username";
 
 export const NavigationBar = (props) => {
   // const localUser = JSON.parse(localStorage.getItem("user")) || {};
@@ -22,6 +23,9 @@ export const NavigationBar = (props) => {
   //   setAuth(event.target.checked);
   // };
 
+  const loggedIn = Boolean(localStorage.getItem("token"));
+  const username = localStorage.getItem("username");
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -32,17 +36,14 @@ export const NavigationBar = (props) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    // useHistory.push("/");
-    // Router.go({ path: "Home" });
-    // props.
-    // return <Redirect to="/" />;
+
     props.history.push("/");
     // this.router.push("/");
   };
 
   return (
     <Navbar bg="dark" variant="dark" expands="lg">
-      <Navbar.Brand href="#home">
+      <Navbar.Brand href="/">
         <img
           alt=""
           src={logo}
@@ -53,15 +54,18 @@ export const NavigationBar = (props) => {
       </Navbar.Brand>
       <Nav className="mr-auto">
         <Nav.Link href="/">Home</Nav.Link>
-        <Nav.Link href="/report">Report</Nav.Link>
+        <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+        <Nav.Link href="/about">About</Nav.Link>
+        <Nav.Link href="/docs">Docs</Nav.Link>
       </Nav>
 
       {/* {auth && (
         
       )} */}
 
-      {auth ? (
+      {props.isLoggedin ? (
         <div>
+          {/* {username} */}
           <IconButton
             aria-label="account of current user"
             aria-controls="menu-appbar"
@@ -87,10 +91,13 @@ export const NavigationBar = (props) => {
             onClose={handleClose}
           >
             <Nav.Link href="/report" style={{ color: "black" }}>
-              Report
+              Reports
+            </Nav.Link>
+            <Nav.Link href="/logout" style={{ color: "black" }}>
+              Logout
             </Nav.Link>
             {/* <MenuItem onClick={props.history.}>Report</MenuItem> */}
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            {/* <MenuItem onClick={handleLogout}>Logout</MenuItem> */}
           </Menu>
         </div>
       ) : (

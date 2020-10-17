@@ -93,6 +93,9 @@ export const NavigationBar = (props) => {
             <Nav.Link href="/report" style={{ color: "black" }}>
               Reports
             </Nav.Link>
+            <Nav.Link href="/change-password" style={{ color: "black" }}>
+              Change Password
+            </Nav.Link>
             <Nav.Link href="/logout" style={{ color: "black" }}>
               Logout
             </Nav.Link>

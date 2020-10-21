@@ -12,8 +12,6 @@ import ReactMapGL, { Marker } from "react-map-gl";
 import leaflet from "leaflet";
 import HashLoader from "react-spinners/HashLoader";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
-import GpsFixedIcon from "@material-ui/icons/GpsFixed";
-import ImageIcon from "@material-ui/icons/Image";
 import { WiRain, WiFlood } from "weather-icons-react";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import Grid from "@material-ui/core/Grid";
@@ -203,22 +201,27 @@ export const Report = () => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
               <Grid item xs={6}>
+                {/* <hr /> */}
                 <Typography variant="subtitle1">Rainfall Rate</Typography>
                 <Typography variant="subtitle2" color={rainColor}>
                   <WiRain size={35} color={rainColor} />
                   {rainText}
                 </Typography>
+                {/* <hr /> */}
               </Grid>
               <Grid item xs={6}>
+                {/* <hr /> */}
                 <Typography variant="subtitle1">Flood</Typography>
                 <Typography variant="subtitle2" color={floodColor}>
                   <WiFlood size={35} color={floodColor} />
                   {floodText}
                 </Typography>
+                {/* <hr /> */}
               </Grid>
               <Grid item xs={12}>
+                {/* <hr /> */}
                 <Typography variant="subtitle1">Location</Typography>
                 <ReactMapGL mapboxApiAccessToken={TOKEN} {...viewport}>
                   <Marker
@@ -230,11 +233,14 @@ export const Report = () => {
                     <LocationOnIcon style={{ color: "#d50000" }} />
                   </Marker>
                 </ReactMapGL>
+                {/* <hr /> */}
               </Grid>
               {imgExists ? (
                 <Grid item xs={12}>
+                  {/* <hr /> */}
                   <Typography variant="subtitle1">Image</Typography>
                   <Image src={imgURI} fluid />
+                  {/* <hr /> */}
                 </Grid>
               ) : null}
             </Grid>

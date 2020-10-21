@@ -18,7 +18,7 @@ import { ChangePassword } from "./pages/ChangePassword";
 import { Logout } from "./pages/Logout";
 import { Layout } from "./components/Layout";
 import { NavigationBar } from "./components/NavigationBar";
-import { MobileMap } from "./pages/MobileMap";
+import {MobileMap } from "./pages/MobileMap";
 import { Docs } from "./pages/Docs";
 // import PublicRoute from "./auth/PublicRoute";
 // import PrivateRoute from "./auth/PrivateRoute";

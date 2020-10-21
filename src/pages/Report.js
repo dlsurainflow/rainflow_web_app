@@ -12,6 +12,15 @@ import ReactMapGL, { Marker } from "react-map-gl";
 import leaflet from "leaflet";
 import HashLoader from "react-spinners/HashLoader";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
+import GpsFixedIcon from "@material-ui/icons/GpsFixed";
+import ImageIcon from "@material-ui/icons/Image";
+import { WiRain, WiFlood } from "weather-icons-react";
+import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+import Grid from "@material-ui/core/Grid";
+import GREEN from "@material-ui/core/colors/green";
+import RED from "@material-ui/core/colors/red";
+import YELLOW from "@material-ui/core/colors/yellow";
+import ORANGE from "@material-ui/core/colors/orange";
 
 export const Report = () => {
   // const classes = useStyles();
@@ -28,7 +37,16 @@ export const Report = () => {
 
   const columns = [
     { dataField: "id", text: "Report ID" },
-    { dataField: "createdAt", text: "Time " },
+    { dataField: "createdAt", text: "Time ", sort: true },
+    { dataField: "latitude", text: "Latitude" },
+    { dataField: "longitude", text: "Longitude" },
+    { dataField: "rainfall_rate", text: "Rainfall Rate" },
+    { dataField: "flood_depth", text: "Flood Depth" },
+  ];
+
+  const columnsArchived = [
+    { dataField: "id", text: "Report ID" },
+    { dataField: "createdAt", text: "Time ", sort: true },
     { dataField: "latitude", text: "Latitude" },
     { dataField: "longitude", text: "Longitude" },
     { dataField: "rainfall_rate", text: "Rainfall Rate" },
@@ -101,7 +119,7 @@ export const Report = () => {
     else imgExists = true;
 
     const viewport = {
-      width: "22.5vw",
+      width: "100%",
       height: "25vh",
       latitude: modalInfo.latitude,
       longitude: modalInfo.longitude,
@@ -111,65 +129,115 @@ export const Report = () => {
     const TOKEN =
       "pk.eyJ1Ijoid2lseWZyZWRkaWUiLCJhIjoiY2s0bTQ4dWkzMTNhZDNrcThkcWRnZG00aiJ9.uSqu6RO986ym7qQt_guHSg";
 
+    var floodText, floodColor;
+    if (modalInfo.flood_depth <= 10) {
+      floodText = "No Flood";
+      floodColor = GREEN[500];
+    } else if (modalInfo.flood_depth > 10 && modalInfo.flood_depth <= 25) {
+      floodText = "Ankle Deep";
+      floodColor = RED[200];
+    } else if (modalInfo.flood_depth > 25 && modalInfo.flood_depth <= 70) {
+      floodText = "Waist Deep";
+      floodColor = RED[300];
+    } else if (modalInfo.flood_depth > 70 && modalInfo.flood_depth <= 120) {
+      floodText = "Neck Deep";
+      floodColor = RED[400];
+    } else if (modalInfo.flood_depth > 120 && modalInfo.flood_depth <= 160) {
+      floodText = "Top of Head Deep";
+      floodColor = RED[500];
+    } else if (modalInfo.flood_depth > 160 && modalInfo.flood_depth <= 200) {
+      floodText = "1-Storey High";
+      floodColor = RED[600];
+    } else if (modalInfo.flood_depth > 200 && modalInfo.flood_depth <= 300) {
+      floodText = "1.5-Storey High";
+      floodColor = RED[700];
+    } else if (modalInfo.flood_depth > 300 && modalInfo.flood_depth <= 400) {
+      floodText = "2-Storey High or Higher";
+      floodColor = RED[800];
+    } else if (modalInfo.flood_depth > 400) {
+      floodText = "2-Storey Higher";
+      floodColor = RED[900];
+    }
+
+    var rainText, rainColor;
+    if (modalInfo.rainfall_rate === 0) {
+      rainText = "No Rain";
+      rainColor = GREEN[500];
+    } else if (modalInfo.rainfall_rate > 0 && modalInfo.rainfall_rate < 2.5) {
+      rainText = "Light Rain";
+      rainColor = GREEN[700];
+    } else if (
+      modalInfo.rainfall_rate >= 2.5 &&
+      modalInfo.rainfall_rate < 7.5
+    ) {
+      rainText = "Moderate Rain";
+      rainColor = GREEN[900];
+    } else if (modalInfo.rainfall_rate >= 7.5 && modalInfo.rainfall_rate < 15) {
+      rainText = "Heavy Rain";
+      rainColor = YELLOW[500];
+    } else if (modalInfo.rainfall_rate >= 15 && modalInfo.rainfall_rate < 30) {
+      rainText = "Intense Rain";
+      rainColor = ORANGE[500];
+    } else if (modalInfo.rainfall_rate >= 30) {
+      rainText = "Torrential Rain";
+      rainColor = RED[900];
+    }
+
     return (
       <Modal show={show} onHide={handleClose}>
         <Container>
           <Modal.Header closeButton>
             <Modal.Title>
-              <div>
-                <h4>Report ID {modalInfo.id}</h4>
-              </div>
-              <div>
-                <h5>{date}</h5>
-              </div>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <Typography component="h4" variant="h5" color={rainColor}>
+                    Report ID {modalInfo.id}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography component="h4" variant="h6" color={rainColor}>
+                    {date}
+                  </Typography>
+                </Grid>
+              </Grid>
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <div>
-              <h6>Location</h6>
-            </div>
-            <div>
-              <ReactMapGL mapboxApiAccessToken={TOKEN} {...viewport}>
-                <Marker
-                  latitude={modalInfo.latitude}
-                  longitude={modalInfo.longitude}
-                  offsetLeft={-20}
-                  offsetTop={-10}
-                >
-                  <LocationOnIcon style={{ color: "#d50000" }} />
-                </Marker>
-              </ReactMapGL>
-              {/*<div>
-                <Map center={position} zoom="15">
-                  <TileLayer
-                    // attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <Marker position={position} icon={icon}>
-                    <Popup>
-                      A pretty CSS3 popup. <br /> Easily customizable.
-                    </Popup>
+            <Grid container spacing={3}>
+              <Grid item xs={6}>
+                <Typography variant="subtitle1">Rainfall Rate</Typography>
+                <Typography variant="subtitle2" color={rainColor}>
+                  <WiRain size={35} color={rainColor} />
+                  {rainText}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle1">Flood</Typography>
+                <Typography variant="subtitle2" color={floodColor}>
+                  <WiFlood size={35} color={floodColor} />
+                  {floodText}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle1">Location</Typography>
+                <ReactMapGL mapboxApiAccessToken={TOKEN} {...viewport}>
+                  <Marker
+                    latitude={modalInfo.latitude}
+                    longitude={modalInfo.longitude}
+                    offsetLeft={-20}
+                    offsetTop={-10}
+                  >
+                    <LocationOnIcon style={{ color: "#d50000" }} />
                   </Marker>
-                </Map>
-              </div> */}
-            </div>
-            <div>
-              <h6>Rainfall Amount</h6> {modalInfo.rainfall_rate}
-            </div>
-            <div>
-              <h6>Flood Depth</h6>
-              {modalInfo.flood_depth}
-            </div>
-            {imgExists ? (
-              <div>
-                <div>
-                  <h6>Image</h6>
-                </div>
-                <div>
+                </ReactMapGL>
+              </Grid>
+              {imgExists ? (
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1">Image</Typography>
                   <Image src={imgURI} fluid />
-                </div>
-              </div>
-            ) : null}
+                </Grid>
+              ) : null}
+            </Grid>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
@@ -203,50 +271,44 @@ export const Report = () => {
         </div>
       ) : (
         <Container>
-          <Typography component="h1" variant="h4">
-            Report History
-          </Typography>
-          <Typography component="h5" variant="h6">
-            Active
-          </Typography>
-          <BootstrapTable
-            keyField="id"
-            data={rowsActive}
-            columns={columns}
-            pagination={paginationFactory()}
-            rowEvents={rowEvents}
-            options={options}
-          />
-          <Typography component="h5" variant="h6">
-            Archived
-          </Typography>
-          <BootstrapTable
-            keyField="id"
-            data={rowsArchived}
-            columns={columns}
-            pagination={paginationFactory()}
-            rowEvents={rowEvents}
-            options={options}
-          />
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Typography component="h1" variant="h4">
+                Report History
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography component="h5" variant="h6">
+                Active
+              </Typography>
+              <BootstrapTable
+                keyField="id"
+                hover="true"
+                data={rowsActive}
+                columns={columns}
+                pagination={paginationFactory()}
+                rowEvents={rowEvents}
+                options={options}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography component="h5" variant="h6">
+                Archived
+              </Typography>
+              <BootstrapTable
+                keyField="id"
+                hover="true"
+                data={rowsArchived}
+                columns={columnsArchived}
+                pagination={paginationFactory()}
+                rowEvents={rowEvents}
+                options={options}
+              />
+            </Grid>
+          </Grid>
         </Container>
       )}
-      {/* <HashLoader
-        // css={override}
-        size={150}
-        color={"#123abc"}
-        loading={loading}
-      />
-      <BootstrapTable
-        keyField="id"
-        data={rows}
-        columns={columns}
-        pagination={paginationFactory()}
-        rowEvents={rowEvents}
-        options={options}
-      /> */}
       {show ? <ModalContent /> : null}
-      {/* </div> */}
-      {/* </div> */}
     </Container>
   );
 };

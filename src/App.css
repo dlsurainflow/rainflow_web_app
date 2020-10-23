@@ -34,6 +34,29 @@
   z-index: 0;
 }
 
+.modal-body {
+  background-color:#F9F9FB;
+  padding: 5px;
+}
+
+.modal-main{
+  min-width: 100%;
+  bottom: 0;
+  position: absolute;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  align-self: center;
+}
+
+.modal-main-web{
+  min-width: 28%;
+  max-width: 28%;
+  right: 0;
+  position: absolute;
+  margin-right: 30;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

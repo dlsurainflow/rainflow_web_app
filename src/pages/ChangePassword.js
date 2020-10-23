@@ -95,7 +95,7 @@ export const ChangePassword = (props) => {
       console.log("email:", email, "Password: ", password, "Token: ", token);
       axios
         .post(
-          "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/change-password",
+          "https://rainflow.live/api/users/change-password",
           {
             password: password,
             new_password: new_password,

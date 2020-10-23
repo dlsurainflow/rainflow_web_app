@@ -72,6 +72,8 @@ export const ResetPassword = (props) => {
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -92,15 +94,13 @@ export const ResetPassword = (props) => {
       setErrorMessage("Passwords do not match!");
     } else {
       console.log("email:", email, "Password: ", password, "Token: ", token);
+      const url = "https://rainflow.live/api/users/reset-password";
       axios
-        .post(
-          "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/reset-password",
-          {
-            token: token,
-            email: email,
-            password: password,
-          }
-        )
+        .post(proxyurl + url, {
+          token: token,
+          email: email,
+          password: password,
+        })
         .then(
           (response) => {
             console.log(response);

@@ -32,6 +32,8 @@ export const Report = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const columns = [
     { dataField: "id", text: "Report ID" },
@@ -66,14 +68,11 @@ export const Report = () => {
     const token = localStorage.getItem("token");
     // console.log("User: " + user);
     axios
-      .get(
-        `https://cors-anywhere.herokuapp.com/https://rainflow.live/api/report/user/${userID}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get(proxyurl + `https://rainflow.live/api/report/user/${userID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         setLoading(false);
         console.log(response);

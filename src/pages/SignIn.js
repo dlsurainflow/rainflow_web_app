@@ -76,6 +76,8 @@ export const SignIn = (props, setLoggedIn) => {
   const [isLoading, setIsLoading] = useState(false);
   const [openWarning, setOpenWarning] = useState(false);
   const [openError, setOpenError] = useState(false);
+  const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -91,6 +93,7 @@ export const SignIn = (props, setLoggedIn) => {
   }
 
   function handleSubmit(event) {
+    const url = "https://rainflow.live/api/users/login";
     setIsLoading(true);
     event.preventDefault();
     console.log("Username:", username, "Password: ", password);
@@ -101,13 +104,10 @@ export const SignIn = (props, setLoggedIn) => {
       })
     );
     axios
-      .post(
-        "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/login",
-        {
-          username: username,
-          password: password,
-        }
-      )
+      .post(proxyurl + url, {
+        username: username,
+        password: password,
+      })
       .then(
         (response) => {
           console.log(response);

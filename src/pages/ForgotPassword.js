@@ -63,6 +63,8 @@ export const ForgotPassword = () => {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -75,17 +77,14 @@ export const ForgotPassword = () => {
   };
 
   function handleSubmit(event) {
+    const url = "https://rainflow.live/api/users/forgot-password";
     setIsLoading(true);
     event.preventDefault();
     if (validator.isEmail(email)) {
       axios
-        .post(
-          "https://cors-anywhere.herokuapp.com/https://rainflow.live/api/users/forgot-password",
-          // "http://localhost:8085/users/forgot-password",
-          {
-            email: email,
-          }
-        )
+        .post(proxyurl + url, {
+          email: email,
+        })
         .then(
           (response) => {
             console.log(response);

@@ -22,12 +22,14 @@
     "react-bootstrap-table2-paginator": "^2.1.2",
     "react-dom": "^16.13.1",
     "react-leaflet": "^2.7.0",
+    "react-lottie": "^1.2.3",
     "react-map-gl": "^5.2.9",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "react-spinners": "^0.9.0",
     "styled-components": "^5.2.0",
-    "validator": "^13.1.17"
+    "validator": "^13.1.17",
+    "weather-icons-react": "^1.2.0"
   },
   "scripts": {
     "start": "react-scripts start",

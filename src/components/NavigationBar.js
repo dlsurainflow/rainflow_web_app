@@ -1,15 +1,15 @@
 import React from "react";
-import { Navbar, Nav, NavItem, NavDropdown } from "react-bootstrap";
+import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 // import Styled from "styled-components";
 // import { useHistory } from "react-router-dom";
 import logo from "../assets/rainflow_logo.png";
-import MenuItem from "@material-ui/core/MenuItem";
-import IconButton from "@material-ui/core/IconButton";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import Menu from "@material-ui/core/Menu";
+// import MenuItem from "@material-ui/core/MenuItem";
+// import IconButton from "@material-ui/core/IconButton";
+// import AccountCircle from "@material-ui/icons/AccountCircle";
+// import Menu from "@material-ui/core/Menu";
 // import grey from "@material-ui/core/colors/red";
 // import { Router } from "react-router-dom";
-import username from "../services/username";
+// import username from "../services/username";
 import MenuIcon from "@material-ui/icons/Menu";
 
 export const NavigationBar = (props) => {

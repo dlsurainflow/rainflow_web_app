@@ -22,9 +22,9 @@ function MapFunction() {
   const [mobileMarkers, setMobileMarkers] = useState();
   const [isOpen, setIsOpen] = useState();
   const [nodeType, setNodeType] = useState("RAFT");
-  //const proxyurl = "";
+  const proxyurl = "";
   
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -54,8 +54,8 @@ function MapFunction() {
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
-   // const proxyurl = "";
+    //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+   const proxyurl = "";
     const url = "https://rainflow.live/api/map/all";
 
     await fetch(proxyurl + url, {

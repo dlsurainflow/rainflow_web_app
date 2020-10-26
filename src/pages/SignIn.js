@@ -76,8 +76,8 @@ export const SignIn = (props, setLoggedIn) => {
   const [isLoading, setIsLoading] = useState(false);
   const [openWarning, setOpenWarning] = useState(false);
   const [openError, setOpenError] = useState(false);
-  //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {

@@ -32,8 +32,8 @@ export const Report = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const columns = [
     { dataField: "id", text: "Report ID" },

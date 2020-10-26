@@ -44,8 +44,8 @@ export const Home = () => {
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
-  //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -92,8 +92,8 @@ export const Home = () => {
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
-     const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    //const proxyurl = "";
+    // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const proxyurl = "";
     const url = "https://rainflow.live/api/map/all";
 
     await fetch(proxyurl + url, {
@@ -113,8 +113,8 @@ export const Home = () => {
   };
 
   const fetchSummary = async () => {
-     const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    //const proxyurl = "";
+     //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const proxyurl = "";
     const url = "https://rainflow.live/api/map/summary";
 
     await fetch(proxyurl + url, {

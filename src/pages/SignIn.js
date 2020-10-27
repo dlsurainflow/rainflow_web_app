@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -18,7 +18,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 // import Alert from "@material-ui/lab/Alert";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import { Redirect } from "react-router-dom";
+// import { Redirect } from "react-router-dom";
 
 // import AlertMessage from "../components/AlertMessage";
 
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 
 // export const Report = () => {};
 
-export const SignIn = (props, setLoggedIn) => {
+export const SignIn = (props) => {
   const classes = useStyles();
   console.log("Props: " + props);
 
@@ -186,7 +186,7 @@ export const SignIn = (props, setLoggedIn) => {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/signup" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>

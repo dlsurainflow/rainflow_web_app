@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -9,7 +9,7 @@ import { Home } from "./pages/Home";
 import { Report } from "./pages/Report";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
-import { NoMatch } from "./pages/NoMatch";
+// import { NoMatch } from "./pages/NoMatch";
 import { About } from "./pages/About";
 import { ResetPassword } from "./pages/ResetPassword";
 import { ResetPasswordWithParams } from "./pages/ResetPasswordWithParams";
@@ -17,12 +17,12 @@ import { ForgotPassword } from "./pages/ForgotPassword";
 import { ChangePassword } from "./pages/ChangePassword";
 // import { Logout } from "./pages/Logout";
 import { Layout } from "./components/Layout";
-import { NavigationBar } from "./components/NavigationBar";
+// import { NavigationBar } from "./components/NavigationBar";
 import { MobileMap } from "./pages/MobileMap";
 import { Docs } from "./pages/Docs";
 // import PublicRoute from "./auth/PublicRoute";
 // import PrivateRoute from "./auth/PrivateRoute";
-import Container from "@material-ui/core/Container";
+// import Container from "@material-ui/core/Container";
 
 function App(props) {
   var [isLoggedin, setIsLoggedin] = useState(
@@ -50,7 +50,7 @@ function App(props) {
     <Layout isLoggedin={isLoggedin}>
       <Route exact path="/" component={Home} />
 
-      <Route exact path="/register" component={SignUp} />
+      <Route exact path="/signup" component={SignUp} />
       <Route exact path="/report" component={Report} />
       <Route exact path="/about" component={About} />
       <Route exact path="/docs" component={Docs} />
@@ -73,10 +73,10 @@ function App(props) {
         }}
       />
       <Route
-        path="/reset-password/:token_params/:email_params"
+        path="/resetpassword/:token_params/:email_params"
         component={ResetPasswordWithParams}
       />
-      <Route exact path="/reset-password/" component={ResetPassword} />
+      <Route exact path="/reset-password" component={ResetPassword} />
       <Route exact path="/forgot-password" component={ForgotPassword} />
       <Route exact path="/change-password" component={ChangePassword} />
       <Route

@@ -3,8 +3,8 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+// import FormControlLabel from "@material-ui/core/FormControlLabel";
+// import Checkbox from "@material-ui/core/Checkbox";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
@@ -12,12 +12,12 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import { useParams } from "react-router";
+// import { useParams } from "react-router";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import { Redirect } from "react-router-dom";
+// import { Redirect } from "react-router-dom";
 
 function Copyright() {
   return (
@@ -60,8 +60,8 @@ const useStyles = makeStyles((theme) => ({
 export const ChangePassword = (props) => {
   // let { token_params, email_params } = useParams();
   const classes = useStyles();
-  const [token, setToken] = useState("");
-  const [email, setEmail] = useState("");
+  // const [token, setToken] = useState("");
+  // const [email, setEmail] = useState("");
   // const [tokenDisabled, setTokenDisabled] = useState(true);
   // const [emailDisabled, setEmailDisabled] = useState(true);
   const [password, setPassword] = useState();
@@ -92,7 +92,7 @@ export const ChangePassword = (props) => {
       setOpenError(true);
       setErrorMessage("Passwords do not match!");
     } else {
-      console.log("email:", email, "Password: ", password, "Token: ", token);
+      // console.log("email:", email, "Password: ", password, "Token: ", token);
       axios
         .post(
           "https://rainflow.live/api/users/change-password",
@@ -108,7 +108,7 @@ export const ChangePassword = (props) => {
         )
         .then(
           (response) => {
-            console.log(response);
+            // console.log(response);
             setIsLoading(false);
             if (response.status === 200) {
               setOpenSuccess(true);
@@ -120,8 +120,8 @@ export const ChangePassword = (props) => {
             setIsLoading(false);
             setErrorMessage(error.response.data.message);
             setOpenError(true);
-            console.log(error);
-            console.log("Error Status Code: " + error);
+            // console.log(error);
+            // console.log("Error Status Code: " + error);
           }
         );
     }
@@ -173,7 +173,7 @@ export const ChangePassword = (props) => {
                 required
                 fullWidth
                 name="password1"
-                label="Enter Password Again"
+                label="Enter New Password Again"
                 type="password"
                 id="password1"
                 autoComplete="current-password1"

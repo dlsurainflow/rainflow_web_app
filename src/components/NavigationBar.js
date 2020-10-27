@@ -16,31 +16,31 @@ export const NavigationBar = (props) => {
   // const localUser = JSON.parse(localStorage.getItem("user")) || {};
   // console.log("Local User: " + localUser);
   // console.log("Local User2: " + localStorage.hasOwnProperty("user"));
-  const [auth, setAuth] = React.useState(localStorage.hasOwnProperty("user"));
+  // const [auth, setAuth] = React.useState(localStorage.hasOwnProperty("user"));
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  // const open = Boolean(anchorEl);
 
   // const handleChange = (event) => {
   //   setAuth(event.target.checked);
   // };
 
-  const loggedIn = Boolean(localStorage.getItem("token"));
-  const username = localStorage.getItem("username");
+  // const loggedIn = Boolean(localStorage.getItem("token"));
+  // const username = localStorage.getItem("username");
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // const handleMenu = (event) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  // const handleClose = () => {
+  //   setAnchorEl(null);
+  // };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
+  // const handleLogout = () => {
+  //   localStorage.removeItem("user");
 
-    props.history.push("/");
-    // this.router.push("/");
-  };
+  //   props.history.push("/");
+  //   // this.router.push("/");
+  // };
 
   // return (
   //   <Navbar inverse collapseOnSelect>
@@ -115,7 +115,7 @@ export const NavigationBar = (props) => {
           ) : (
             <div>
               <NavDropdown.Item href="/login">Login</NavDropdown.Item>
-              <NavDropdown.Item href="/register">Register</NavDropdown.Item>
+              <NavDropdown.Item href="/signup">Sign Up</NavDropdown.Item>
             </div>
           )}
         </NavDropdown>

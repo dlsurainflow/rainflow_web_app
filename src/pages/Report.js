@@ -242,6 +242,10 @@ export const Report = () => {
                   {/* <hr /> */}
                 </Grid>
               ) : null}
+              <Grid item xs={12}>
+                <Typography variant="subtitle1">Description</Typography>
+                {modalInfo.description}
+              </Grid>
             </Grid>
           </Modal.Body>
           <Modal.Footer>

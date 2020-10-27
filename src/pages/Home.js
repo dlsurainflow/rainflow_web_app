@@ -30,6 +30,9 @@ import ViewList from '@material-ui/icons/ViewList';
 import { makeStyles } from "@material-ui/core/styles";
 import { borders, shadows } from '@material-ui/system';
 import Box from '@material-ui/core/Box';
+import L from 'leaflet';
+import * as nominatim from 'nominatim-geocode';
+
 
 
 export const Home = () => {
@@ -44,8 +47,11 @@ export const Home = () => {
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
+  const customMarker = L.icon({ iconUrl:' https://rainflow.live/api/images/badges/1.png', iconSize: [50, 50], iconAnchor:   [22, 94]})
   const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+
+  
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -92,8 +98,6 @@ export const Home = () => {
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
-    // const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    const proxyurl = "";
     const url = "https://rainflow.live/api/map/all";
 
     await fetch(proxyurl + url, {
@@ -113,8 +117,6 @@ export const Home = () => {
   };
 
   const fetchSummary = async () => {
-     //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    const proxyurl = "";
     const url = "https://rainflow.live/api/map/summary";
 
     await fetch(proxyurl + url, {
@@ -143,6 +145,7 @@ export const Home = () => {
             <Marker
               key={data.id}
               position={[data.latitude, data.longitude]}
+              icon={ customMarker }
               onclick={() => {
                 setNodeType("RAFT");
                 onSideSheetHandler();
@@ -172,6 +175,7 @@ export const Home = () => {
         mapData.mobile.map((data) => {
           return (
             <Marker
+              icon={ customMarker }
               key={data.id}
               position={[data.latitude, data.longitude]}
               onclick={() => {
@@ -191,16 +195,15 @@ export const Home = () => {
       fetchSummary()
    
     }else{
-     
+    
+        
         summaryData[0].map((data)=>{
-          rainSwitch(data.rainfall_rate_title, data.address)
-          floodSwitch(data.flood_depth_title, data.address)
+          reverseGeocoder(data.latitude, data.longitude, data.rainfall_rate_title, data.flood_depth_title);
           return(null)
          })
-
-         summaryData[1].map((data)=>{
-          rainSwitch(data.rainfall_rate_title, data.address)
-          floodSwitch(data.flood_depth_title, data.address)
+  
+        summaryData[1].map((data)=>{
+          reverseGeocoder(data.latitude, data.longitude, data.rainfall_rate_title, data.flood_depth_title);
           return(null)
          })
   
@@ -209,6 +212,15 @@ export const Home = () => {
     }
   },[summaryData])
 
+  const reverseGeocoder = (lat, lon, rainfall, flood, id) =>{
+    nominatim.reverse({ lat: lat, lon: lon }, (err, result) => {
+      if(!err) 
+       var address = `${result.address.road}, ${result.address.neighbourhood}, ${result.address.suburb}, ${result.address.city}`
+       rainSwitch(rainfall, address)
+       floodSwitch(flood, address)
+
+    });
+  }
   const rainSwitch = (level, address) =>{
     switch(level){
       case 'No Rain': return setNoRain((current)=>[...current, address]);

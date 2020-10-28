@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
+
 import { Map, Marker, TileLayer, Popup} from "react-leaflet";
+
 import { Container } from "react-bootstrap";
 import "../App.css";
-import { 
-  Pane, 
-  Heading, 
-  Card, 
-  Text, 
-  CornerDialog, 
-  Position, 
-  InfoSignIcon, 
+import {
+  Pane,
+  Heading,
+  Card,
+  Text,
+  CornerDialog,
+  Position,
+  InfoSignIcon,
   Popover,
   Tab,
   Tablist,
+  Tooltip,
+  Paragraph,
 } from "evergreen-ui";
 import {
   WiRain,
@@ -20,26 +24,29 @@ import {
   WiThermometer,
   WiBarometer,
   WiHumidity,
+  WiRaindrops,
 } from "weather-icons-react";
 import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
+import Button from "react-bootstrap/Button";
 import moment from "moment";
 import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
-import IconButton from '@material-ui/core/IconButton';
-import ViewList from '@material-ui/icons/ViewList';
+import IconButton from "@material-ui/core/IconButton";
+import InfoIcon from "@material-ui/icons/Info";
+import ViewList from "@material-ui/icons/ViewList";
 import { makeStyles } from "@material-ui/core/styles";
+
 import { borders, shadows } from '@material-ui/system';
 import Box from '@material-ui/core/Box';
 import L from 'leaflet';
 import * as nominatim from 'nominatim-geocode';
 
 
-
 export const Home = () => {
   const windowHeight = window.innerHeight;
   const classes = useStyles();
   const [mapData, setMapData] = useState();
-  const [summaryData, setSummaryData] = useState()
+  const [summaryData, setSummaryData] = useState();
   const [raftMarkers, setRaftMarkers] = useState();
   const [mobileMarkers, setMobileMarkers] = useState();
   const [isOpen, setIsOpen] = useState();
@@ -47,12 +54,13 @@ export const Home = () => {
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
+
   const [markerName, setMarkerName] = useState("");
  
   const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
-  
+
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -60,11 +68,18 @@ export const Home = () => {
     altitude: null,
     flood_depth: null,
     rainfall_amount: null,
+    rainfall_rate: null,
     temperature: null,
     pressure: null,
     humidity: null,
     username: null,
     updatedAt: null,
+    charts: null,
+    FD1: [],
+    TMP1: [],
+    RA1: [],
+    PR1: [],
+    HU1: [],
   });
   const [reportInfo, setReportInfo] = useState({
     id: null,
@@ -78,27 +93,29 @@ export const Home = () => {
     upvote: null,
     downvote: null,
     currentAction: null,
+    description: null,
   });
 
-  const [noRain, setNoRain] = useState([])
-  const [lightRain, setLightRain] = useState([])
-  const [modRain, setModRain] = useState([])
-  const [heavyRain, setHeavyRain] = useState([])
-  const [intenseRain, setIntenseRain] = useState([])
-  const [torrentialRain, setTorrentialRain] = useState([])
+  const [noRain, setNoRain] = useState([]);
+  const [lightRain, setLightRain] = useState([]);
+  const [modRain, setModRain] = useState([]);
+  const [heavyRain, setHeavyRain] = useState([]);
+  const [intenseRain, setIntenseRain] = useState([]);
+  const [torrentialRain, setTorrentialRain] = useState([]);
 
-  const [noFlood, setNoFlood] = useState([])
-  const [ankle, setAnkle] = useState([])
-  const [waist, setWaist] = useState([])
-  const [neck, setNeck] = useState([])
-  const [head, setHead] = useState([])
-  const [storey1, setStorey1] = useState([])
-  const [storey2, setStorey2] = useState([])
-  const [storey15, setStorey15] = useState([])
- 
+  const [noFlood, setNoFlood] = useState([]);
+  const [ankle, setAnkle] = useState([]);
+  const [waist, setWaist] = useState([]);
+  const [neck, setNeck] = useState([]);
+  const [head, setHead] = useState([]);
+  const [storey1, setStorey1] = useState([]);
+  const [storey2, setStorey2] = useState([]);
+  const [storey15, setStorey15] = useState([]);
+
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
+
     const url = "https://rainflow.live/api/map/all";
 
     await fetch(proxyurl + url, {
@@ -118,6 +135,7 @@ export const Home = () => {
   };
 
   const fetchSummary = async () => {
+
     const url = "https://rainflow.live/api/map/summary";
 
     await fetch(proxyurl + url, {
@@ -130,7 +148,7 @@ export const Home = () => {
       .then((response) => {
         if (response.status === 200)
           response.json().then((data) => {
-            setSummaryData(data)
+            setSummaryData(data);
           });
       })
       .catch((error) => console.error("Error:", error));
@@ -198,21 +216,47 @@ export const Home = () => {
               }}
               onclick={() => {
                 setNodeType("RAFT");
-                onSideSheetHandler();
-                setRaftInfo({
-                  id: data.id,
-                  latitude: data.latitude,
-                  longitude: data.longitude,
-                  altitude: data.altitude,
-                  flood_depth: data.flood_depth,
-                  rainfall_amount: data.rainfall_amount,
-                  temperature: data.temperature,
-                  humidity: data.humidity,
-                  pressure: data.pressure,
-                  username: data.username,
-                  updatedAt: moment(data.updatedAt).format(
-                    "DD MMM YYYY (dddd) HH:mm"
-                  ),
+                //setSummaryData(data);
+               // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
                 });
               }}
             >
@@ -221,6 +265,7 @@ export const Home = () => {
           );
         })
       );
+
       console.log("Mobile: ", mapData.mobile);
       console.log("RAFT: ", mapData.raft);
       setMobileMarkers(
@@ -247,9 +292,9 @@ export const Home = () => {
           );
         })
       );
-
     }
   }, [mapData]);
+
 
   useEffect(()=>{
     if(summaryData == null){
@@ -258,7 +303,9 @@ export const Home = () => {
     }else{
     
         
-        summaryData[0].map((data)=>{
+        
+
+[0].map((data)=>{
           reverseGeocoder(data.latitude, data.longitude, data.rainfall_rate_title, data.flood_depth_title);
           return(null)
          })
@@ -273,7 +320,8 @@ export const Home = () => {
         }
    
     }
-  },[summaryData])
+  }, [summaryData]);
+
 
   const reverseGeocoder = (lat, lon, rainfall, flood, id) =>{
     nominatim.reverse({ lat: lat, lon: lon }, (err, result) => {
@@ -293,25 +341,36 @@ export const Home = () => {
       case 'Intense Rain' : return setIntenseRain((current)=>[...current, address]);
       case 'Torrential Rain': return setTorrentialRain((current)=>[...current, address]);
       default: return null;
-    }
-  }
 
-  const floodSwitch = (level, address) =>{
-    switch(level){
-      case 'No Flood': return setNoFlood((current)=>[...current, address]);
-      case 'Ankle Deep': return setAnkle((current)=>[...current, address]);
-      case 'Waist Deep': return setWaist((current)=>[...current, address]);
-      case 'Neck Deep' : return setNeck((current)=>[...current, address]);
-      case 'Top of Head Deep' : return setHead((current)=>[...current, address]);
-      case '1-Storey High': return setStorey1((current)=>[...current, address]);
-      case '1.5-Storey High': return setStorey15((current)=>[...current, address]);
-      case '2-Storey or Higher': return setStorey2((current)=>[...current, address]);
-      default: return null;
     }
+  };
 
-  }
+  const floodSwitch = (level, address) => {
+    switch (level) {
+      case "No Flood":
+        return setNoFlood((current) => [...current, address]);
+      case "Ankle Deep":
+        return setAnkle((current) => [...current, address]);
+      case "Waist Deep":
+        return setWaist((current) => [...current, address]);
+      case "Neck Deep":
+        return setNeck((current) => [...current, address]);
+      case "Top of Head Deep":
+        return setHead((current) => [...current, address]);
+      case "1-Storey High":
+        return setStorey1((current) => [...current, address]);
+      case "1.5-Storey High":
+        return setStorey15((current) => [...current, address]);
+      case "2-Storey or Higher":
+        return setStorey2((current) => [...current, address]);
+      default:
+        return null;
+    }
+  };
 
   const reportInfoHandler = async (id, username) => {
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    // const proxyurl = "";
     const url = `https://rainflow.live/api/report/${id}`;
     var token = await localStorage.getItem("token");
     var header;
@@ -350,6 +409,7 @@ export const Home = () => {
             upvote: data.upvote,
             downvote: data.downvote,
             currentAction: data.currentAction,
+            description: data.description,
           });
           onSideSheetHandler();
         });
@@ -373,6 +433,11 @@ export const Home = () => {
       humidity: null,
       username: null,
       updatedAt: null,
+      FD1: [],
+      TMP1: [],
+      RA1: [],
+      PR1: [],
+      HU1: [],
     });
 
     setReportInfo({
@@ -396,381 +461,300 @@ export const Home = () => {
 
   return (
     <>
-    <Container maxWidth = {false} className = {classes.popover}>
-      <Popover
-      className = {classes.root}
-      isShown = {showPopover}
-      onBodyClick = {()=>setShowPopover(false)}
-      onOpen = {()=>setShowPopover(true)}
-      content={
-        <Pane
-          width={410}
-          height={550}
-          display="flex"
-          alignItems="flex-start"
-          justifyContent="flex-start"
-          flexDirection="column"
-          overflow = "auto"
-        >
-          <Pane width = "100%" height = {110}  padding = {20} justifyContent = "center" alignItems = "center">
-            <Heading> LEGEND HERE </Heading>
-          </Pane>
-          <Tablist
-            width = "100%"
-            padding = {10}
-            backgroundColor = "#F1FBFC"
+      <Container maxWidth={false} className={classes.popover}>
+        <Popover
+          className={classes.root}
+          isShown={showPopover}
+          onBodyClick={() => setShowPopover(false)}
+          onOpen={() => setShowPopover(true)}
+          content={
+            <Pane
+              width={410}
+              height={550}
+              display="flex"
+              alignItems="flex-start"
+              justifyContent="flex-start"
+              flexDirection="column"
+              overflow="auto"
             >
-            <Tab
-              id = "flood"
-              onSelect={()=>setTabIndex(0)}
-              isSelected ={tabIndex === 0}
-              aria-controls = {`panel-flood`}
-              >
-                Areas by Flood Level
-              </Tab>
-            <Tab
-              id = "flood"
-              onSelect={()=>setTabIndex(1)}
-              isSelected ={tabIndex === 1}
-              aria-controls = {`panel-rain`}
-              >
-                Areas by Rain Intensity Level
-              </Tab>
-                </Tablist>
-              
               <Pane
-                width = "100%"
-                flexGrow = {1}
-                overflow = "auto"
-                padding = {20}
-                backgroundColor = "#F9F9FB"
+                width="100%"
+                height={110}
+                padding={20}
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Heading> LEGEND HERE </Heading>
+              </Pane>
+              <Tablist width="100%" padding={10} backgroundColor="#F1FBFC">
+                <Tab
+                  id="flood"
+                  onSelect={() => setTabIndex(0)}
+                  isSelected={tabIndex === 0}
+                  aria-controls={`panel-flood`}
+                >
+                  Areas by Flood Level
+                </Tab>
+                <Tab
+                  id="flood"
+                  onSelect={() => setTabIndex(1)}
+                  isSelected={tabIndex === 1}
+                  aria-controls={`panel-rain`}
+                >
+                  Areas by Rain Intensity Level
+                </Tab>
+              </Tablist>
+
+              <Pane
+                width="100%"
+                flexGrow={1}
+                overflow="auto"
+                padding={20}
+                backgroundColor="#F9F9FB"
                 id={`panel-flood`}
                 role="tabpanel"
                 aria-labelledby="flood"
-                aria-hidden={tabIndex === 0? false : true}
-                display={tabIndex === 0 ? 'block' : 'none'}
+                aria-hidden={tabIndex === 0 ? false : true}
+                display={tabIndex === 0 ? "block" : "none"}
               >
-               
-               <Card flexDirection = "column" display = {noFlood.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>No flood (0 - 0.1 meters): </Heading>
-                 { noFlood.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {ankle.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Ankle Deep (0.1 - 0.25 meters): </Heading>
-                 { ankle.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {waist.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Waist Deep (0.7 - 1.2 meters): </Heading>
-                 { waist.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {neck.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Neck Deep (1.2 - 1.6 meters): </Heading>
-                 {neck.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {head.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Top of Head Deep (1.6 - 2.0 meters): </Heading>
-                 { head.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {storey1.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>1-Storey High (2.0 - 3.0 meters):</Heading>
-                 { storey1.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {storey15.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>1.5-Storey High (3.0 - 4.5 meters): </Heading>
-                 { storey15.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {storey2.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}> 
-                 <Heading>2-Storey or Higher (4.5+ meters):</Heading>
-                 { storey2.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-                
-               
+                <Card
+                  flexDirection="column"
+                  display={noFlood.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>No flood (0 - 0.1 meters): </Heading>
+                  {noFlood.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={ankle.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Ankle Deep (0.1 - 0.25 meters): </Heading>
+                  {ankle.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={waist.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Waist Deep (0.7 - 1.2 meters): </Heading>
+                  {waist.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={neck.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Neck Deep (1.2 - 1.6 meters): </Heading>
+                  {neck.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={head.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Top of Head Deep (1.6 - 2.0 meters): </Heading>
+                  {head.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={storey1.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>1-Storey High (2.0 - 3.0 meters):</Heading>
+                  {storey1.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={storey15.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>1.5-Storey High (3.0 - 4.5 meters): </Heading>
+                  {storey15.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={storey2.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>2-Storey or Higher (4.5+ meters):</Heading>
+                  {storey2.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
               </Pane>
               <Pane
-                width = "100%"
-                flexGrow = {1}
-                padding = {20}
-                backgroundColor = "#F9F9FB"
+                width="100%"
+                flexGrow={1}
+                padding={20}
+                backgroundColor="#F9F9FB"
                 id={`panel-rain`}
                 role="tabpanel"
                 aria-labelledby="rain"
-                aria-hidden={tabIndex === 1? false : true}
-                display={tabIndex === 1 ? 'block' : 'none'}
+                aria-hidden={tabIndex === 1 ? false : true}
+                display={tabIndex === 1 ? "block" : "none"}
               >
-               
-               <Card flexDirection = "column" display = {noRain.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>No rain (0 mm/hr): </Heading>
-                 { noRain.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {lightRain.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Light Rain (0.01 - 2.5 mm/hr):</Heading>
-                 { lightRain.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {modRain.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Moderate Rain (2.5 - 7.5 mm/hr):</Heading>
-                 { modRain.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {heavyRain.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Heavy Rain (7.5 - 15 mm/hr):</Heading>
-                 {heavyRain.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {intenseRain.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Intense Rain (15 - 30 mm/hr):</Heading>
-                 { intenseRain.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               <Card flexDirection = "column" display = {torrentialRain.length > 0 ? 'inline-flex' : 'none'} marginBottom = {20}>
-                 <Heading>Torrential Rain (30+ mm/hr):</Heading>
-                 { torrentialRain.map((address)=>{
-                    return (<Text paddingBottom = {4.5}>- {address}</Text>)
-                  }
-                  )}
-               </Card>
-               
+                <Card
+                  flexDirection="column"
+                  display={noRain.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>No rain (0 mm/hr): </Heading>
+                  {noRain.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={lightRain.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Light Rain (0.01 - 2.5 mm/hr):</Heading>
+                  {lightRain.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={modRain.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Moderate Rain (2.5 - 7.5 mm/hr):</Heading>
+                  {modRain.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={heavyRain.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Heavy Rain (7.5 - 15 mm/hr):</Heading>
+                  {heavyRain.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={intenseRain.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Intense Rain (15 - 30 mm/hr):</Heading>
+                  {intenseRain.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
+                  display={torrentialRain.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Torrential Rain (30+ mm/hr):</Heading>
+                  {torrentialRain.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
               </Pane>
+            </Pane>
+          }
+          position={Position.TOP_LEFT}
+        >
+          <Box borderColor="grey.400" border={1} boxShadow={3}>
+            <IconButton
+              className={classes.customHoverFocus}
+              size="small"
+              aria-label="delete"
+            >
+              <ViewList />
+            </IconButton>
+          </Box>
+        </Popover>
+      </Container>
 
-        </Pane>    
-      }
-      position={Position.TOP_LEFT}
-    
-    >
-      <Box borderColor="grey.400" border = {1} boxShadow={3}>
-      <IconButton className={classes.customHoverFocus} size = "small" aria-label="delete">
-        <ViewList />
-      </IconButton>
-      </Box>
-
-    </Popover>
-    </Container>
-
+      {/* Report/Raft Info Sidebar */}
       <Modal
         show={isOpen}
         onHide={handleClose}
         dialogClassName="modal-main-web"
         animation={false}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <Pane flex="1" flexDirection="row" backgroundColor="#fff">
-              <Pane display = "inline-flex" flexDirection="column" padding={10}>
-                <Heading size={700}>
-                  {nodeType === "RAFT" ? "RAFT DEVICE" : "Report ID: "}{" "}
-                  {nodeType === "RAFT" ? null : reportInfo.id}
-                </Heading>
-              <Text size={500}>
-                {nodeType === "RAFT" ? (raftInfo.updatedAt) : (reportInfo.updatedAt)}
-              </Text>
-                <Text size={500}>
-                  {nodeType === "RAFT" ? "Owned by: " : "Reported by: "}
-                  {nodeType === "RAFT"
-                    ? raftInfo.username
-                    : reportInfo.username}{" "}
-                </Text>
-              </Pane>
-            </Pane>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="modal-body">
-          <Pane
-            flex="1"
-            height={windowHeight * 0.8}
-            overflow={"auto"}
-            background="#F9F9FB"
-            paddingX={5}
-            margin={0}
-          >
-            {nodeType === "Mobile" ? (
-              <>
-                <Pane
-                  flexDirection="row"
+        {nodeType === "Mobile" ? (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <Pane flex="1" flexDirection="row" backgroundColor="#fff">
+                  <Pane
+                    display="inline-flex"
+                    flexDirection="column"
+                    padding={10}
+                  >
+                    <Heading size={700}>Report ID {reportInfo.id}</Heading>
+                    <Text size={500}>{reportInfo.updatedAt}</Text>
+                    <Text size={500}>Reported by {reportInfo.username}</Text>
+                    <Pane
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Button variant="success">
+                        <HandThumbsUp color="white" size={20} />{" "}
+                        {reportInfo.upvote}
+                      </Button>{" "}
+                      <Button variant="danger">
+                        <HandThumbsDown color="white" size={20} />{" "}
+                        {reportInfo.downvote}
+                      </Button>
+                    </Pane>
+                  </Pane>
+                </Pane>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="modal-body">
+              <Pane
+                flex="1"
+                height={windowHeight * 0.8}
+                overflow={"auto"}
+                background="#F9F9FB"
+                paddingX={5}
+                margin={0}
+              >
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  height={65}
                   display="flex"
                   alignItems="center"
-                  justifyContent="space-around"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
                 >
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    height={90}
-                    width={windowWidth * 0.45}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    flexDirection="column"
-                  >
-                    <Pane
-                      flexDirection="row"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <HandThumbsUp color="green" size={25} />
-                    </Pane>
-                    <Heading size={600} color="green">
-                      {" "}
-                      {reportInfo.upvote}
-                    </Heading>
-                  </Card>
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    height={90}
-                    width={windowWidth * 0.45}
-                    display="flex"
-                    alignItems="center"
-                    alignContent="center"
-                    justifyContent="center"
-                    flexDirection="column"
-                    padding={20}
-                  >
-                    <Pane
-                      flexDirection="row"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <HandThumbsDown color="red" size={25} />
-                    </Pane>
-                    <Heading size={600} color="red">
-                      {" "}
-                      {reportInfo.downvote}
-                    </Heading>
-                  </Card>
-                </Pane>
-              </>
-            ) : null}
-
-    
-            <Card
-              backgroundColor="white"
-              elevation={0}
-              height={65}
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-start"
-              alignContent="center"
-              padding={20}
-              marginY={10}
-            >
-              <WiRain size={40} color="black" />
-              <Heading size={100} marginLeft={5}>
-                {nodeType === "RAFT" ? "RAINFALL AMOUNT: " : "RAIN INTENSITY:"}
-              </Heading>
-              <Heading size={600} marginLeft={10}>
-                {nodeType === "RAFT"
-                  ? raftInfo.rainfall_amount + " mm/hr"
-                  : reportInfo.rainfall_rate}{" "}
-              </Heading>
-            </Card>
-
-            <Card
-              backgroundColor="white"
-              elevation={0}
-              height={65}
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-start"
-              padding={20}
-              marginY={10}
-            >
-              <WiFlood size={40} color="black" />
-              <Heading size={100} marginLeft={5}>
-                FLOOD DEPTH:
-              </Heading>
-              <Heading size={600} marginLeft={10}>
-                {nodeType === "RAFT"
-                  ? raftInfo.flood_depth + " meters"
-                  : reportInfo.flood_depth}{" "}
-              </Heading>
-            </Card>
-            {nodeType === "RAFT" ? (
-              <>
-                <Pane
-                  flexDirection="row"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-around"
-                >
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    height={90}
-                    width={windowWidth * 0.45}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    flexDirection="column"
-                    padding={20}
-                  >
-                    <Pane
-                      flexDirection="row"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <WiThermometer size={40} color="black" />
-                    </Pane>
-                    <Heading size={600}> {raftInfo.temperature} C</Heading>
-                    <Heading size={100}>TEMPERATURE</Heading>
-                  </Card>
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    height={90}
-                    width={windowWidth * 0.45}
-                    display="flex"
-                    alignItems="center"
-                    alignContent="center"
-                    justifyContent="center"
-                    flexDirection="column"
-                    padding={20}
-                  >
-                    <Pane
-                      flexDirection="row"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <WiHumidity size={40} color="black" />
-                    </Pane>
-                    <Heading size={600}>{raftInfo.humidity}</Heading>
-                    <Heading size={100}>HUMIDITY</Heading>
-                  </Card>
-                </Pane>
-
+                  <WiRain size={30} color="black" />
+                  <Heading size={100} marginLeft={5}>
+                    RAINFALL RATE
+                  </Heading>
+                  <Heading size={600} marginLeft={10}>
+                    {reportInfo.rainfall_rate}
+                  </Heading>
+                  <Heading size={300} marginLeft={5}>
+                    mm/Hr
+                  </Heading>
+                </Card>
                 <Card
                   backgroundColor="white"
                   elevation={0}
@@ -781,56 +765,476 @@ export const Home = () => {
                   padding={20}
                   marginY={10}
                 >
-                  <WiBarometer size={40} color="black" />
+                  <WiFlood size={30} color="black" />
                   <Heading size={100} marginLeft={5}>
-                    PRESSURE:
+                    FLOOD DEPTH
                   </Heading>
                   <Heading size={600} marginLeft={10}>
-                    {raftInfo.pressure}
+                    {reportInfo.flood_depth}
+                  </Heading>
+                  <Heading size={300} marginLeft={5}>
+                    cm
                   </Heading>
                 </Card>
-              </>
-            ) : null}
-            {reportInfo.image != null ? (
-              <Card
-                backgroundColor="white"
-                elevation={0}
-                display="flex"
-                alignItems="center"
-                justifyContent="flex-start"
-                padding={20}
-                marginY={10}
-              >
-                <Pane
-                  flexDirection="column"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Heading size={100}>PHOTO: </Heading>
-                  <Image
-                    src={`https://rainflow.live/api/uploads/reports/${reportInfo.image}`}
-                    fluid
-                  />
-                </Pane>
-              </Card>
-            ) : null}
+                {reportInfo.image !== null ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    padding={20}
+                    marginY={10}
+                  >
+                    <Pane
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Heading size={100}>PHOTO </Heading>
+                      <Image
+                        src={`https://rainflow.live/api/uploads/reports/${reportInfo.image}`}
+                        fluid
+                      />
+                    </Pane>
+                  </Card>
+                ) : null}
+                {reportInfo.description !== null &&
+                reportInfo.description !== "" ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    padding={20}
+                    marginY={10}
+                  >
+                    <Pane
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Heading size={100}>Description </Heading>
+                      <Text>{reportInfo.description}</Text>
+                    </Pane>
+                  </Card>
+                ) : null}
+              </Pane>
+            </Modal.Body>
+          </>
+        ) : null}
 
-            
-          </Pane>
-        </Modal.Body>
+        {nodeType === "RAFT" ? (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <Pane flex="1" flexDirection="row" backgroundColor="#fff">
+                  <Pane
+                    display="inline-flex"
+                    flexDirection="column"
+                    padding={10}
+                  >
+                    <Heading size={700}>RAFT Device</Heading>
+                    <Text size={500}>{raftInfo.updatedAt}</Text>
+                    <Text size={500}>Owned by {raftInfo.username}</Text>
+                  </Pane>
+                </Pane>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="modal-body">
+              <Pane
+                flex="1"
+                height={windowHeight * 0.8}
+                overflow={"auto"}
+                background="#F9F9FB"
+                paddingX={5}
+                margin={0}
+              >
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    // height={windowHeight * 0.8}
+                    width="100%"
+                    // overflow={"auto"}
+                    // background="#F9F9FB"
+                    justifyContent="flex-start"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="row"
+                  >
+                    <WiRain size={30} color="black" />
+                    <Heading size={100} marginLeft={5}>
+                      RAINFALL RATE
+                    </Heading>
+                    <Heading size={600} marginLeft={10}>
+                      {raftInfo.rainfall_rate}
+                    </Heading>
+                    <Heading size={400} marginLeft={5}>
+                      {"mm/day"}
+                    </Heading>
+                  </Pane>
+                  <Pane
+                    flex="1"
+                    // height={windowHeight * 0.8}
+                    width="100%"
+                    // overflow={"auto"}
+                    // background="#F9F9FB"
+                    justifyContent="flex-start"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="row"
+                  >
+                    <WiRaindrops size={30} color="black" />
+                    <Heading size={100} marginLeft={5}>
+                      TOTAL RAINFALL AMOUNT
+                    </Heading>
+                    <Heading size={600} marginLeft={10}>
+                      {raftInfo.rainfall_amount}
+                    </Heading>
+                    <Heading size={300} marginLeft={5}>
+                      {"mm/day"}
+                    </Heading>
+                  </Pane>
+
+                  {raftInfo.RA1 !== null || raftInfo.RA1 !== "" ? (
+                    <Pane flex="1" width="100%">
+                      <Line
+                        data={{
+                          labels: raftInfo.RA1.map((k) =>
+                            moment.unix(k.time).format("h:mm")
+                          ),
+                          datasets: [
+                            {
+                              data: raftInfo.RA1.map((k) => k.value),
+                              fill: true,
+                              // width: "125%",
+                              // height: "75%",
+                              backgroundColor: "#00695c",
+                              borderColor: "#00796b",
+                            },
+                          ],
+                        }}
+                        options={{
+                          aspectRatio: 1,
+                          // maintainAspectRatio: false,
+                          legend: {
+                            display: false,
+                          },
+                          scales: {
+                            xAxes: [{ display: false }],
+                            yAxes: [{ display: true }],
+                          },
+                        }}
+                      />
+                    </Pane>
+                  ) : null}
+                </Card>
+
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    // height={windowHeight * 0.8}
+                    width="100%"
+                    // overflow={"auto"}
+                    // background="#F9F9FB"
+                    justifyContent="flex-start"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="row"
+                  >
+                    <WiFlood size={30} color="black" />
+                    <Heading size={100} marginLeft={5}>
+                      FLOOD DEPTH
+                    </Heading>
+                    <Heading size={600} marginLeft={10}>
+                      {raftInfo.flood_depth}
+                    </Heading>
+                    <Heading size={300} marginLeft={5}>
+                      {"cm"}
+                    </Heading>
+                  </Pane>
+                  {raftInfo.FD1 !== null || raftInfo.FD1 !== "" ? (
+                    <Pane flex="1" width="100%" height="50%">
+                      <Line
+                        data={{
+                          labels: raftInfo.FD1.map((k) =>
+                            moment.unix(k.time).format("h:mm")
+                          ),
+                          datasets: [
+                            {
+                              data: raftInfo.FD1.map((k) => k.value),
+                              fill: true,
+                              // width: "125%",
+                              height: "50%",
+                              backgroundColor: "#00695c",
+                              borderColor: "#00796b",
+                            },
+                          ],
+                        }}
+                        options={{
+                          aspectRatio: 0.5,
+                          // maintainAspectRatio: false,
+                          legend: {
+                            display: false,
+                          },
+                          scales: {
+                            xAxes: [{ display: false }],
+                            yAxes: [{ display: true }],
+                          },
+                        }}
+                      />
+                    </Pane>
+                  ) : null}
+                </Card>
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    // height={windowHeight * 0.8}
+                    width="100%"
+                    // overflow={"auto"}
+                    // background="#F9F9FB"
+                    justifyContent="flex-start"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="row"
+                  >
+                    <WiThermometer size={30} color="black" />
+                    <Heading size={100} marginLeft={5}>
+                      Temperature
+                    </Heading>
+                    <Heading size={600} marginLeft={10}>
+                      {raftInfo.temperature}
+                    </Heading>
+                    <Heading size={300} marginLeft={5}>
+                      {"°C"}
+                    </Heading>
+                  </Pane>
+                  {raftInfo.temperature !== null &&
+                  raftInfo.temperature !== 0 ? (
+                    <Pane flex="1" width="100%" height="50%">
+                      <Line
+                        data={{
+                          labels: raftInfo.TMP1.map((k) =>
+                            moment.unix(k.time).format("h:mm")
+                          ),
+                          datasets: [
+                            {
+                              data: raftInfo.TMP1.map((k) => k.value),
+                              fill: true,
+                              // width: "125%",
+                              height: "50%",
+                              backgroundColor: "#00695c",
+                              borderColor: "#00796b",
+                            },
+                          ],
+                        }}
+                        options={{
+                          aspectRatio: 0.5,
+                          // maintainAspectRatio: false,
+                          legend: {
+                            display: false,
+                          },
+                          scales: {
+                            xAxes: [{ display: false }],
+                            yAxes: [{ display: true }],
+                          },
+                        }}
+                      />
+                    </Pane>
+                  ) : null}
+                </Card>
+                {raftInfo.pressure !== null && raftInfo.pressure !== 0 ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    alignContent="center"
+                    padding={20}
+                    marginY={10}
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiBarometer size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        Pressure
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.pressure}
+                      </Heading>
+                      <Heading size={300} marginLeft={5}>
+                        {"mmBar"}
+                      </Heading>
+                    </Pane>
+
+                    <Pane flex="1" width="100%" height="50%">
+                      <Line
+                        data={{
+                          labels: raftInfo.PR1.map((k) =>
+                            moment.unix(k.time).format("h:mm")
+                          ),
+                          datasets: [
+                            {
+                              data: raftInfo.PR1.map((k) => k.value),
+                              fill: true,
+                              // width: "125%",
+                              height: "50%",
+                              backgroundColor: "#00695c",
+                              borderColor: "#00796b",
+                            },
+                          ],
+                        }}
+                        options={{
+                          aspectRatio: 0.5,
+                          // maintainAspectRatio: false,
+                          legend: {
+                            display: false,
+                          },
+                          scales: {
+                            xAxes: [{ display: false }],
+                            yAxes: [{ display: true }],
+                          },
+                        }}
+                      />
+                    </Pane>
+                  </Card>
+                ) : null}
+                {raftInfo.humidity !== null && raftInfo.humidity !== 0 ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    alignContent="center"
+                    padding={20}
+                    marginY={10}
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiHumidity size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        HUMIDITY
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.humidity}
+                      </Heading>
+                      <Heading size={300} marginLeft={5}>
+                        {"%"}
+                      </Heading>
+                    </Pane>
+
+                    <Pane flex="1" width="100%" height="50%">
+                      <Line
+                        data={{
+                          labels: raftInfo.HU1.map((k) =>
+                            moment.unix(k.time).format("h:mm")
+                          ),
+                          datasets: [
+                            {
+                              data: raftInfo.HU1.map((k) => k.value),
+                              fill: true,
+                              // width: "125%",
+                              height: "50%",
+                              backgroundColor: "#00695c",
+                              borderColor: "#00796b",
+                            },
+                          ],
+                        }}
+                        options={{
+                          aspectRatio: 0.5,
+                          // maintainAspectRatio: false,
+                          legend: {
+                            display: false,
+                          },
+                          scales: {
+                            xAxes: [{ display: false }],
+                            yAxes: [{ display: true }],
+                          },
+                        }}
+                      />
+                    </Pane>
+                  </Card>
+                ) : null}
+              </Pane>
+            </Modal.Body>
+          </>
+        ) : null}
       </Modal>
 
       <CornerDialog
-        title = {<Pane flexDirection = "row" display = "flex" alignItems= "center">
-        <InfoSignIcon size = {20} color="info" marginRight={10} /> <Heading size ={600}>Welcome to RainFLOW!</Heading>
-        </Pane>
-      }
-        isShown = {guideShown}
-        onCloseComplete={()=> setGuideShown(false)}
-        hasFooter = {false}
-        position = {Position.BOTTOM_RIGHT}
-        >
-          Click on any node on the map to view the rain and flood information reported in that area. Toggle the button at the top left to view the marker legend and all the flooded areas grouped by level.
+        title={
+          <Pane flexDirection="row" display="flex" alignItems="center">
+            <InfoSignIcon size={20} color="info" marginRight={10} />{" "}
+            <Heading size={600}>Welcome to RainFLOW!</Heading>
+          </Pane>
+        }
+        isShown={guideShown}
+        onCloseComplete={() => setGuideShown(false)}
+        hasFooter={false}
+        position={Position.BOTTOM_RIGHT}
+      >
+        Click on any node on the map to view the rain and flood information
+        reported in that area. Toggle the button at the top left to view the
+        marker legend and all the flooded areas grouped by level.
       </CornerDialog>
       <Map center={[14.41792, 120.97617919999998]} zoom={15}>
         <TileLayer
@@ -845,7 +1249,6 @@ export const Home = () => {
   );
 };
 
-
 const useStyles = makeStyles({
   popover: {
     position: "absolute",
@@ -853,13 +1256,13 @@ const useStyles = makeStyles({
     top: 150,
     padding: 0,
     zIndex: 1,
-    width : "auto",
+    width: "auto",
   },
   customHoverFocus: {
     "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
     backgroundColor: "white",
     borderRadius: 2,
-    flexWrap: "wrap"
+    flexWrap: "wrap",
   },
-  root:{flexWrap: "wrap"}
+  root: { flexWrap: "wrap" },
 });

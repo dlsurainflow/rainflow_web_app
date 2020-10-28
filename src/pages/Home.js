@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { Map, Marker, TileLayer, Popup} from "react-leaflet";
+import { Map, Marker, TileLayer, Popup } from "react-leaflet";
 
 import { Container } from "react-bootstrap";
 import "../App.css";
@@ -36,11 +36,11 @@ import InfoIcon from "@material-ui/icons/Info";
 import ViewList from "@material-ui/icons/ViewList";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { borders, shadows } from '@material-ui/system';
-import Box from '@material-ui/core/Box';
-import L from 'leaflet';
-import * as nominatim from 'nominatim-geocode';
-
+import { borders, shadows } from "@material-ui/system";
+import Box from "@material-ui/core/Box";
+import L from "leaflet";
+import * as nominatim from "nominatim-geocode";
+import { Line } from "react-chartjs-2";
 
 export const Home = () => {
   const windowHeight = window.innerHeight;
@@ -56,10 +56,9 @@ export const Home = () => {
   const [showPopover, setShowPopover] = useState(false);
 
   const [markerName, setMarkerName] = useState("");
- 
-  const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
+  // const proxyurl = "";
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -115,7 +114,6 @@ export const Home = () => {
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
-
     const url = "https://rainflow.live/api/map/all";
 
     await fetch(proxyurl + url, {
@@ -135,7 +133,6 @@ export const Home = () => {
   };
 
   const fetchSummary = async () => {
-
     const url = "https://rainflow.live/api/map/summary";
 
     await fetch(proxyurl + url, {
@@ -159,7 +156,7 @@ export const Home = () => {
     var flood;
 
     if (rainfall_rate === 0) {
-        rain = "A";
+      rain = "A";
     } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
       rain = "B";
     } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
@@ -191,23 +188,27 @@ export const Home = () => {
     } else if (flood_depth > 450) {
       flood = "I";
     }
-  
-    return  L.icon({ iconUrl:`https://rainflow.live/api/images/marker/0_${rain}${flood}.png`, iconSize: [50, 50], iconAnchor: [28, 47], popupAnchor: [-5, -43]})
+
+    return L.icon({
+      iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${flood}.png`,
+      iconSize: [50, 50],
+      iconAnchor: [28, 47],
+      popupAnchor: [-5, -43],
+    });
   }
-  
+
   useEffect(() => {
     if (mapData == null) {
       fetchData();
     } else {
       setRaftMarkers(
         mapData.raft.map((data) => {
-
-          console.log(markerName)
+          console.log(markerName);
           return (
             <Marker
               key={data.id}
               position={[data.latitude, data.longitude]}
-              icon={ markerPicker(data.rainfall_rate, data.flood_depth)}
+              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
               onMouseOver={(e) => {
                 e.target.openPopup();
               }}
@@ -217,8 +218,8 @@ export const Home = () => {
               onclick={() => {
                 setNodeType("RAFT");
                 //setSummaryData(data);
-               // const proxyurl = "https://cors-anywhere.herokuapp.com/";
-                const proxyurl = "";
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
                 const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
 
                 fetch(proxyurl + url, {
@@ -260,7 +261,10 @@ export const Home = () => {
                 });
               }}
             >
-               <Popup>Rainfall rate: {data.rainfall_rate_title} <br/> Flood depth: {data.flood_depth_title}</Popup>
+              <Popup>
+                Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                {data.flood_depth_title}
+              </Popup>
             </Marker>
           );
         })
@@ -270,10 +274,9 @@ export const Home = () => {
       console.log("RAFT: ", mapData.raft);
       setMobileMarkers(
         mapData.mobile.map((data) => {
- 
           return (
             <Marker
-              icon={ markerPicker(data.rainfall_rate, data.flood_depth) }
+              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
               key={data.id}
               position={[data.latitude, data.longitude]}
               onMouseOver={(e) => {
@@ -287,7 +290,10 @@ export const Home = () => {
                 reportInfoHandler(data.id, data.username);
               }}
             >
-              <Popup>Rainfall rate: {data.rainfall_rate_title} <br/> Flood depth: {data.flood_depth_title}</Popup>
+              <Popup>
+                Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                {data.flood_depth_title}
+              </Popup>
             </Marker>
           );
         })
@@ -295,53 +301,60 @@ export const Home = () => {
     }
   }, [mapData]);
 
+  useEffect(() => {
+    if (summaryData == null) {
+      fetchSummary();
+    } else {
+      [0].map((data) => {
+        reverseGeocoder(
+          data.latitude,
+          data.longitude,
+          data.rainfall_rate_title,
+          data.flood_depth_title
+        );
+        return null;
+      });
 
-  useEffect(()=>{
-    if(summaryData == null){
-      fetchSummary()
-   
-    }else{
-    
-        
-        
+      summaryData[1].map((data) => {
+        reverseGeocoder(
+          data.latitude,
+          data.longitude,
+          data.rainfall_rate_title,
+          data.flood_depth_title
+        );
+        return null;
+      });
 
-[0].map((data)=>{
-          reverseGeocoder(data.latitude, data.longitude, data.rainfall_rate_title, data.flood_depth_title);
-          return(null)
-         })
-  
-        summaryData[1].map((data)=>{
-          reverseGeocoder(data.latitude, data.longitude, data.rainfall_rate_title, data.flood_depth_title);
-          return(null)
-         })
-  
-        if(summaryData[0].length === 0 && summaryData[1].length === 0 ){
-          setShowPopover(true);
-        }
-   
+      if (summaryData[0].length === 0 && summaryData[1].length === 0) {
+        setShowPopover(true);
+      }
     }
   }, [summaryData]);
 
-
-  const reverseGeocoder = (lat, lon, rainfall, flood, id) =>{
+  const reverseGeocoder = (lat, lon, rainfall, flood, id) => {
     nominatim.reverse({ lat: lat, lon: lon }, (err, result) => {
-      if(!err) 
-       var address = `${result.address.road}, ${result.address.neighbourhood}, ${result.address.suburb}, ${result.address.city}`
-       rainSwitch(rainfall, address)
-       floodSwitch(flood, address)
-
+      if (!err)
+        var address = `${result.address.road}, ${result.address.neighbourhood}, ${result.address.suburb}, ${result.address.city}`;
+      rainSwitch(rainfall, address);
+      floodSwitch(flood, address);
     });
-  }
-  const rainSwitch = (level, address) =>{
-    switch(level){
-      case 'No Rain': return setNoRain((current)=>[...current, address]);
-      case 'Light Rain': return setLightRain((current)=>[...current, address]);
-      case 'Moderate Rain': return setModRain((current)=>[...current, address]);
-      case 'Heavy Rain' : return setHeavyRain((current)=>[...current, address]);
-      case 'Intense Rain' : return setIntenseRain((current)=>[...current, address]);
-      case 'Torrential Rain': return setTorrentialRain((current)=>[...current, address]);
-      default: return null;
-
+  };
+  const rainSwitch = (level, address) => {
+    switch (level) {
+      case "No Rain":
+        return setNoRain((current) => [...current, address]);
+      case "Light Rain":
+        return setLightRain((current) => [...current, address]);
+      case "Moderate Rain":
+        return setModRain((current) => [...current, address]);
+      case "Heavy Rain":
+        return setHeavyRain((current) => [...current, address]);
+      case "Intense Rain":
+        return setIntenseRain((current) => [...current, address]);
+      case "Torrential Rain":
+        return setTorrentialRain((current) => [...current, address]);
+      default:
+        return null;
     }
   };
 
@@ -369,7 +382,7 @@ export const Home = () => {
   };
 
   const reportInfoHandler = async (id, username) => {
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    // const proxyurl = "https://cors-anywhere.herokuapp.com/";
     // const proxyurl = "";
     const url = `https://rainflow.live/api/report/${id}`;
     var token = await localStorage.getItem("token");
@@ -1241,7 +1254,7 @@ export const Home = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
-       
+
         {raftMarkers ? raftMarkers : null}
         {mobileMarkers ? mobileMarkers : null}
       </Map>

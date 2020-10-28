@@ -73,7 +73,7 @@ function App(props) {
         }}
       />
       <Route
-        path="/resetpassword/:token_params/:email_params"
+        path="/reset-password/:token_params/:email_params"
         component={ResetPasswordWithParams}
       />
       <Route exact path="/reset-password" component={ResetPassword} />

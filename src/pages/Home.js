@@ -57,8 +57,8 @@ export const Home = () => {
 
   const [markerName, setMarkerName] = useState("");
 
-  // const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,

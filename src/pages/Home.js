@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Map, Marker, TileLayer} from "react-leaflet";
+import { Map, Marker, TileLayer, Popup} from "react-leaflet";
 import { Container } from "react-bootstrap";
 import "../App.css";
 import { 
@@ -47,9 +47,10 @@ export const Home = () => {
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
-  const customMarker = L.icon({ iconUrl:' https://rainflow.live/api/images/badges/1.png', iconSize: [50, 50], iconAnchor:   [22, 94]})
-  const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const [markerName, setMarkerName] = useState("");
+ 
+  //const proxyurl = "";
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   
   const [raftInfo, setRaftInfo] = useState({
@@ -135,17 +136,66 @@ export const Home = () => {
       .catch((error) => console.error("Error:", error));
   };
 
+  function markerPicker(rainfall_rate, flood_depth) {
+    var rain;
+    var flood;
+
+    if (rainfall_rate === 0) {
+        rain = "A";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      rain = "B";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      rain = "C";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      rain = "D";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      rain = "E";
+    } else if (rainfall_rate >= 30) {
+      rain = "F";
+    }
+
+    if (flood_depth <= 10) {
+      flood = "A";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      flood = "B";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      flood = "C";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      flood = "D";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      flood = "E";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      flood = "F";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      flood = "G";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      flood = "H";
+    } else if (flood_depth > 450) {
+      flood = "I";
+    }
+  
+    return  L.icon({ iconUrl:`https://rainflow.live/api/images/marker/0_${rain}${flood}.png`, iconSize: [50, 50], iconAnchor: [28, 47], popupAnchor: [-5, -43]})
+  }
+  
   useEffect(() => {
     if (mapData == null) {
       fetchData();
     } else {
       setRaftMarkers(
         mapData.raft.map((data) => {
+
+          console.log(markerName)
           return (
             <Marker
               key={data.id}
               position={[data.latitude, data.longitude]}
-              icon={ customMarker }
+              icon={ markerPicker(data.rainfall_rate, data.flood_depth)}
+              onMouseOver={(e) => {
+                e.target.openPopup();
+              }}
+              onMouseOut={(e) => {
+                e.target.closePopup();
+              }}
               onclick={() => {
                 setNodeType("RAFT");
                 onSideSheetHandler();
@@ -165,7 +215,9 @@ export const Home = () => {
                   ),
                 });
               }}
-            />
+            >
+               <Popup>Rainfall rate: {data.rainfall_rate_title} <br/> Flood depth: {data.flood_depth_title}</Popup>
+            </Marker>
           );
         })
       );
@@ -173,16 +225,25 @@ export const Home = () => {
       console.log("RAFT: ", mapData.raft);
       setMobileMarkers(
         mapData.mobile.map((data) => {
+ 
           return (
             <Marker
-              icon={ customMarker }
+              icon={ markerPicker(data.rainfall_rate, data.flood_depth) }
               key={data.id}
               position={[data.latitude, data.longitude]}
+              onMouseOver={(e) => {
+                e.target.openPopup();
+              }}
+              onMouseOut={(e) => {
+                e.target.closePopup();
+              }}
               onclick={() => {
                 setNodeType("Mobile");
                 reportInfoHandler(data.id, data.username);
               }}
-            />
+            >
+              <Popup>Rainfall rate: {data.rainfall_rate_title} <br/> Flood depth: {data.flood_depth_title}</Popup>
+            </Marker>
           );
         })
       );
@@ -207,7 +268,9 @@ export const Home = () => {
           return(null)
          })
   
-        setShowPopover(true)
+        if(summaryData[0].length === 0 && summaryData[1].length === 0 ){
+          setShowPopover(true);
+        }
    
     }
   },[summaryData])
@@ -774,7 +837,7 @@ export const Home = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
-
+       
         {raftMarkers ? raftMarkers : null}
         {mobileMarkers ? mobileMarkers : null}
       </Map>

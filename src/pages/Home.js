@@ -305,7 +305,7 @@ export const Home = () => {
     if (summaryData == null) {
       fetchSummary();
     } else {
-      [0].map((data) => {
+      summaryData[0].map((data) => {
         reverseGeocoder(
           data.latitude,
           data.longitude,

@@ -15,6 +15,7 @@ import {
   Popover,
   Tab,
   Tablist,
+  Dialog,
   Tooltip,
   Paragraph,
 } from "evergreen-ui";
@@ -42,7 +43,7 @@ import L from "leaflet";
 import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
 
-export const Home = () => {
+export const Home = (props) => {
   const windowHeight = window.innerHeight;
   const classes = useStyles();
   const [mapData, setMapData] = useState();
@@ -54,6 +55,7 @@ export const Home = () => {
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
+  const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
   const proxyurl = "";
   // const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -487,6 +489,15 @@ export const Home = () => {
   return (
     <>
       <Container maxWidth={false} className={classes.popover}>
+        <Dialog
+          isShown={voteLoggedInDialog}
+          title="You're not logged in."
+          onCloseComplete={() => setVoteLoggedInDialog(false)}
+          onConfirm={() => props.history.push("/login")}
+          confirmLabel="Click here to login"
+        >
+          Please log in to vote.
+        </Dialog>
         <Popover
           className={classes.root}
           isShown={showPopover}
@@ -828,6 +839,8 @@ export const Home = () => {
                                 })
                                 .catch((err) => console.error(err));
                             }
+                          } else {
+                            setVoteLoggedInDialog(true);
                           }
                         }}
                       >
@@ -916,6 +929,8 @@ export const Home = () => {
                                 })
                                 .catch((err) => console.error(err));
                             }
+                          } else {
+                            setVoteLoggedInDialog(true);
                           }
                         }}
                       >

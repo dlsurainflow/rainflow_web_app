@@ -34,7 +34,6 @@ import moment from "moment";
 import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
-import ViewList from "@material-ui/icons/ViewList";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
 import { borders, shadows } from "@material-ui/system";
@@ -57,8 +56,8 @@ export const Home = (props) => {
   const [showPopover, setShowPopover] = useState(false);
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
-  const proxyurl = "";
-  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+ const proxyurl = "";
+ //  const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -513,28 +512,27 @@ export const Home = (props) => {
               flexDirection="column"
               overflow="auto"
             >
-              <Pane
-                width="100%"
-                height={110}
-                padding={20}
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Heading> LEGEND HERE </Heading>
-              </Pane>
               <Tablist width="100%" padding={10} backgroundColor="#F1FBFC">
                 <Tab
-                  id="flood"
+                  id="legend"
                   onSelect={() => setTabIndex(0)}
                   isSelected={tabIndex === 0}
+                  aria-controls={`panel-legend`}
+                >
+                  Legend
+                </Tab>
+                <Tab
+                  id="flood"
+                  onSelect={() => setTabIndex(1)}
+                  isSelected={tabIndex === 1}
                   aria-controls={`panel-flood`}
                 >
                   Areas by Flood Level
                 </Tab>
                 <Tab
                   id="flood"
-                  onSelect={() => setTabIndex(1)}
-                  isSelected={tabIndex === 1}
+                  onSelect={() => setTabIndex(2)}
+                  isSelected={tabIndex === 2}
                   aria-controls={`panel-rain`}
                 >
                   Areas by Rain Intensity Level
@@ -550,8 +548,8 @@ export const Home = (props) => {
                 id={`panel-flood`}
                 role="tabpanel"
                 aria-labelledby="flood"
-                aria-hidden={tabIndex === 0 ? false : true}
-                display={tabIndex === 0 ? "block" : "none"}
+                aria-hidden={tabIndex === 1 ? false : true}
+                display={tabIndex === 1 ? "block" : "none"}
               >
                 <Card
                   flexDirection="column"
@@ -647,13 +645,33 @@ export const Home = (props) => {
               <Pane
                 width="100%"
                 flexGrow={1}
+                overflow="hidden"
+                paddingRight= {20}
+                backgroundColor="#F9F9FB"
+                id={`panel-legend`}
+                role="tabpanel"
+                aria-labelledby="flood"
+                aria-hidden={tabIndex === 0 ? false : true}
+                justifyContent = "center"
+                marginTop = {0}
+                paddingBottom = {10}
+                display={tabIndex === 0 ? "block" : "none"}
+              >
+                <Image
+                        src={require('../assets/legend-vertical_legend.png')}
+                        fluid
+                      />
+              </Pane>
+              <Pane
+                width="100%"
+                flexGrow={1}
                 padding={20}
                 backgroundColor="#F9F9FB"
                 id={`panel-rain`}
                 role="tabpanel"
                 aria-labelledby="rain"
-                aria-hidden={tabIndex === 1 ? false : true}
-                display={tabIndex === 1 ? "block" : "none"}
+                aria-hidden={tabIndex === 2 ? false : true}
+                display={tabIndex === 2 ? "block" : "none"}
               >
                 <Card
                   flexDirection="column"
@@ -726,7 +744,7 @@ export const Home = (props) => {
               size="small"
               aria-label="delete"
             >
-              <ViewList />
+              <InfoIcon />
             </IconButton>
           </Box>
         </Popover>

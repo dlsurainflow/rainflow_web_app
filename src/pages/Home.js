@@ -56,8 +56,8 @@ export const Home = () => {
   const [showPopover, setShowPopover] = useState(false);
 
 
-  //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,

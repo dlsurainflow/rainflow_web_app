@@ -35,7 +35,7 @@ import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import ViewList from "@material-ui/icons/ViewList";
 import { makeStyles } from "@material-ui/core/styles";
-
+import { isMobile } from "react-device-detect";
 import { borders, shadows } from "@material-ui/system";
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
@@ -55,10 +55,9 @@ export const Home = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
 
-  const [markerName, setMarkerName] = useState("");
 
-  const proxyurl = "";
-  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //const proxyurl = "";
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -105,6 +104,7 @@ export const Home = () => {
   const [noFlood, setNoFlood] = useState([]);
   const [ankle, setAnkle] = useState([]);
   const [waist, setWaist] = useState([]);
+  const [knee, setKnee] = useState([]);
   const [neck, setNeck] = useState([]);
   const [head, setHead] = useState([]);
   const [storey1, setStorey1] = useState([]);
@@ -203,17 +203,21 @@ export const Home = () => {
     } else {
       setRaftMarkers(
         mapData.raft.map((data) => {
-          console.log(markerName);
+       
           return (
             <Marker
               key={data.id}
               position={[data.latitude, data.longitude]}
               icon={markerPicker(data.rainfall_rate, data.flood_depth)}
               onMouseOver={(e) => {
+                if(!isMobile){
                 e.target.openPopup();
+                }
               }}
               onMouseOut={(e) => {
-                e.target.closePopup();
+                if(!isMobile){
+                  e.target.closePopup();
+                }
               }}
               onclick={() => {
                 setNodeType("RAFT");
@@ -261,10 +265,12 @@ export const Home = () => {
                 });
               }}
             >
+              {isMobile ? null : (
               <Popup>
                 Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                 {data.flood_depth_title}
               </Popup>
+              )}
             </Marker>
           );
         })
@@ -280,20 +286,26 @@ export const Home = () => {
               key={data.id}
               position={[data.latitude, data.longitude]}
               onMouseOver={(e) => {
+                if(!isMobile){
                 e.target.openPopup();
+                }
               }}
               onMouseOut={(e) => {
-                e.target.closePopup();
+                if(!isMobile){
+                  e.target.closePopup();
+                }
               }}
               onclick={() => {
                 setNodeType("Mobile");
                 reportInfoHandler(data.id, data.username);
               }}
             >
+              {isMobile ? null : (
               <Popup>
                 Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                 {data.flood_depth_title}
               </Popup>
+              )}
             </Marker>
           );
         })
@@ -325,7 +337,7 @@ export const Home = () => {
         return null;
       });
 
-      if (summaryData[0].length === 0 && summaryData[1].length === 0) {
+      if (summaryData[0].length > 0 || summaryData[1].length > 0) {
         setShowPopover(true);
       }
     }
@@ -364,6 +376,8 @@ export const Home = () => {
         return setNoFlood((current) => [...current, address]);
       case "Ankle Deep":
         return setAnkle((current) => [...current, address]);
+      case "Knee Deep":
+        return setKnee((current) => [...current, address]);
       case "Waist Deep":
         return setWaist((current) => [...current, address]);
       case "Neck Deep":
@@ -552,6 +566,16 @@ export const Home = () => {
                 </Card>
                 <Card
                   flexDirection="column"
+                  display={knee.length > 0 ? "inline-flex" : "none"}
+                  marginBottom={20}
+                >
+                  <Heading>Knee Deep (0.25 - 0.7 meters): </Heading>
+                  {knee.map((address) => {
+                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  })}
+                </Card>
+                <Card
+                  flexDirection="column"
                   display={waist.length > 0 ? "inline-flex" : "none"}
                   marginBottom={20}
                 >
@@ -703,7 +727,7 @@ export const Home = () => {
       <Modal
         show={isOpen}
         onHide={handleClose}
-        dialogClassName="modal-main-web"
+        dialogClassName={ isMobile ? 'modal-mobile-view' : 'modal-main-web'}
         animation={false}
       >
         {nodeType === "Mobile" ? (
@@ -882,6 +906,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
+                    alignItems = "center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -905,6 +930,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
+                    alignItems = "center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -974,6 +1000,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
+                    alignItems = "center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -1041,6 +1068,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
+                    alignItems = "center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -1110,6 +1138,7 @@ export const Home = () => {
                       // overflow={"auto"}
                       // background="#F9F9FB"
                       justifyContent="flex-start"
+                      alignItems = "center"
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
@@ -1178,6 +1207,7 @@ export const Home = () => {
                       // overflow={"auto"}
                       // background="#F9F9FB"
                       justifyContent="flex-start"
+                      alignItems = "center"
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
@@ -1232,7 +1262,7 @@ export const Home = () => {
           </>
         ) : null}
       </Modal>
-
+      
       <CornerDialog
         title={
           <Pane flexDirection="row" display="flex" alignItems="center">

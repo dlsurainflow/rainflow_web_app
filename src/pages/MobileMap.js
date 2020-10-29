@@ -27,9 +27,9 @@ function MapFunction() {
   const [mobileMarkers, setMobileMarkers] = useState();
   const [isOpen, setIsOpen] = useState();
   const [nodeType, setNodeType] = useState("RAFT");
-  //const proxyurl = "";
+  const proxyurl = "";
   
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,

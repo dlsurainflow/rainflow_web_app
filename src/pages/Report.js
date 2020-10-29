@@ -33,7 +33,7 @@ export const Report = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const columns = [
     { dataField: "id", text: "Report ID" },
@@ -55,6 +55,43 @@ export const Report = () => {
 
   useEffect(() => {
     getGitHubUserWithFetch();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const userID = localStorage.getItem("userID");
+      const token = localStorage.getItem("token");
+      // console.log("User: " + user);
+      axios
+        .get(proxyurl + `https://rainflow.live/api/report/user/${userID}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          // setLoading(false);
+          console.log(response);
+          console.log("Data: " + response.data);
+          // rows = response.data;
+          // setRows(response.data);
+          // console.log(response.data);
+          if (response.data.active !== JSON.stringify(rowsActive)) {
+            console.log("Active: ", response.data.active !== rowsActive);
+            console.log("Current Active: ", rowsActive);
+            console.log("New Active: ", response.data.active);
+            setRowsActive(response.data.active);
+          }
+          if (response.data.archive !== JSON.stringify(rowsArchived)) {
+            console.log("Archived: ", response.data.archive !== rowsArchived);
+            setRowsArchived(response.data.archive);
+          }
+          console.log(!Object.keys(response.data.active).length);
+          // if (!Object.keys(response.data).length) {
+          //   setwithoutNoDataText(true);
+          // }
+          // console.log("Rows: " + JSON.stringify(response.data));
+        });
+    }, 10000);
   }, []);
 
   const options = {
@@ -92,6 +129,16 @@ export const Report = () => {
 
   const rowEvents = {
     onClick: (e, row) => {
+      row.from = "archive";
+      console.log(row);
+      setModalInfo(row);
+      toggleTrueFalse();
+    },
+  };
+
+  const rowEventsActive = {
+    onClick: (e, row) => {
+      row.from = "active";
       console.log(row);
       setModalInfo(row);
       toggleTrueFalse();

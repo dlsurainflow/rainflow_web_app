@@ -55,9 +55,8 @@ export const Home = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
 
-
   const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -203,19 +202,18 @@ export const Home = () => {
     } else {
       setRaftMarkers(
         mapData.raft.map((data) => {
-       
           return (
             <Marker
               key={data.id}
               position={[data.latitude, data.longitude]}
               icon={markerPicker(data.rainfall_rate, data.flood_depth)}
               onMouseOver={(e) => {
-                if(!isMobile){
-                e.target.openPopup();
+                if (!isMobile) {
+                  e.target.openPopup();
                 }
               }}
               onMouseOut={(e) => {
-                if(!isMobile){
+                if (!isMobile) {
                   e.target.closePopup();
                 }
               }}
@@ -266,10 +264,10 @@ export const Home = () => {
               }}
             >
               {isMobile ? null : (
-              <Popup>
-                Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
-                {data.flood_depth_title}
-              </Popup>
+                <Popup>
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
               )}
             </Marker>
           );
@@ -286,12 +284,12 @@ export const Home = () => {
               key={data.id}
               position={[data.latitude, data.longitude]}
               onMouseOver={(e) => {
-                if(!isMobile){
-                e.target.openPopup();
+                if (!isMobile) {
+                  e.target.openPopup();
                 }
               }}
               onMouseOut={(e) => {
-                if(!isMobile){
+                if (!isMobile) {
                   e.target.closePopup();
                 }
               }}
@@ -301,10 +299,10 @@ export const Home = () => {
               }}
             >
               {isMobile ? null : (
-              <Popup>
-                Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
-                {data.flood_depth_title}
-              </Popup>
+                <Popup>
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
               )}
             </Marker>
           );
@@ -727,7 +725,7 @@ export const Home = () => {
       <Modal
         show={isOpen}
         onHide={handleClose}
-        dialogClassName={ isMobile ? 'modal-mobile-view' : 'modal-main-web'}
+        dialogClassName={isMobile ? "modal-mobile-view" : "modal-main-web"}
         animation={false}
       >
         {nodeType === "Mobile" ? (
@@ -748,11 +746,179 @@ export const Home = () => {
                       justifyContent="center"
                       alignItems="center"
                     >
-                      <Button variant="success">
+                      <Button
+                        variant="success"
+                        active={
+                          reportInfo.currentAction === "upvote" ? true : false
+                        }
+                        onClick={(e) => {
+                          console.log("Upvote pressed!");
+                          var token = localStorage.getItem("token");
+                          if (token !== null) {
+                            if (reportInfo.currentAction === "upvote") {
+                              var _upvote = reportInfo.upvote - 1;
+                              setReportInfo({
+                                id: reportInfo.id,
+                                latitude: reportInfo.latitude,
+                                longitude: reportInfo.longitude,
+                                flood_depth: reportInfo.flood_depth,
+                                rainfall_rate: reportInfo.rainfall_rate,
+                                username: reportInfo.username,
+                                updatedAt: reportInfo.updatedAt,
+                                image: reportInfo.image,
+                                upvote: _upvote,
+                                downvote: reportInfo.downvote,
+                                currentAction: null,
+                                description: reportInfo.description,
+                              });
+                              fetch(
+                                proxyurl +
+                                  "https://rainflow.live/api/report/vote",
+                                {
+                                  method: "DELETE",
+                                  headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                }
+                              )
+                                .then((res) => {
+                                  console.log(res);
+                                })
+                                .catch((err) => console.error(err));
+                            } else if (
+                              reportInfo.currentAction === null ||
+                              reportInfo.currentAction === "downvote"
+                            ) {
+                              var _upvote = reportInfo.upvote + 1;
+                              var _downvote = reportInfo.downvote;
+                              if (reportInfo.currentAction === "downvote")
+                                _downvote = _downvote - 1;
+                              setReportInfo({
+                                id: reportInfo.id,
+                                latitude: reportInfo.latitude,
+                                longitude: reportInfo.longitude,
+                                flood_depth: reportInfo.flood_depth,
+                                rainfall_rate: reportInfo.rainfall_rate,
+                                username: reportInfo.username,
+                                updatedAt: reportInfo.updatedAt,
+                                image: reportInfo.image,
+                                upvote: _upvote,
+                                downvote: _downvote,
+                                currentAction: "upvote",
+                                description: reportInfo.description,
+                              });
+                              fetch(
+                                proxyurl +
+                                  "https://rainflow.live/api/report/vote",
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    action: "upvote",
+                                    reportID: reportInfo.id,
+                                  }), // body data type must match "Content-Type" header
+                                }
+                              )
+                                .then((res) => {
+                                  console.log(res);
+                                })
+                                .catch((err) => console.error(err));
+                            }
+                          }
+                        }}
+                      >
                         <HandThumbsUp color="white" size={20} />{" "}
                         {reportInfo.upvote}
                       </Button>{" "}
-                      <Button variant="danger">
+                      <Button
+                        variant="danger"
+                        active={
+                          reportInfo.currentAction === "downvote" ? true : false
+                        }
+                        onClick={(e) => {
+                          console.log("Downvote pressed!");
+                          var token = localStorage.getItem("token");
+                          if (token !== null) {
+                            if (reportInfo.currentAction === "downvote") {
+                              var _downvote = reportInfo.upvote - 1;
+                              setReportInfo({
+                                id: reportInfo.id,
+                                latitude: reportInfo.latitude,
+                                longitude: reportInfo.longitude,
+                                flood_depth: reportInfo.flood_depth,
+                                rainfall_rate: reportInfo.rainfall_rate,
+                                username: reportInfo.username,
+                                updatedAt: reportInfo.updatedAt,
+                                image: reportInfo.image,
+                                upvote: reportInfo.upvote,
+                                downvote: _downvote,
+                                currentAction: null,
+                                description: reportInfo.description,
+                              });
+                              fetch(
+                                proxyurl +
+                                  "https://rainflow.live/api/report/vote",
+                                {
+                                  method: "DELETE",
+                                  headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                }
+                              )
+                                .then((res) => {
+                                  console.log(res);
+                                })
+                                .catch((err) => console.error(err));
+                            } else if (
+                              reportInfo.currentAction === null ||
+                              reportInfo.currentAction === "upvote"
+                            ) {
+                              var _downvote = reportInfo.downvote + 1;
+                              var _upvote = reportInfo.upvote;
+                              if (reportInfo.currentAction === "upvote")
+                                _upvote = _upvote - 1;
+                              setReportInfo({
+                                id: reportInfo.id,
+                                latitude: reportInfo.latitude,
+                                longitude: reportInfo.longitude,
+                                flood_depth: reportInfo.flood_depth,
+                                rainfall_rate: reportInfo.rainfall_rate,
+                                username: reportInfo.username,
+                                updatedAt: reportInfo.updatedAt,
+                                image: reportInfo.image,
+                                upvote: _upvote,
+                                downvote: _downvote,
+                                currentAction: "downvote",
+                                description: reportInfo.description,
+                              });
+                              fetch(
+                                proxyurl +
+                                  "https://rainflow.live/api/report/vote",
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    action: "downvote",
+                                    reportID: reportInfo.id,
+                                  }), // body data type must match "Content-Type" header
+                                }
+                              )
+                                .then((res) => {
+                                  console.log(res);
+                                })
+                                .catch((err) => console.error(err));
+                            }
+                          }
+                        }}
+                      >
                         <HandThumbsDown color="white" size={20} />{" "}
                         {reportInfo.downvote}
                       </Button>
@@ -906,7 +1072,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
-                    alignItems = "center"
+                    alignItems="center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -930,7 +1096,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
-                    alignItems = "center"
+                    alignItems="center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -1000,7 +1166,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
-                    alignItems = "center"
+                    alignItems="center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -1068,7 +1234,7 @@ export const Home = () => {
                     // overflow={"auto"}
                     // background="#F9F9FB"
                     justifyContent="flex-start"
-                    alignItems = "center"
+                    alignItems="center"
                     paddingX={5}
                     margin={0}
                     display="inline-flex"
@@ -1138,7 +1304,7 @@ export const Home = () => {
                       // overflow={"auto"}
                       // background="#F9F9FB"
                       justifyContent="flex-start"
-                      alignItems = "center"
+                      alignItems="center"
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
@@ -1207,7 +1373,7 @@ export const Home = () => {
                       // overflow={"auto"}
                       // background="#F9F9FB"
                       justifyContent="flex-start"
-                      alignItems = "center"
+                      alignItems="center"
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
@@ -1262,7 +1428,7 @@ export const Home = () => {
           </>
         ) : null}
       </Modal>
-      
+
       <CornerDialog
         title={
           <Pane flexDirection="row" display="flex" alignItems="center">

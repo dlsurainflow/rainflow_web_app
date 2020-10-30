@@ -106,7 +106,7 @@ export const NavigationBar = (props) => {
 
           {props.isLoggedin ? (
             <div>
-              <NavDropdown.Item href="/report">Reports</NavDropdown.Item>
+              <NavDropdown.Item href="/report">Report History</NavDropdown.Item>
               <NavDropdown.Item href="/change-password">
                 Change Password
               </NavDropdown.Item>

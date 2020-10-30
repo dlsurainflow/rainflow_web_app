@@ -56,8 +56,8 @@ export const Home = (props) => {
   const [showPopover, setShowPopover] = useState(false);
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
-  // const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -204,7 +204,7 @@ export const Home = (props) => {
     } else if (flood_depth > 120 && flood_depth <= 160) {
       return "#bf2125";
     } else if (flood_depth > 160 && flood_depth <= 200) {
-      return "#bf2125";
+      return "#c12123";
     } else if (flood_depth > 200 && flood_depth <= 300) {
       return "#931518";
     } else if (flood_depth > 300 && flood_depth <= 450) {

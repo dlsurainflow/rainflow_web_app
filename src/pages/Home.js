@@ -41,6 +41,7 @@ import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
+import jwt_decode from "jwt-decode";
 
 export const Home = (props) => {
   const windowHeight = window.innerHeight;
@@ -53,11 +54,12 @@ export const Home = (props) => {
   const [nodeType, setNodeType] = useState("RAFT");
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
-  const [showPopover, setShowPopover] = useState(false);
+  const [showPopover, setShowPopover] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
   const proxyurl = "";
-  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -279,6 +281,36 @@ export const Home = (props) => {
     });
   }
 
+  const decodeToken = async()=>{
+    var token = await localStorage.getItem("token");
+    if(token != null){
+      var decoded = jwt_decode(token)
+      const now = Date.now().valueOf() / 1000
+      if(typeof decoded.exp < now){
+        console.log("token is expired. clearing local storage.")
+        localStorage.clear()
+      } else{
+        console.log("token is not expired")
+      }
+      console.log("DECODED TOKEN",decoded)
+    }else{
+      console.log("not logged in")
+    }
+  }
+
+  useEffect(()=>{
+
+    decodeToken();
+   
+  },[])
+
+  useEffect(()=>{
+    if(isMobile){
+      setShowPopover(false)
+    }else{
+      setShowPopover(true)
+    }
+  },[])
   useEffect(() => {
     if (mapData == null) {
       fetchData();
@@ -398,6 +430,7 @@ export const Home = (props) => {
     if (summaryData == null) {
       fetchSummary();
     } else {
+      /*
       summaryData[0].map((data) => {
         reverseGeocoder(
           data.latitude,
@@ -417,13 +450,13 @@ export const Home = (props) => {
         );
         return null;
       });
-
       if (summaryData[0].length > 0 || summaryData[1].length > 0) {
         setShowPopover(true);
       }
+      */
     }
   }, [summaryData]);
-
+/*
   const reverseGeocoder = (lat, lon, rainfall, flood, id) => {
     nominatim.reverse({ lat: lat, lon: lon }, (err, result) => {
       if (!err)
@@ -432,6 +465,8 @@ export const Home = (props) => {
       floodSwitch(flood, address);
     });
   };
+
+  */
 
   const rainSwitch = (level, address) => {
     switch (level) {
@@ -596,8 +631,8 @@ export const Home = (props) => {
           onOpen={() => setShowPopover(true)}
           content={
             <Pane
-              width={410}
-              height={550}
+              width={ isMobile? windowWidth*0.75 : 410}
+              height={ isMobile? windowHeight*0.65 : 570}
               display="flex"
               alignItems="flex-start"
               justifyContent="flex-start"
@@ -736,17 +771,19 @@ export const Home = (props) => {
               </Pane>
               <Pane
                 width="100%"
-                flexGrow={1}
-                overflow="hidden"
-                paddingRight={20}
+
+                overflow="auto"
+                paddingX= {10}
+                marginTop = {0}
+                flexGrow = {1}
+                alignItems = "flex-start"
+
                 backgroundColor="#F9F9FB"
                 id={`panel-legend`}
                 role="tabpanel"
-                aria-labelledby="flood"
+                aria-labelledby="legend"
                 aria-hidden={tabIndex === 0 ? false : true}
-                justifyContent="center"
-                marginTop={0}
-                paddingBottom={10}
+                justifyContent = "center"
                 display={tabIndex === 0 ? "block" : "none"}
               >
                 <Image
@@ -963,6 +1000,7 @@ export const Home = (props) => {
                             }
                           } else {
                             setVoteLoggedInDialog(true);
+                            setIsOpen(false)
                           }
                         }}
                       >
@@ -1065,6 +1103,7 @@ export const Home = (props) => {
                             }
                           } else {
                             setVoteLoggedInDialog(true);
+                            setIsOpen(false)
                           }
                         }}
                       >
@@ -1587,8 +1626,9 @@ export const Home = (props) => {
           </>
         ) : null}
       </Modal>
-
+     
       <CornerDialog
+        width = {isMobile? windowWidth*0.75: windowWidth*0.30}
         title={
           <Pane flexDirection="row" display="flex" alignItems="center">
             <InfoSignIcon size={20} color="info" marginRight={10} />{" "}
@@ -1598,12 +1638,13 @@ export const Home = (props) => {
         isShown={guideShown}
         onCloseComplete={() => setGuideShown(false)}
         hasFooter={false}
-        position={Position.BOTTOM_RIGHT}
+        position={isMobile? Position.BOTTOM: Position.BOTTOM_RIGHT}
       >
         Click on any node on the map to view the rain and flood information
         reported in that area. Toggle the button at the top left to view the
         marker legend and all the flooded areas grouped by level.
       </CornerDialog>
+      
       <Map center={[14.41792, 120.97617919999998]} zoom={15}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -1632,5 +1673,11 @@ const useStyles = makeStyles({
     borderRadius: 2,
     flexWrap: "wrap",
   },
-  root: { flexWrap: "wrap" },
+  root: { 
+    flexWrap: "wrap",
+    position: "absolute",
+    left: 10,
+    top: 160,
+    width: "auto"
+},
 });

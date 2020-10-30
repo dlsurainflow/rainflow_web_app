@@ -37,7 +37,8 @@
 .modal-body {
   background-color:#F9F9FB;
   padding: 5px;
-  overflow: auto;
+  overflow: scroll;
+  min-height: 100%;
 }
 
 .modal-main{
@@ -67,6 +68,13 @@
   margin-right: 30;
 }
 
+.guide-mobile{
+  position: absolute;
+  bottom: 10;
+  left: 50;
+  width: 100%;
+  background-color: #61dafb;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

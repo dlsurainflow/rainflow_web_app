@@ -9,16 +9,15 @@ import moment from "moment";
 import Image from "react-bootstrap/Image";
 // import { Map, TileLayer, Marker, Popup } from "react-leaflet";
 import ReactMapGL, { Marker } from "react-map-gl";
-import leaflet from "leaflet";
+// import leaflet from "leaflet";
 import HashLoader from "react-spinners/HashLoader";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import { WiRain, WiFlood } from "weather-icons-react";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import Grid from "@material-ui/core/Grid";
-import GREEN from "@material-ui/core/colors/green";
-import RED from "@material-ui/core/colors/red";
-import YELLOW from "@material-ui/core/colors/yellow";
-import ORANGE from "@material-ui/core/colors/orange";
+import { Heading } from "evergreen-ui";
+import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
+// import Button from "react-bootstrap/Button";
 
 export const Report = () => {
   // const classes = useStyles();
@@ -37,7 +36,11 @@ export const Report = () => {
 
   const columns = [
     { dataField: "id", text: "Report ID" },
-    { dataField: "createdAt", text: "Time ", sort: true },
+    {
+      dataField: "createdAt",
+      text: "Time ",
+      sort: true,
+    },
     { dataField: "latitude", text: "Latitude" },
     { dataField: "longitude", text: "Longitude" },
     { dataField: "rainfall_rate", text: "Rainfall Rate" },
@@ -46,7 +49,11 @@ export const Report = () => {
 
   const columnsArchived = [
     { dataField: "id", text: "Report ID" },
-    { dataField: "createdAt", text: "Time ", sort: true },
+    {
+      dataField: "createdAt",
+      text: "Time ",
+      sort: true,
+    },
     { dataField: "latitude", text: "Latitude" },
     { dataField: "longitude", text: "Longitude" },
     { dataField: "rainfall_rate", text: "Rainfall Rate" },
@@ -55,43 +62,6 @@ export const Report = () => {
 
   useEffect(() => {
     getGitHubUserWithFetch();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const userID = localStorage.getItem("userID");
-      const token = localStorage.getItem("token");
-      // console.log("User: " + user);
-      axios
-        .get(proxyurl + `https://rainflow.live/api/report/user/${userID}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          // setLoading(false);
-          console.log(response);
-          console.log("Data: " + response.data);
-          // rows = response.data;
-          // setRows(response.data);
-          // console.log(response.data);
-          if (response.data.active !== JSON.stringify(rowsActive)) {
-            console.log("Active: ", response.data.active !== rowsActive);
-            console.log("Current Active: ", rowsActive);
-            console.log("New Active: ", response.data.active);
-            setRowsActive(response.data.active);
-          }
-          if (response.data.archive !== JSON.stringify(rowsArchived)) {
-            console.log("Archived: ", response.data.archive !== rowsArchived);
-            setRowsArchived(response.data.archive);
-          }
-          console.log(!Object.keys(response.data.active).length);
-          // if (!Object.keys(response.data).length) {
-          //   setwithoutNoDataText(true);
-          // }
-          // console.log("Rows: " + JSON.stringify(response.data));
-        });
-    }, 10000);
   }, []);
 
   const options = {
@@ -150,14 +120,15 @@ export const Report = () => {
   };
 
   const ModalContent = () => {
+    console.log(modalInfo);
     var date = moment(modalInfo.createdAt).format("DD MMM YYYY (dddd) HH:mm");
-    var position = [modalInfo.latitude, modalInfo.longitude];
+    // var position = [modalInfo.latitude, modalInfo.longitude];
     var imgURI = `https://rainflow.live/api/uploads/reports/${modalInfo.image}`;
-    var icon = leaflet.icon({
-      // iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-      iconUrl: require("leaflet/dist/images/marker-icon.png"),
-      // shadowUrl: require ("leaflet/dist/images/marker-shadow.png"),
-    });
+    // var icon = leaflet.icon({
+    //   // iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+    //   iconUrl: require("leaflet/dist/images/marker-icon.png"),
+    //   // shadowUrl: require ("leaflet/dist/images/marker-shadow.png"),
+    // });
     var imgExists;
     if (modalInfo.image === null) imgExists = false;
     else imgExists = true;
@@ -174,57 +145,58 @@ export const Report = () => {
       "pk.eyJ1Ijoid2lseWZyZWRkaWUiLCJhIjoiY2s0bTQ4dWkzMTNhZDNrcThkcWRnZG00aiJ9.uSqu6RO986ym7qQt_guHSg";
 
     var floodText, floodColor;
-    if (modalInfo.flood_depth <= 10) {
-      floodText = "No Flood";
-      floodColor = GREEN[500];
-    } else if (modalInfo.flood_depth > 10 && modalInfo.flood_depth <= 25) {
-      floodText = "Ankle Deep";
-      floodColor = RED[200];
-    } else if (modalInfo.flood_depth > 25 && modalInfo.flood_depth <= 70) {
-      floodText = "Waist Deep";
-      floodColor = RED[300];
-    } else if (modalInfo.flood_depth > 70 && modalInfo.flood_depth <= 120) {
-      floodText = "Neck Deep";
-      floodColor = RED[400];
-    } else if (modalInfo.flood_depth > 120 && modalInfo.flood_depth <= 160) {
-      floodText = "Top of Head Deep";
-      floodColor = RED[500];
-    } else if (modalInfo.flood_depth > 160 && modalInfo.flood_depth <= 200) {
-      floodText = "1-Storey High";
-      floodColor = RED[600];
-    } else if (modalInfo.flood_depth > 200 && modalInfo.flood_depth <= 300) {
-      floodText = "1.5-Storey High";
-      floodColor = RED[700];
-    } else if (modalInfo.flood_depth > 300 && modalInfo.flood_depth <= 400) {
-      floodText = "2-Storey High or Higher";
-      floodColor = RED[800];
-    } else if (modalInfo.flood_depth > 400) {
-      floodText = "2-Storey Higher";
-      floodColor = RED[900];
-    }
-
     var rainText, rainColor;
+
     if (modalInfo.rainfall_rate === 0) {
       rainText = "No Rain";
-      rainColor = GREEN[500];
+      rainColor = "#0eae4e";
     } else if (modalInfo.rainfall_rate > 0 && modalInfo.rainfall_rate < 2.5) {
       rainText = "Light Rain";
-      rainColor = GREEN[700];
+      rainColor = "#b2cf35";
     } else if (
       modalInfo.rainfall_rate >= 2.5 &&
       modalInfo.rainfall_rate < 7.5
     ) {
       rainText = "Moderate Rain";
-      rainColor = GREEN[900];
+      rainColor = "#fece08";
     } else if (modalInfo.rainfall_rate >= 7.5 && modalInfo.rainfall_rate < 15) {
       rainText = "Heavy Rain";
-      rainColor = YELLOW[500];
+      rainColor = "#f38f20";
     } else if (modalInfo.rainfall_rate >= 15 && modalInfo.rainfall_rate < 30) {
       rainText = "Intense Rain";
-      rainColor = ORANGE[500];
+      rainColor = "#ec193a";
     } else if (modalInfo.rainfall_rate >= 30) {
       rainText = "Torrential Rain";
-      rainColor = RED[900];
+      rainColor = "#c12123";
+    }
+
+    if (modalInfo.flood_depth <= 10) {
+      floodText = "No Flood";
+      floodColor = "#0eae4e";
+    } else if (modalInfo.flood_depth > 10 && modalInfo.flood_depth <= 25) {
+      floodText = "Ankle Deep";
+      floodColor = "#b2cf35";
+    } else if (modalInfo.flood_depth > 25 && modalInfo.flood_depth <= 70) {
+      floodText = "Knee Deep";
+      floodColor = "#fece08";
+    } else if (modalInfo.flood_depth > 70 && modalInfo.flood_depth <= 120) {
+      floodText = "Waist Deep";
+      floodColor = "#f38f20";
+    } else if (modalInfo.flood_depth > 120 && modalInfo.flood_depth <= 160) {
+      floodText = "Neck Deep";
+      floodColor = "#bf2125";
+    } else if (modalInfo.flood_depth > 160 && modalInfo.flood_depth <= 200) {
+      floodText = "Top of Head Deep";
+      floodColor = "#c12123";
+    } else if (modalInfo.flood_depth > 200 && modalInfo.flood_depth <= 300) {
+      floodText = "1-Storey High";
+      floodColor = "#931518";
+    } else if (modalInfo.flood_depth > 300 && modalInfo.flood_depth <= 450) {
+      floodText = "1.5-Storeys High";
+      floodColor = "#7a1331";
+    } else if (modalInfo.flood_depth > 450) {
+      floodText = "2-Storey Higher";
+      floodColor = "#5e011c";
     }
 
     return (
@@ -243,6 +215,17 @@ export const Report = () => {
                     {date}
                   </Typography>
                 </Grid>
+                <Grid item xs={12}>
+                  {/* <HandThumbsUp variant /> */}
+                  <Button variant="success" disabled>
+                    <HandThumbsUp color="white" size={20} />{" "}
+                    {modalInfo.upvote.length}
+                  </Button>{" "}
+                  <Button variant="danger" disabled>
+                    <HandThumbsDown color="white" size={20} />{" "}
+                    {modalInfo.downvote.length}
+                  </Button>{" "}
+                </Grid>
               </Grid>
             </Modal.Title>
           </Modal.Header>
@@ -251,19 +234,19 @@ export const Report = () => {
               <Grid item xs={6}>
                 {/* <hr /> */}
                 <Typography variant="subtitle1">Rainfall Rate</Typography>
-                <Typography variant="subtitle2" color={rainColor}>
+                <Heading color={rainColor}>
                   <WiRain size={35} color={rainColor} />
                   {rainText}
-                </Typography>
+                </Heading>
                 {/* <hr /> */}
               </Grid>
               <Grid item xs={6}>
                 {/* <hr /> */}
                 <Typography variant="subtitle1">Flood</Typography>
-                <Typography variant="subtitle2" color={floodColor}>
+                <Heading color={floodColor}>
                   <WiFlood size={35} color={floodColor} />
                   {floodText}
-                </Typography>
+                </Heading>
                 {/* <hr /> */}
               </Grid>
               <Grid item xs={12}>
@@ -289,10 +272,13 @@ export const Report = () => {
                   {/* <hr /> */}
                 </Grid>
               ) : null}
-              <Grid item xs={12}>
-                <Typography variant="subtitle1">Description</Typography>
-                {modalInfo.description}
-              </Grid>
+              {modalInfo.description !== null &&
+              modalInfo.description !== "" ? (
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1">Description</Typography>
+                  {modalInfo.description}
+                </Grid>
+              ) : null}
             </Grid>
           </Modal.Body>
           <Modal.Footer>
@@ -345,6 +331,7 @@ export const Report = () => {
                 pagination={paginationFactory()}
                 rowEvents={rowEvents}
                 options={options}
+                defaultSortDirection="desc"
               />
             </Grid>
             <Grid item xs={12}>
@@ -359,6 +346,7 @@ export const Report = () => {
                 pagination={paginationFactory()}
                 rowEvents={rowEvents}
                 options={options}
+                defaultSortDirection="asc"
               />
             </Grid>
           </Grid>

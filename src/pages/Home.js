@@ -41,6 +41,7 @@ import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
+import jwt_decode from "jwt-decode";
 
 export const Home = (props) => {
   const windowHeight = window.innerHeight;
@@ -56,8 +57,8 @@ export const Home = (props) => {
   const [showPopover, setShowPopover] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
- //const proxyurl = "";
- const proxyurl = "https://cors-anywhere.herokuapp.com/";
+ const proxyurl = "";
+ //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -196,6 +197,29 @@ export const Home = (props) => {
       popupAnchor: [-5, -43],
     });
   }
+
+  const decodeToken = async()=>{
+    var token = await localStorage.getItem("token");
+    if(token != null){
+      var decoded = jwt_decode(token)
+      const now = Date.now().valueOf() / 1000
+      if(typeof decoded.exp < now){
+        console.log("token is expired. clearing local storage.")
+        localStorage.clear()
+      } else{
+        console.log("token is not expired")
+      }
+      console.log("DECODED TOKEN",decoded)
+    }else{
+      console.log("not logged in")
+    }
+  }
+
+  useEffect(()=>{
+
+    decodeToken();
+   
+  },[])
 
   useEffect(()=>{
     if(isMobile){

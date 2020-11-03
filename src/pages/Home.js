@@ -64,8 +64,7 @@ export const Home = (props) => {
   const [showMarkers, setShowMarkers] = useState()
 
   const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -287,16 +286,16 @@ export const Home = (props) => {
     });
   }
 
-  const decodeToken = async()=>{
+  const decodeToken = async () => {
     var token = await localStorage.getItem("token");
-    if(token != null){
-      var decoded = jwt_decode(token)
-      const now = Date.now().valueOf() / 1000
-      if(typeof decoded.exp < now){
-        console.log("token is expired. clearing local storage.")
-        localStorage.clear()
-      } else{
-        console.log("token is not expired")
+    if (token != null) {
+      var decoded = jwt_decode(token);
+      const now = Date.now().valueOf() / 1000;
+      if (typeof decoded.exp < now) {
+        console.log("token is expired. clearing local storage.");
+        localStorage.clear();
+      } else {
+        console.log("token is not expired");
       }
      // console.log("DECODED TOKEN",decoded)
     }else{
@@ -334,16 +333,15 @@ export const Home = (props) => {
     setShowCircles(false)
     setShowMarkers(true)
     decodeToken();
-   
-  },[])
+  }, []);
 
-  useEffect(()=>{
-    if(isMobile){
-      setShowPopover(false)
-    }else{
-      setShowPopover(true)
+  useEffect(() => {
+    if (isMobile) {
+      setShowPopover(false);
+    } else {
+      setShowPopover(true);
     }
-  },[])
+  }, []);
   useEffect(() => {
     if (mapData == null) {
       fetchData();
@@ -531,7 +529,7 @@ export const Home = (props) => {
       */
     }
   }, [summaryData]);
-/*
+  /*
   const reverseGeocoder = (lat, lon, rainfall, flood, id) => {
     nominatim.reverse({ lat: lat, lon: lon }, (err, result) => {
       if (!err)
@@ -706,8 +704,8 @@ export const Home = (props) => {
           onOpen={() => setShowPopover(true)}
           content={
             <Pane
-              width={ isMobile? windowWidth*0.75 : 410}
-              height={ isMobile? windowHeight*0.65 : 570}
+              width={isMobile ? windowWidth * 0.75 : 410}
+              height={isMobile ? windowHeight * 0.65 : 570}
               display="flex"
               alignItems="flex-start"
               justifyContent="flex-start"
@@ -846,19 +844,17 @@ export const Home = (props) => {
               </Pane>
               <Pane
                 width="100%"
-
                 overflow="auto"
-                paddingX= {10}
-                marginTop = {0}
-                flexGrow = {1}
-                alignItems = "flex-start"
-
+                paddingX={10}
+                marginTop={0}
+                flexGrow={1}
+                alignItems="flex-start"
                 backgroundColor="#F9F9FB"
                 id={`panel-legend`}
                 role="tabpanel"
                 aria-labelledby="legend"
                 aria-hidden={tabIndex === 0 ? false : true}
-                justifyContent = "center"
+                justifyContent="center"
                 display={tabIndex === 0 ? "block" : "none"}
               >
                 <Image
@@ -1099,7 +1095,7 @@ export const Home = (props) => {
                             }
                           } else {
                             setVoteLoggedInDialog(true);
-                            setIsOpen(false)
+                            setIsOpen(false);
                           }
                         }}
                       >
@@ -1202,7 +1198,7 @@ export const Home = (props) => {
                             }
                           } else {
                             setVoteLoggedInDialog(true);
-                            setIsOpen(false)
+                            setIsOpen(false);
                           }
                         }}
                       >
@@ -1238,6 +1234,17 @@ export const Home = (props) => {
                   <Heading size={100} marginLeft={5}>
                     RAINFALL RATE
                   </Heading>
+                  {/* <Tooltip
+                    content={
+                      <Paragraph margin={10}>
+                        A measure of the amount of rain that falls over time.
+                        Measured in mm/hour.
+                      </Paragraph>
+                    }
+                    apperance="card"
+                  >
+                    <InfoSignIcon size={15} color="info" />
+                  </Tooltip> */}
                   <Heading
                     size={600}
                     marginLeft={10}
@@ -1726,9 +1733,9 @@ export const Home = (props) => {
           </>
         ) : null}
       </Modal>
-     
+
       <CornerDialog
-        width = {isMobile? windowWidth*0.75: windowWidth*0.30}
+        width={isMobile ? windowWidth * 0.75 : windowWidth * 0.3}
         title={
           <Pane flexDirection="row" display="flex" alignItems="center">
             <InfoSignIcon size={20} color="info" marginRight={10} />{" "}
@@ -1738,13 +1745,13 @@ export const Home = (props) => {
         isShown={guideShown}
         onCloseComplete={() => setGuideShown(false)}
         hasFooter={false}
-        position={isMobile? Position.BOTTOM: Position.BOTTOM_RIGHT}
+        position={isMobile ? Position.BOTTOM : Position.BOTTOM_RIGHT}
       >
         Click on any node on the map to view the rain and flood information
         reported in that area. Toggle the button at the top left to view the
         marker legend and all the flooded areas grouped by level.
       </CornerDialog>
-      
+
       <Map center={[14.41792, 120.97617919999998]} zoom={15}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -1776,7 +1783,7 @@ const useStyles = makeStyles({
     borderRadius: 2,
     flexWrap: "wrap",
   },
-  root: { 
+  root: {
     flexWrap: "wrap",
     position: "absolute",
     left: 10,

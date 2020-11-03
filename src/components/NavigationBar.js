@@ -1,82 +1,14 @@
 import React from "react";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
-// import Styled from "styled-components";
-// import { useHistory } from "react-router-dom";
 import logo from "../assets/rainflow_logo.png";
-// import MenuItem from "@material-ui/core/MenuItem";
-// import IconButton from "@material-ui/core/IconButton";
-// import AccountCircle from "@material-ui/icons/AccountCircle";
-// import Menu from "@material-ui/core/Menu";
-// import grey from "@material-ui/core/colors/red";
-// import { Router } from "react-router-dom";
-// import username from "../services/username";
 import MenuIcon from "@material-ui/icons/Menu";
+import { Tooltip } from "evergreen-ui";
+import Image from "react-bootstrap/Image";
 
 export const NavigationBar = (props) => {
-  // const localUser = JSON.parse(localStorage.getItem("user")) || {};
-  // console.log("Local User: " + localUser);
-  // console.log("Local User2: " + localStorage.hasOwnProperty("user"));
-  // const [auth, setAuth] = React.useState(localStorage.hasOwnProperty("user"));
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  // const open = Boolean(anchorEl);
-
-  // const handleChange = (event) => {
-  //   setAuth(event.target.checked);
-  // };
-
-  // const loggedIn = Boolean(localStorage.getItem("token"));
-  // const username = localStorage.getItem("username");
-
-  // const handleMenu = (event) => {
-  //   setAnchorEl(event.currentTarget);
-  // };
-
-  // const handleClose = () => {
-  //   setAnchorEl(null);
-  // };
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem("user");
-
-  //   props.history.push("/");
-  //   // this.router.push("/");
-  // };
-
-  // return (
-  //   <Navbar inverse collapseOnSelect>
-  //     <Navbar.Header>
-  //       <Navbar.Brand>
-  //         <a href="#brand">React-Bootstrap</a>
-  //       </Navbar.Brand>
-  //       <Navbar.Toggle />
-  //     </Navbar.Header>
-  //     <Navbar.Collapse>
-  //       <Nav>
-  //         <NavItem eventKey={1} href="#">
-  //           Link
-  //         </NavItem>
-  //         <NavItem eventKey={2} href="#">
-  //           Link
-  //         </NavItem>
-  //         <NavDropdown eventKey={3} title="Dropdown" id="basic-nav-dropdown">
-  //           <MenuItem eventKey={3.1}>Action</MenuItem>
-  //           <MenuItem eventKey={3.2}>Another action</MenuItem>
-  //           <MenuItem eventKey={3.3}>Something else here</MenuItem>
-  //           <MenuItem divider />
-  //           <MenuItem eventKey={3.3}>Separated link</MenuItem>
-  //         </NavDropdown>
-  //       </Nav>
-  //       <Nav pullRight>
-  //         <NavItem eventKey={1} href="#">
-  //           Link Right
-  //         </NavItem>
-  //         <NavItem eventKey={2} href="#">
-  //           Link Right
-  //         </NavItem>
-  //       </Nav>
-  //     </Navbar.Collapse>
-  //   </Navbar>
-  // );
+  const username = localStorage.getItem("username");
+  const points = localStorage.getItem("points");
+  const badge = localStorage.getItem("badge");
 
   return (
     <Navbar bg="dark" variant="dark" expands="lg">
@@ -120,6 +52,26 @@ export const NavigationBar = (props) => {
           )}
         </NavDropdown>
       </Nav>
+      {props.isLoggedin ? (
+        <Nav>
+          {" "}
+          <Navbar.Text color="#F9F9FB">
+            {username}{" "}
+            {badge !== null ? (
+              <Tooltip
+                content={`Points: ${points}`}
+                appearance="card"
+                // position={Position.BOTTOM}
+              >
+                <Image
+                  src={`https://rainflow.live/api/images/badges/${badge}`}
+                  height="20"
+                />
+              </Tooltip>
+            ) : null}
+          </Navbar.Text>
+        </Nav>
+      ) : null}
     </Navbar>
   );
 };

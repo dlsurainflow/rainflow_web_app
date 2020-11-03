@@ -118,6 +118,8 @@ export const SignIn = (props) => {
             localStorage.setItem("userID", response.data.data.userID);
             localStorage.setItem("token", response.data.data.token);
             localStorage.setItem("username", response.data.data.username);
+            localStorage.setItem("badge", response.data.data.badge);
+            localStorage.setItem("points", response.data.data.points);
             // this.props.setIsLoggedin(true);
 
             setLoggedIn();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Map, Marker, TileLayer } from "react-leaflet";
+import { Map, Marker, TileLayer, Popup, Circle } from "react-leaflet";
 import "../App.css";
 import {
   Pane,
@@ -31,6 +31,8 @@ import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
+import RoomIcon from "@material-ui/icons/Room";
+import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
 import { borders, shadows } from "@material-ui/system";
@@ -53,6 +55,10 @@ function MapFunction() {
   const [showPopover, setShowPopover] = useState(false);
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
   const [summaryData, setSummaryData] = useState();
+  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState()
+  const [floodCirclesMobile, setFloodCirclesMobile] = useState()
+  const [showCircles, setShowCircles] = useState()
+  const [showMarkers, setShowMarkers] = useState()
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
@@ -116,6 +122,13 @@ function MapFunction() {
   const [storey1, setStorey1] = useState([]);
   const [storey2, setStorey2] = useState([]);
   const [storey15, setStorey15] = useState([]);
+
+  useEffect(()=>{
+    setShowCircles(false)
+    setShowMarkers(true)
+   // decodeToken();
+   
+  },[])
  
   const fetchData = async () => {
   
@@ -196,6 +209,36 @@ function MapFunction() {
           );
         })
       );
+
+      setFloodCirclesRAFT(
+        mapData.raft.map((data) => {
+          return (
+            <Circle
+            key = {data.id}
+            center={{lat: data.latitude, lng: data.longitude}}
+            fillColor={circleColor(data.flood_depth)} 
+            radius={50}
+            fillOpacity={0.75}
+            stroke={false}
+            />
+          );
+        })
+      );
+      setFloodCirclesMobile(
+        mapData.mobile.map((data) => {
+          return (
+            <Circle
+            key = {data.id}
+            center={{lat: data.latitude, lng: data.longitude}}
+            fillColor={circleColor(data.flood_depth)} 
+            radius={50}
+            fillOpacity={ 0.75}
+            stroke={false}
+            />
+          );
+        })
+      );
+
       console.log("Mobile: ", mapData.mobile);
       console.log("RAFT: ", mapData.raft);
       setMobileMarkers(
@@ -205,11 +248,39 @@ function MapFunction() {
               key={data.id}
               icon={markerPicker(data.rainfall_rate, data.flood_depth)}
               position={[data.latitude, data.longitude]}
-              onclick={() => {
-                setNodeType("Mobile");
-                reportInfoHandler(data.id, data.username);
+              onclick={(e) => {
+                // eslint-disable-next-line no-lone-blocks
+                if(data.image != null){
+                  e.target.openPopup()
+                }else{
+                  setNodeType("Mobile");
+                  reportInfoHandler(data.id, data.username);
+                }
+                
               }}
-            />
+            >
+                {data.image !== null ? (
+                <>
+                <Popup>
+                      <Image
+                        src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                        thumbnail
+                        fluid
+                        />
+                      <Button onClick = {()=>{
+                        setNodeType("Mobile");
+                        reportInfoHandler(data.id, data.username);
+                      }} 
+                      variant="info" 
+                      block
+                      size="sm">
+                          More info
+                        </Button>
+                </Popup>
+                </>
+                  
+                ) : null}
+            </Marker> 
           );
         })
       );
@@ -307,6 +378,31 @@ function MapFunction() {
     });
   };
 
+  const circleColor = (flood_depth) =>{
+    var flood;
+
+    if (flood_depth <= 10) {
+      flood = "#00ae4d";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      flood = "#b2d235";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      flood = "#ffd100";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      flood = "#f78d1e";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      flood = "#ed1b39";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      flood = "#c12026";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      flood = "#941619";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      flood = "#7c112f";
+    } else if (flood_depth > 450) {
+      flood = "#5f001e";
+    }
+
+    return flood;
+  }
   
   const fetchSummary = async () => {
     const url = "https://rainflow.live/api/map/summary";
@@ -447,8 +543,8 @@ function MapFunction() {
     return L.icon({
       iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${flood}.png`,
       iconSize: [50, 50],
-      iconAnchor: [28, 47],
-      popupAnchor: [-5, -43],
+      iconAnchor: [23, 44],
+      popupAnchor: [-2, -38],
     });
   }
 
@@ -720,6 +816,31 @@ function MapFunction() {
           </Box>
         </Popover>
       </Container>
+
+       {/* Marker button */}
+       <Box maxWidth={false} borderColor="grey.400" className = {classes.markerButton} border={1} boxShadow={3}>
+            <IconButton
+              onClick = {()=>{setShowMarkers(!showMarkers)}}
+              className={showMarkers ? classes.floodON : classes.floodOFF}
+              size="medium"
+              aria-label="markers"
+            >
+              <RoomIcon />
+            </IconButton>
+          </Box>
+
+      {/* Flood circle button */}
+      <Box maxWidth={false} borderColor="grey.400" className = {classes.floodCircles} border={1} boxShadow={3}>
+            <IconButton
+              onClick = {()=>{setShowCircles(!showCircles)}}
+              className={showCircles ? classes.floodON : classes.floodOFF}
+              size="medium"
+              aria-label="circles"
+            >
+              <WavesIcon />
+            </IconButton>
+          </Box>
+
 
       <Modal
         show={isOpen}
@@ -1460,8 +1581,11 @@ function MapFunction() {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {raftMarkers ? raftMarkers : null}
-        {mobileMarkers ? mobileMarkers : null}
+        {raftMarkers && showMarkers ? raftMarkers : null}
+        {mobileMarkers && showMarkers ? mobileMarkers : null}
+  
+        {showCircles ? floodCirclesMobile : null}
+        {showCircles ? floodCirclesRAFT : null}
       </Map>
     </>
   );
@@ -1489,6 +1613,38 @@ const useStyles = makeStyles({
     top: 160,
     width: "auto"
 },
+  
+ floodON: {
+  "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
+  backgroundColor: "#D2EEF3",
+  borderRadius: 2,
+  flexWrap: "wrap",
+ },
+
+ floodOFF: {
+  "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+  backgroundColor: "white",
+  borderRadius: 2,
+  flexWrap: "wrap",
+ },
+
+floodCircles:{
+  position: "absolute",
+  right: 60,
+  top: 70,
+  zIndex: 1,
+  width: "auto",
+  padding: 0
+},
+
+markerButton:{
+  position: "absolute",
+  right: 60,
+  top: 10,
+  zIndex: 1,
+  width: "auto",
+  padding: 0
+}
 });
 
 export const MobileMap = (props) => {

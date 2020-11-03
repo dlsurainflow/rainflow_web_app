@@ -63,9 +63,9 @@ function MapFunction() {
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  //const proxyurl = "";
+  const proxyurl = "";
   
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -125,10 +125,9 @@ function MapFunction() {
 
   useEffect(()=>{
     setShowCircles(false)
-    setShowMarkers(true)
-   // decodeToken();
-   
+    setShowMarkers(true) 
   },[])
+
  
   const fetchData = async () => {
   
@@ -555,15 +554,14 @@ function MapFunction() {
   return (
     <>
      <Container maxWidth={false} className={classes.popover}>
-    { /*   <Dialog
+     <Dialog
           isShown={voteLoggedInDialog}
           title="You're not logged in."
           onCloseComplete={() => setVoteLoggedInDialog(false)}
-          onConfirm={() => props.history.push("/login")}
-          confirmLabel="Click here to login"
+          hasFooter={false}
         >
-          Please log in to vote.
-        </Dialog> */}
+          You must be logged in to vote on a report.
+        </Dialog>
         <Popover
           className={classes.root}
           isShown={showPopover}
@@ -873,8 +871,8 @@ function MapFunction() {
                         }
                         onClick={(e) => {
                           console.log("Upvote pressed!");
-                          var token = localStorage.getItem("token");
-                          if (token !== null) {
+                          var token = token_params;
+                          if (token !== "guest") {
                             if (reportInfo.currentAction === "upvote") {
                               var _upvote = reportInfo.upvote - 1;
                               setReportInfo({
@@ -976,8 +974,8 @@ function MapFunction() {
                         }
                         onClick={(e) => {
                           console.log("Downvote pressed!");
-                          var token = localStorage.getItem("token");
-                          if (token !== null) {
+                          var token = token_params
+                          if (token !== "guest") {
                             if (reportInfo.currentAction === "downvote") {
                               var _downvote = reportInfo.upvote - 1;
                               setReportInfo({

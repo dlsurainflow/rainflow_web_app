@@ -63,8 +63,8 @@ export const Home = (props) => {
   const [showCircles, setShowCircles] = useState()
   const [showMarkers, setShowMarkers] = useState()
 
-  //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
 
   const [raftInfo, setRaftInfo] = useState({
@@ -298,7 +298,7 @@ export const Home = (props) => {
       } else{
         console.log("token is not expired")
       }
-      console.log("DECODED TOKEN",decoded)
+     // console.log("DECODED TOKEN",decoded)
     }else{
       console.log("not logged in")
     }

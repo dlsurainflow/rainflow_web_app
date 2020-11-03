@@ -57,9 +57,9 @@ function MapFunction() {
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  const proxyurl = "";
+  //const proxyurl = "";
   
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -92,6 +92,11 @@ function MapFunction() {
     upvote: null,
     downvote: null,
     currentAction: null,
+    description: null,
+    rainfall_rate_title: null,
+    flood_depth_title: null,
+    rainfall_rate_color: null,
+    flood_depth_color: null,
   });
 
   
@@ -247,6 +252,11 @@ function MapFunction() {
             upvote: data.upvote,
             downvote: data.downvote,
             currentAction: data.currentAction,
+            description: data.description,
+            rainfall_rate_title: getRainfallRateTitle(data.rainfall_rate),
+            flood_depth_title: getFloodDepthTitle(data.flood_depth),
+            rainfall_rate_color: getRainfallRateColor(data.rainfall_rate),
+            flood_depth_color: getFloodDepthColor(data.flood_depth),
           });
           onSideSheetHandler();
         });
@@ -289,6 +299,11 @@ function MapFunction() {
       upvote: null,
       downvote: null,
       currentAction: null,
+      description: null,
+      rainfall_rate_title: null,
+      flood_depth_title: null,
+      rainfall_rate_color: null,
+      flood_depth_color: null,
     });
   };
 
@@ -312,6 +327,84 @@ function MapFunction() {
       .catch((error) => console.error("Error:", error));
   };
 
+  
+  function getRainfallRateTitle(rainfall_rate) {
+    console.log("I reached here: ", rainfall_rate);
+    if (rainfall_rate === 0) {
+      return "No Rain";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      return "Light Rain";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      return "Moderate Rain";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      return "Heavy Rain";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      return "Intense Rain";
+    } else if (rainfall_rate >= 30) {
+      return "Torrential Rain";
+    }
+  }
+
+  function getRainfallRateColor(rainfall_rate) {
+    console.log("I reached here: ", rainfall_rate);
+    if (rainfall_rate === 0) {
+      return "#0eae4e";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      return "#b2cf35";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      return "#fece08";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      return "#f38f20";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      return "#ec193a";
+    } else if (rainfall_rate >= 30) {
+      return "#c12123";
+    }
+  }
+
+  function getFloodDepthTitle(flood_depth) {
+    if (flood_depth <= 10) {
+      return "No Flood";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      return "Ankle Deep";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      return "Knee Deep";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      return "Waist Deep";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      return "Neck Deep";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      return "Top of Head Deep";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      return "1-Storey High";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      return "1.5-Storeys High";
+    } else if (flood_depth > 450) {
+      return "2-Storey or Higher";
+    }
+  }
+
+  function getFloodDepthColor(flood_depth) {
+    if (flood_depth <= 10) {
+      return "#0eae4e";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      return "#b2cf35";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      return "#fece08";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      return "#f38f20";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      return "#bf2125";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      return "#c12123";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      return "#931518";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      return "#7a1331";
+    } else if (flood_depth > 450) {
+      return "#5e011c";
+    }
+  }
 
   function markerPicker(rainfall_rate, flood_depth) {
     var rain;
@@ -676,6 +769,12 @@ function MapFunction() {
                                 downvote: reportInfo.downvote,
                                 currentAction: null,
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -713,6 +812,12 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: "upvote",
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -767,6 +872,12 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: null,
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -804,6 +915,12 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: "downvote",
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -863,12 +980,10 @@ function MapFunction() {
                   <Heading size={100} marginLeft={5}>
                     RAINFALL RATE
                   </Heading>
-                  <Heading size={600} marginLeft={10}>
-                    {reportInfo.rainfall_rate}
+                  <Heading size={600} marginLeft={10} color={reportInfo.rainfall_rate_color}>
+                  {reportInfo.rainfall_rate_title}
                   </Heading>
-                  <Heading size={300} marginLeft={5}>
-                    mm/Hr
-                  </Heading>
+                 
                 </Card>
                 <Card
                   backgroundColor="white"
@@ -884,13 +999,31 @@ function MapFunction() {
                   <Heading size={100} marginLeft={5}>
                     FLOOD DEPTH
                   </Heading>
-                  <Heading size={600} marginLeft={10}>
-                    {reportInfo.flood_depth}
-                  </Heading>
-                  <Heading size={300} marginLeft={5}>
-                    cm
+                  <Heading size={600} marginLeft={10} color={reportInfo.flood_depth_color}>
+                  {reportInfo.flood_depth_title}
                   </Heading>
                 </Card>
+                {reportInfo.description !== null &&
+                reportInfo.description !== "" ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    padding={20}
+                    marginY={10}
+                  >
+                    <Pane
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Heading size={100}>Description </Heading>
+                      <Text>{reportInfo.description}</Text>
+                    </Pane>
+                  </Card>
+                ) : null}
                 {reportInfo.image !== null ? (
                   <Card
                     backgroundColor="white"
@@ -914,27 +1047,7 @@ function MapFunction() {
                     </Pane>
                   </Card>
                 ) : null}
-                {reportInfo.description !== null &&
-                reportInfo.description !== "" ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    padding={20}
-                    marginY={10}
-                  >
-                    <Pane
-                      flexDirection="column"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Heading size={100}>Description </Heading>
-                      <Text>{reportInfo.description}</Text>
-                    </Pane>
-                  </Card>
-                ) : null}
+               
               </Pane>
             </Modal.Body>
           </>

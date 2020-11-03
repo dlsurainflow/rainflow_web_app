@@ -447,7 +447,7 @@ export const Home = (props) => {
             center={{lat: data.latitude, lng: data.longitude}}
             fillColor={circleColor(data.flood_depth)} 
             radius={50}
-            fillOpacity={ 0.25}
+            fillOpacity={ 0.75}
             stroke={false}
             />
           );

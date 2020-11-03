@@ -414,6 +414,7 @@ export const Home = (props) => {
             >
               {isMobile ? null : (
                 <Popup>
+                  
                   Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                   {data.flood_depth_title}
                 </Popup>
@@ -480,6 +481,15 @@ export const Home = (props) => {
             >
               {isMobile ? null : (
                 <Popup>
+                  {data.image !== null ? (
+                  <>
+                      <Image
+                        src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                        thumbnail
+                        fluid
+                      />
+                   </>
+                ) : null}
                   Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                   {data.flood_depth_title}
                 </Popup>

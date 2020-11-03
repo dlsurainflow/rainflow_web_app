@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Map, Marker, TileLayer } from "react-leaflet";
+import { Map, Marker, TileLayer, Popup, Circle } from "react-leaflet";
 import "../App.css";
 import {
   Pane,
@@ -31,6 +31,8 @@ import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
+import RoomIcon from "@material-ui/icons/Room";
+import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
 import { borders, shadows } from "@material-ui/system";
@@ -53,6 +55,10 @@ function MapFunction() {
   const [showPopover, setShowPopover] = useState(false);
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
   const [summaryData, setSummaryData] = useState();
+  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState()
+  const [floodCirclesMobile, setFloodCirclesMobile] = useState()
+  const [showCircles, setShowCircles] = useState()
+  const [showMarkers, setShowMarkers] = useState()
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
@@ -92,6 +98,11 @@ function MapFunction() {
     upvote: null,
     downvote: null,
     currentAction: null,
+    description: null,
+    rainfall_rate_title: null,
+    flood_depth_title: null,
+    rainfall_rate_color: null,
+    flood_depth_color: null,
   });
 
   
@@ -111,6 +122,12 @@ function MapFunction() {
   const [storey1, setStorey1] = useState([]);
   const [storey2, setStorey2] = useState([]);
   const [storey15, setStorey15] = useState([]);
+
+  useEffect(()=>{
+    setShowCircles(false)
+    setShowMarkers(true) 
+  },[])
+
  
   const fetchData = async () => {
   
@@ -191,6 +208,36 @@ function MapFunction() {
           );
         })
       );
+
+      setFloodCirclesRAFT(
+        mapData.raft.map((data) => {
+          return (
+            <Circle
+            key = {data.id}
+            center={{lat: data.latitude, lng: data.longitude}}
+            fillColor={circleColor(data.flood_depth)} 
+            radius={50}
+            fillOpacity={0.75}
+            stroke={false}
+            />
+          );
+        })
+      );
+      setFloodCirclesMobile(
+        mapData.mobile.map((data) => {
+          return (
+            <Circle
+            key = {data.id}
+            center={{lat: data.latitude, lng: data.longitude}}
+            fillColor={circleColor(data.flood_depth)} 
+            radius={50}
+            fillOpacity={ 0.75}
+            stroke={false}
+            />
+          );
+        })
+      );
+
       console.log("Mobile: ", mapData.mobile);
       console.log("RAFT: ", mapData.raft);
       setMobileMarkers(
@@ -200,11 +247,39 @@ function MapFunction() {
               key={data.id}
               icon={markerPicker(data.rainfall_rate, data.flood_depth)}
               position={[data.latitude, data.longitude]}
-              onclick={() => {
-                setNodeType("Mobile");
-                reportInfoHandler(data.id, data.username);
+              onclick={(e) => {
+                // eslint-disable-next-line no-lone-blocks
+                if(data.image != null){
+                  e.target.openPopup()
+                }else{
+                  setNodeType("Mobile");
+                  reportInfoHandler(data.id, data.username);
+                }
+                
               }}
-            />
+            >
+                {data.image !== null ? (
+                <>
+                <Popup>
+                      <Image
+                        src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                        thumbnail
+                        fluid
+                        />
+                      <Button onClick = {()=>{
+                        setNodeType("Mobile");
+                        reportInfoHandler(data.id, data.username);
+                      }} 
+                      variant="info" 
+                      block
+                      size="sm">
+                          More info
+                        </Button>
+                </Popup>
+                </>
+                  
+                ) : null}
+            </Marker> 
           );
         })
       );
@@ -247,6 +322,11 @@ function MapFunction() {
             upvote: data.upvote,
             downvote: data.downvote,
             currentAction: data.currentAction,
+            description: data.description,
+            rainfall_rate_title: getRainfallRateTitle(data.rainfall_rate),
+            flood_depth_title: getFloodDepthTitle(data.flood_depth),
+            rainfall_rate_color: getRainfallRateColor(data.rainfall_rate),
+            flood_depth_color: getFloodDepthColor(data.flood_depth),
           });
           onSideSheetHandler();
         });
@@ -289,9 +369,39 @@ function MapFunction() {
       upvote: null,
       downvote: null,
       currentAction: null,
+      description: null,
+      rainfall_rate_title: null,
+      flood_depth_title: null,
+      rainfall_rate_color: null,
+      flood_depth_color: null,
     });
   };
 
+  const circleColor = (flood_depth) =>{
+    var flood;
+
+    if (flood_depth <= 10) {
+      flood = "#00ae4d";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      flood = "#b2d235";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      flood = "#ffd100";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      flood = "#f78d1e";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      flood = "#ed1b39";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      flood = "#c12026";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      flood = "#941619";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      flood = "#7c112f";
+    } else if (flood_depth > 450) {
+      flood = "#5f001e";
+    }
+
+    return flood;
+  }
   
   const fetchSummary = async () => {
     const url = "https://rainflow.live/api/map/summary";
@@ -312,6 +422,84 @@ function MapFunction() {
       .catch((error) => console.error("Error:", error));
   };
 
+  
+  function getRainfallRateTitle(rainfall_rate) {
+    console.log("I reached here: ", rainfall_rate);
+    if (rainfall_rate === 0) {
+      return "No Rain";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      return "Light Rain";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      return "Moderate Rain";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      return "Heavy Rain";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      return "Intense Rain";
+    } else if (rainfall_rate >= 30) {
+      return "Torrential Rain";
+    }
+  }
+
+  function getRainfallRateColor(rainfall_rate) {
+    console.log("I reached here: ", rainfall_rate);
+    if (rainfall_rate === 0) {
+      return "#0eae4e";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      return "#b2cf35";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      return "#fece08";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      return "#f38f20";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      return "#ec193a";
+    } else if (rainfall_rate >= 30) {
+      return "#c12123";
+    }
+  }
+
+  function getFloodDepthTitle(flood_depth) {
+    if (flood_depth <= 10) {
+      return "No Flood";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      return "Ankle Deep";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      return "Knee Deep";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      return "Waist Deep";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      return "Neck Deep";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      return "Top of Head Deep";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      return "1-Storey High";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      return "1.5-Storeys High";
+    } else if (flood_depth > 450) {
+      return "2-Storey or Higher";
+    }
+  }
+
+  function getFloodDepthColor(flood_depth) {
+    if (flood_depth <= 10) {
+      return "#0eae4e";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      return "#b2cf35";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      return "#fece08";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      return "#f38f20";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      return "#bf2125";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      return "#c12123";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      return "#931518";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      return "#7a1331";
+    } else if (flood_depth > 450) {
+      return "#5e011c";
+    }
+  }
 
   function markerPicker(rainfall_rate, flood_depth) {
     var rain;
@@ -354,8 +542,8 @@ function MapFunction() {
     return L.icon({
       iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${flood}.png`,
       iconSize: [50, 50],
-      iconAnchor: [28, 47],
-      popupAnchor: [-5, -43],
+      iconAnchor: [23, 44],
+      popupAnchor: [-2, -38],
     });
   }
 
@@ -366,15 +554,14 @@ function MapFunction() {
   return (
     <>
      <Container maxWidth={false} className={classes.popover}>
-    { /*   <Dialog
+     <Dialog
           isShown={voteLoggedInDialog}
           title="You're not logged in."
           onCloseComplete={() => setVoteLoggedInDialog(false)}
-          onConfirm={() => props.history.push("/login")}
-          confirmLabel="Click here to login"
+          hasFooter={false}
         >
-          Please log in to vote.
-        </Dialog> */}
+          You must be logged in to vote on a report.
+        </Dialog>
         <Popover
           className={classes.root}
           isShown={showPopover}
@@ -628,6 +815,31 @@ function MapFunction() {
         </Popover>
       </Container>
 
+       {/* Marker button */}
+       <Box maxWidth={false} borderColor="grey.400" className = {classes.markerButton} border={1} boxShadow={3}>
+            <IconButton
+              onClick = {()=>{setShowMarkers(!showMarkers)}}
+              className={showMarkers ? classes.floodON : classes.floodOFF}
+              size="medium"
+              aria-label="markers"
+            >
+              <RoomIcon />
+            </IconButton>
+          </Box>
+
+      {/* Flood circle button */}
+      <Box maxWidth={false} borderColor="grey.400" className = {classes.floodCircles} border={1} boxShadow={3}>
+            <IconButton
+              onClick = {()=>{setShowCircles(!showCircles)}}
+              className={showCircles ? classes.floodON : classes.floodOFF}
+              size="medium"
+              aria-label="circles"
+            >
+              <WavesIcon />
+            </IconButton>
+          </Box>
+
+
       <Modal
         show={isOpen}
         onHide={handleClose}
@@ -659,8 +871,8 @@ function MapFunction() {
                         }
                         onClick={(e) => {
                           console.log("Upvote pressed!");
-                          var token = localStorage.getItem("token");
-                          if (token !== null) {
+                          var token = token_params;
+                          if (token !== "guest") {
                             if (reportInfo.currentAction === "upvote") {
                               var _upvote = reportInfo.upvote - 1;
                               setReportInfo({
@@ -676,6 +888,12 @@ function MapFunction() {
                                 downvote: reportInfo.downvote,
                                 currentAction: null,
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -713,6 +931,12 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: "upvote",
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -750,8 +974,8 @@ function MapFunction() {
                         }
                         onClick={(e) => {
                           console.log("Downvote pressed!");
-                          var token = localStorage.getItem("token");
-                          if (token !== null) {
+                          var token = token_params
+                          if (token !== "guest") {
                             if (reportInfo.currentAction === "downvote") {
                               var _downvote = reportInfo.upvote - 1;
                               setReportInfo({
@@ -767,6 +991,12 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: null,
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -804,6 +1034,12 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: "downvote",
                                 description: reportInfo.description,
+                                rainfall_rate_title:
+                                  reportInfo.rainfall_rate_title,
+                                flood_depth_title: reportInfo.flood_depth_title,
+                                rainfall_rate_color:
+                                  reportInfo.rainfall_rate_color,
+                                flood_depth_color: reportInfo.flood_depth_color,
                               });
                               fetch(
                                 proxyurl +
@@ -863,12 +1099,10 @@ function MapFunction() {
                   <Heading size={100} marginLeft={5}>
                     RAINFALL RATE
                   </Heading>
-                  <Heading size={600} marginLeft={10}>
-                    {reportInfo.rainfall_rate}
+                  <Heading size={600} marginLeft={10} color={reportInfo.rainfall_rate_color}>
+                  {reportInfo.rainfall_rate_title}
                   </Heading>
-                  <Heading size={300} marginLeft={5}>
-                    mm/Hr
-                  </Heading>
+                 
                 </Card>
                 <Card
                   backgroundColor="white"
@@ -884,13 +1118,31 @@ function MapFunction() {
                   <Heading size={100} marginLeft={5}>
                     FLOOD DEPTH
                   </Heading>
-                  <Heading size={600} marginLeft={10}>
-                    {reportInfo.flood_depth}
-                  </Heading>
-                  <Heading size={300} marginLeft={5}>
-                    cm
+                  <Heading size={600} marginLeft={10} color={reportInfo.flood_depth_color}>
+                  {reportInfo.flood_depth_title}
                   </Heading>
                 </Card>
+                {reportInfo.description !== null &&
+                reportInfo.description !== "" ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    padding={20}
+                    marginY={10}
+                  >
+                    <Pane
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Heading size={100}>Description </Heading>
+                      <Text>{reportInfo.description}</Text>
+                    </Pane>
+                  </Card>
+                ) : null}
                 {reportInfo.image !== null ? (
                   <Card
                     backgroundColor="white"
@@ -914,27 +1166,7 @@ function MapFunction() {
                     </Pane>
                   </Card>
                 ) : null}
-                {reportInfo.description !== null &&
-                reportInfo.description !== "" ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    padding={20}
-                    marginY={10}
-                  >
-                    <Pane
-                      flexDirection="column"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Heading size={100}>Description </Heading>
-                      <Text>{reportInfo.description}</Text>
-                    </Pane>
-                  </Card>
-                ) : null}
+               
               </Pane>
             </Modal.Body>
           </>
@@ -1347,8 +1579,11 @@ function MapFunction() {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {raftMarkers ? raftMarkers : null}
-        {mobileMarkers ? mobileMarkers : null}
+        {raftMarkers && showMarkers ? raftMarkers : null}
+        {mobileMarkers && showMarkers ? mobileMarkers : null}
+  
+        {showCircles ? floodCirclesMobile : null}
+        {showCircles ? floodCirclesRAFT : null}
       </Map>
     </>
   );
@@ -1376,6 +1611,38 @@ const useStyles = makeStyles({
     top: 160,
     width: "auto"
 },
+  
+ floodON: {
+  "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
+  backgroundColor: "#D2EEF3",
+  borderRadius: 2,
+  flexWrap: "wrap",
+ },
+
+ floodOFF: {
+  "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+  backgroundColor: "white",
+  borderRadius: 2,
+  flexWrap: "wrap",
+ },
+
+floodCircles:{
+  position: "absolute",
+  right: 60,
+  top: 70,
+  zIndex: 1,
+  width: "auto",
+  padding: 0
+},
+
+markerButton:{
+  position: "absolute",
+  right: 60,
+  top: 10,
+  zIndex: 1,
+  width: "auto",
+  padding: 0
+}
 });
 
 export const MobileMap = (props) => {

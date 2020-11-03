@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { Map, Marker, TileLayer, Popup } from "react-leaflet";
+import { Map, Marker, TileLayer, Popup, Circle } from "react-leaflet";
 
 import { Container } from "react-bootstrap";
 import "../App.css";
@@ -34,11 +34,13 @@ import moment from "moment";
 import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
+import RoomIcon from "@material-ui/icons/Room";
+import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
 import { borders, shadows } from "@material-ui/system";
 import Box from "@material-ui/core/Box";
-import L from "leaflet";
+import L, { circleMarker } from "leaflet";
 import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
@@ -56,6 +58,10 @@ export const Home = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
+  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState()
+  const [floodCirclesMobile, setFloodCirclesMobile] = useState()
+  const [showCircles, setShowCircles] = useState()
+  const [showMarkers, setShowMarkers] = useState()
 
   const proxyurl = "";
   // const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -275,8 +281,8 @@ export const Home = (props) => {
     return L.icon({
       iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${flood}.png`,
       iconSize: [50, 50],
-      iconAnchor: [28, 47],
-      popupAnchor: [-5, -43],
+      iconAnchor: [23, 44],
+      popupAnchor: [-2, -38],
     });
   }
 
@@ -291,13 +297,41 @@ export const Home = (props) => {
       } else {
         console.log("token is not expired");
       }
-      console.log("DECODED TOKEN", decoded);
-    } else {
-      console.log("not logged in");
+     // console.log("DECODED TOKEN",decoded)
+    }else{
+      console.log("not logged in")
     }
-  };
+  }
 
-  useEffect(() => {
+  const circleColor = (flood_depth) =>{
+    var flood;
+
+    if (flood_depth <= 10) {
+      flood = "#00ae4d";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      flood = "#b2d235";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      flood = "#ffd100";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      flood = "#f78d1e";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      flood = "#ed1b39";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      flood = "#c12026";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      flood = "#941619";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      flood = "#7c112f";
+    } else if (flood_depth > 450) {
+      flood = "#5f001e";
+    }
+
+    return flood;
+  }
+
+  useEffect(()=>{
+    setShowCircles(false)
+    setShowMarkers(true)
     decodeToken();
   }, []);
 
@@ -330,6 +364,7 @@ export const Home = (props) => {
                 }
               }}
               onclick={() => {
+      
                 setNodeType("RAFT");
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -377,11 +412,42 @@ export const Home = (props) => {
             >
               {isMobile ? null : (
                 <Popup>
+                  
                   Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                   {data.flood_depth_title}
                 </Popup>
               )}
+
             </Marker>
+
+          );
+        })
+      );
+      setFloodCirclesRAFT(
+        mapData.raft.map((data) => {
+          return (
+            <Circle
+            key = {data.id}
+            center={{lat: data.latitude, lng: data.longitude}}
+            fillColor={circleColor(data.flood_depth)} 
+            radius={50}
+            fillOpacity={0.75}
+            stroke={false}
+            />
+          );
+        })
+      );
+      setFloodCirclesMobile(
+        mapData.mobile.map((data) => {
+          return (
+            <Circle
+            key = {data.id}
+            center={{lat: data.latitude, lng: data.longitude}}
+            fillColor={circleColor(data.flood_depth)} 
+            radius={50}
+            fillOpacity={ 0.75}
+            stroke={false}
+            />
           );
         })
       );
@@ -396,6 +462,7 @@ export const Home = (props) => {
               key={data.id}
               position={[data.latitude, data.longitude]}
               onMouseOver={(e) => {
+
                 if (!isMobile) {
                   e.target.openPopup();
                 }
@@ -412,6 +479,15 @@ export const Home = (props) => {
             >
               {isMobile ? null : (
                 <Popup>
+                  {data.image !== null ? (
+                  <>
+                      <Image
+                        src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                        thumbnail
+                        fluid
+                      />
+                   </>
+                ) : null}
                   Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                   {data.flood_depth_title}
                 </Popup>
@@ -862,7 +938,7 @@ export const Home = (props) => {
           }
           position={Position.TOP_LEFT}
         >
-          <Box borderColor="grey.400" border={1} boxShadow={3}>
+          <Box maxWidth = {false} borderColor="grey.400" border={1} boxShadow={3}>
             <IconButton
               className={classes.customHoverFocus}
               size="small"
@@ -873,6 +949,30 @@ export const Home = (props) => {
           </Box>
         </Popover>
       </Container>
+
+      {/* Marker button */}
+      <Box maxWidth={false} borderColor="grey.400" className = {classes.markerButton} border={1} boxShadow={3}>
+            <IconButton
+              onClick = {()=>{setShowMarkers(!showMarkers)}}
+              className={showMarkers ? classes.floodON : classes.floodOFF}
+              size="medium"
+              aria-label="markers"
+            >
+              <RoomIcon />
+            </IconButton>
+          </Box>
+
+      {/* Flood circle button */}
+      <Box maxWidth={false} borderColor="grey.400" className = {classes.floodCircles} border={1} boxShadow={3}>
+            <IconButton
+              onClick = {()=>{setShowCircles(!showCircles)}}
+              className={showCircles ? classes.floodON : classes.floodOFF}
+              size="medium"
+              aria-label="circles"
+            >
+              <WavesIcon />
+            </IconButton>
+          </Box>
 
       {/* Report/Raft Info Sidebar */}
       <Modal
@@ -1183,6 +1283,27 @@ export const Home = (props) => {
                     cm
                   </Heading> */}
                 </Card>
+                {reportInfo.description !== null &&
+                reportInfo.description !== "" ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    padding={20}
+                    marginY={10}
+                  >
+                    <Pane
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Heading size={100}>Description </Heading>
+                      <Text>{reportInfo.description}</Text>
+                    </Pane>
+                  </Card>
+                ) : null}
                 {reportInfo.image !== null ? (
                   <Card
                     backgroundColor="white"
@@ -1206,27 +1327,7 @@ export const Home = (props) => {
                     </Pane>
                   </Card>
                 ) : null}
-                {reportInfo.description !== null &&
-                reportInfo.description !== "" ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    padding={20}
-                    marginY={10}
-                  >
-                    <Pane
-                      flexDirection="column"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Heading size={100}>Description </Heading>
-                      <Text>{reportInfo.description}</Text>
-                    </Pane>
-                  </Card>
-                ) : null}
+                
               </Pane>
             </Modal.Body>
           </>
@@ -1290,7 +1391,7 @@ export const Home = (props) => {
                       {raftInfo.rainfall_rate}
                     </Heading>
                     <Heading size={400} marginLeft={5}>
-                      {"mm/day"}
+                      {"mm/hour"}
                     </Heading>
                   </Pane>
                   <Pane
@@ -1657,8 +1758,11 @@ export const Home = (props) => {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {raftMarkers ? raftMarkers : null}
-        {mobileMarkers ? mobileMarkers : null}
+        {raftMarkers && showMarkers ? raftMarkers : null}
+        {mobileMarkers && showMarkers ? mobileMarkers : null}
+  
+        {showCircles ? floodCirclesMobile : null}
+        {showCircles ? floodCirclesRAFT : null}
       </Map>
     </>
   );
@@ -1668,7 +1772,7 @@ const useStyles = makeStyles({
   popover: {
     position: "absolute",
     left: 10,
-    top: 150,
+    top: 145,
     padding: 0,
     zIndex: 1,
     width: "auto",
@@ -1684,6 +1788,38 @@ const useStyles = makeStyles({
     position: "absolute",
     left: 10,
     top: 160,
-    width: "auto",
-  },
+    width: "auto"
+},
+
+ floodON: {
+  "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
+  backgroundColor: "#D2EEF3",
+  borderRadius: 2,
+  flexWrap: "wrap",
+ },
+
+ floodOFF: {
+  "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+  backgroundColor: "white",
+  borderRadius: 2,
+  flexWrap: "wrap",
+ },
+
+floodCircles:{
+  position: "absolute",
+  right: 60,
+  top: 135,
+  zIndex: 1,
+  width: "auto",
+  padding: 0
+},
+
+markerButton:{
+  position: "absolute",
+  right: 60,
+  top: 75,
+  zIndex: 1,
+  width: "auto",
+  padding: 0
+}
 });

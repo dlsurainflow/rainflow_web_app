@@ -45,6 +45,7 @@ import L, { circleMarker } from "leaflet";
 import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
+import useInterval from '@use-it/interval';
 
 export const Home = (props) => {
   const windowHeight = window.innerHeight;
@@ -59,13 +60,17 @@ export const Home = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
-  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
-  const [floodCirclesMobile, setFloodCirclesMobile] = useState();
-  const [showCircles, setShowCircles] = useState();
-  const [showMarkers, setShowMarkers] = useState();
 
-  // const proxyurl = "";
-  const proxyurl = "http://localhost:8080/";
+  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState()
+  const [floodCirclesMobile, setFloodCirclesMobile] = useState()
+  const [showCircles, setShowCircles] = useState()
+  const [showMarkers, setShowMarkers] = useState()
+  const [doneInitialFetch, setDoneInitialFetch] = useState();
+  const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
+
+  const proxyurl = "";
+   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+//const proxyurl = "http://localhost:8800/"
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -340,19 +345,29 @@ export const Home = (props) => {
     setShowCircles(false);
     setShowMarkers(true);
     decodeToken();
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) {
-      setShowPopover(false);
-    } else {
+    if(!isMobile){
       setShowPopover(true);
     }
   }, []);
+
+  {/* Update every map and summary every 10 seconds*/}
+  useInterval(() => {
+    if(doneInitialFetch) {
+      fetchData()
+    }
+    if(doneInitialFetchSummary) {
+     
+      fetchSummary();
+    }
+  }, 10000);
+
   useEffect(() => {
     if (mapData == null) {
+      console.log("first")
       fetchData();
     } else {
+      console.log("updated markers")
+      setDoneInitialFetch(true)
       setRaftMarkers(
         mapData.raft.map((data) => {
           return (
@@ -509,43 +524,42 @@ export const Home = (props) => {
     if (summaryData == null) {
       fetchSummary();
     } else {
-      /*
+      setNoRain([]);
+      setLightRain([]);
+      setModRain([]);
+      setHeavyRain([]);
+      setIntenseRain([]);
+      setTorrentialRain([]);
+  
+      setNoFlood([]);
+      setAnkle([]);
+      setWaist([]);
+      setKnee([])
+      setNeck([]);
+      setHead([]);
+      setStorey1([]);
+      setStorey15([]);
+      setStorey2([]);
+    
+      setDoneInitialFetchSummary(true)
+      console.log("summary updated!")
       summaryData[0].map((data) => {
-        reverseGeocoder(
-          data.latitude,
-          data.longitude,
-          data.rainfall_rate_title,
-          data.flood_depth_title
-        );
+        rainSwitch(data.rainfall_rate_title, data.address)
+        floodSwitch(data.flood_depth_title, data.address)
         return null;
       });
 
       summaryData[1].map((data) => {
-        reverseGeocoder(
-          data.latitude,
-          data.longitude,
-          data.rainfall_rate_title,
-          data.flood_depth_title
-        );
+        rainSwitch(data.rainfall_rate_title, data.address)
+        floodSwitch(data.flood_depth_title, data.address)
         return null;
       });
-      if (summaryData[0].length > 0 || summaryData[1].length > 0) {
-        setShowPopover(true);
-      }
-      */
-    }
-  }, [summaryData]);
-  /*
-  const reverseGeocoder = (lat, lon, rainfall, flood, id) => {
-    nominatim.reverse({ lat: lat, lon: lon }, (err, result) => {
-      if (!err)
-        var address = `${result.address.road}, ${result.address.neighbourhood}, ${result.address.suburb}, ${result.address.city}`;
-      rainSwitch(rainfall, address);
-      floodSwitch(flood, address);
-    });
-  };
 
-  */
+      }
+      
+    
+  }, [summaryData]);
+ 
 
   const rainSwitch = (level, address) => {
     switch (level) {
@@ -954,6 +968,7 @@ export const Home = (props) => {
         >
           <Box maxWidth={false} borderColor="grey.400" border={1} boxShadow={3}>
             <IconButton
+              onClick = {()=> setShowPopover(!showPopover)}
               className={classes.customHoverFocus}
               size="small"
               aria-label="delete"

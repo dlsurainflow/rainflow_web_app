@@ -45,7 +45,7 @@ import L, { circleMarker } from "leaflet";
 import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
-import useInterval from '@use-it/interval';
+import useInterval from "@use-it/interval";
 
 export const Home = (props) => {
   const windowHeight = window.innerHeight;
@@ -61,16 +61,16 @@ export const Home = (props) => {
   const [showPopover, setShowPopover] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
-  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState()
-  const [floodCirclesMobile, setFloodCirclesMobile] = useState()
-  const [showCircles, setShowCircles] = useState()
-  const [showMarkers, setShowMarkers] = useState()
+  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
+  const [floodCirclesMobile, setFloodCirclesMobile] = useState();
+  const [showCircles, setShowCircles] = useState();
+  const [showMarkers, setShowMarkers] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
   const proxyurl = "";
-   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-//const proxyurl = "http://localhost:8800/"
+  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //const proxyurl = "http://localhost:8800/"
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -345,29 +345,30 @@ export const Home = (props) => {
     setShowCircles(false);
     setShowMarkers(true);
     decodeToken();
-    if(!isMobile){
+    if (!isMobile) {
       setShowPopover(true);
     }
   }, []);
 
-  {/* Update every map and summary every 10 seconds*/}
+  {
+    /* Update every map and summary every 10 seconds*/
+  }
   useInterval(() => {
-    if(doneInitialFetch) {
-      fetchData()
+    if (doneInitialFetch) {
+      fetchData();
     }
-    if(doneInitialFetchSummary) {
-     
+    if (doneInitialFetchSummary) {
       fetchSummary();
     }
   }, 10000);
 
   useEffect(() => {
     if (mapData == null) {
-      console.log("first")
+      console.log("first");
       fetchData();
     } else {
-      console.log("updated markers")
-      setDoneInitialFetch(true)
+      console.log("updated markers");
+      setDoneInitialFetch(true);
       setRaftMarkers(
         mapData.raft.map((data) => {
           return (
@@ -530,36 +531,32 @@ export const Home = (props) => {
       setHeavyRain([]);
       setIntenseRain([]);
       setTorrentialRain([]);
-  
+
       setNoFlood([]);
       setAnkle([]);
       setWaist([]);
-      setKnee([])
+      setKnee([]);
       setNeck([]);
       setHead([]);
       setStorey1([]);
       setStorey15([]);
       setStorey2([]);
-    
-      setDoneInitialFetchSummary(true)
-      console.log("summary updated!")
+
+      setDoneInitialFetchSummary(true);
+      console.log("summary updated!");
       summaryData[0].map((data) => {
-        rainSwitch(data.rainfall_rate_title, data.address)
-        floodSwitch(data.flood_depth_title, data.address)
+        rainSwitch(data.rainfall_rate_title, data.address);
+        floodSwitch(data.flood_depth_title, data.address);
         return null;
       });
 
       summaryData[1].map((data) => {
-        rainSwitch(data.rainfall_rate_title, data.address)
-        floodSwitch(data.flood_depth_title, data.address)
+        rainSwitch(data.rainfall_rate_title, data.address);
+        floodSwitch(data.flood_depth_title, data.address);
         return null;
       });
-
-      }
-      
-    
+    }
   }, [summaryData]);
- 
 
   const rainSwitch = (level, address) => {
     switch (level) {
@@ -968,7 +965,7 @@ export const Home = (props) => {
         >
           <Box maxWidth={false} borderColor="grey.400" border={1} boxShadow={3}>
             <IconButton
-              onClick = {()=> setShowPopover(!showPopover)}
+              onClick={() => setShowPopover(!showPopover)}
               className={classes.customHoverFocus}
               size="small"
               aria-label="delete"
@@ -1048,10 +1045,7 @@ export const Home = (props) => {
                       ) : null}
                     </Heading>
                     <Text size={500}>{reportInfo.updatedAt}</Text>
-                    <Text size={300}>
-                      {reportInfo.address}
-                      {"TEST"}
-                    </Text>
+                    <Text size={300}>{reportInfo.address}</Text>
                     {/* <Text size={500}>Reported by {reportInfo.username}</Text> */}
                     <Pane
                       flexDirection="column"

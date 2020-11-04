@@ -6,7 +6,6 @@ import {
   Heading,
   Card,
   Text,
-  CornerDialog,
   Position,
   InfoSignIcon,
   Popover,
@@ -14,7 +13,6 @@ import {
   Tablist,
   Dialog,
   Tooltip,
-  Paragraph,
 } from "evergreen-ui";
 import {
   WiRain,
@@ -26,7 +24,6 @@ import {
 } from "weather-icons-react";
 import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
-import ViewList from "@material-ui/icons/ViewList";
 import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
@@ -42,6 +39,7 @@ import { Line } from "react-chartjs-2";
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import { Container } from "react-bootstrap";
+import useInterval from '@use-it/interval';
 
 function MapFunction() {
   let { token_params } = useParams();
@@ -59,12 +57,14 @@ function MapFunction() {
   const [floodCirclesMobile, setFloodCirclesMobile] = useState()
   const [showCircles, setShowCircles] = useState()
   const [showMarkers, setShowMarkers] = useState()
+  const [doneInitialFetch, setDoneInitialFetch] = useState();
+  const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  const proxyurl = "";
-  
+ const proxyurl = "";
+ // const proxyurl = "http://localhost:8800/"
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -128,6 +128,17 @@ function MapFunction() {
     setShowMarkers(true) 
   },[])
 
+    {/* Update every map and summary every 10 seconds*/}
+    useInterval(() => {
+      if(doneInitialFetch) {
+        fetchData()
+      }
+      if(doneInitialFetchSummary) {
+        fetchSummary();
+      }
+    }, 10000);
+  
+
  
   const fetchData = async () => {
   
@@ -141,7 +152,7 @@ function MapFunction() {
       },
     })
       .then((response) => {
-        console.log(response.status);
+       // console.log(response.status);
         if (response.status === 200)
           response.json().then((data) => {
             setMapData(data);
@@ -154,9 +165,11 @@ function MapFunction() {
     if (mapData == null) {
       fetchData();
     } else {
+      console.log("updated markers")
+      setDoneInitialFetch(true)
       setRaftMarkers(
         mapData.raft.map((data) => {
-          console.log("raft: ", data);
+         // console.log("raft: ", data);
           return (
             <Marker
               key={data.id}
@@ -285,6 +298,91 @@ function MapFunction() {
       );
     }
   }, [mapData]);
+
+  useEffect(() => {
+    if (summaryData == null) {
+      fetchSummary();
+    } else {
+      setNoRain([]);
+      setLightRain([]);
+      setModRain([]);
+      setHeavyRain([]);
+      setIntenseRain([]);
+      setTorrentialRain([]);
+  
+      setNoFlood([]);
+      setAnkle([]);
+      setWaist([]);
+      setNeck([]);
+      setKnee([])
+      setHead([]);
+      setStorey1([]);
+      setStorey15([]);
+      setStorey2([]);
+    
+      setDoneInitialFetchSummary(true)
+      console.log("summary updated!")
+      summaryData[0].map((data) => {
+        rainSwitch(data.rainfall_rate_title, data.address)
+        floodSwitch(data.flood_depth_title, data.address)
+        return null;
+      });
+
+      summaryData[1].map((data) => {
+        rainSwitch(data.rainfall_rate_title, data.address)
+        floodSwitch(data.flood_depth_title, data.address)
+        return null;
+      });
+
+      }
+      
+    
+  }, [summaryData]);
+
+  
+  const rainSwitch = (level, address) => {
+    switch (level) {
+      case "No Rain":
+        return setNoRain((current) => [...current, address]);
+      case "Light Rain":
+        return setLightRain((current) => [...current, address]);
+      case "Moderate Rain":
+        return setModRain((current) => [...current, address]);
+      case "Heavy Rain":
+        return setHeavyRain((current) => [...current, address]);
+      case "Intense Rain":
+        return setIntenseRain((current) => [...current, address]);
+      case "Torrential Rain":
+        return setTorrentialRain((current) => [...current, address]);
+      default:
+        return null;
+    }
+  };
+
+  const floodSwitch = (level, address) => {
+    switch (level) {
+      case "No Flood":
+        return setNoFlood((current) => [...current, address]);
+      case "Ankle Deep":
+        return setAnkle((current) => [...current, address]);
+      case "Knee Deep":
+        return setKnee((current) => [...current, address]);
+      case "Waist Deep":
+        return setWaist((current) => [...current, address]);
+      case "Neck Deep":
+        return setNeck((current) => [...current, address]);
+      case "Top of Head Deep":
+        return setHead((current) => [...current, address]);
+      case "1-Storey High":
+        return setStorey1((current) => [...current, address]);
+      case "1.5-Storey High":
+        return setStorey15((current) => [...current, address]);
+      case "2-Storey or Higher":
+        return setStorey2((current) => [...current, address]);
+      default:
+        return null;
+    }
+  };
 
   const reportInfoHandler = async (id, username) => {
     const url = `https://rainflow.live/api/report/${id}`;
@@ -805,6 +903,7 @@ function MapFunction() {
         >
           <Box borderColor="grey.400" border={1} boxShadow={3}>
             <IconButton
+            onClick = {()=> setShowPopover(!showPopover)}
               className={classes.customHoverFocus}
               size="small"
               aria-label="delete"

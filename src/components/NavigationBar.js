@@ -71,7 +71,11 @@ export const NavigationBar = (props) => {
             ) : null}
           </Navbar.Text>
         </Nav>
-      ) : null}
+      ) : (
+        <Nav>
+          <Navbar.Text color="#F9F9FB">guest</Navbar.Text>
+        </Nav>
+      )}
     </Navbar>
   );
 };

@@ -26,7 +26,7 @@
     "material-ui": "^0.20.2",
     "moment": "^2.29.1",
     "nominatim-geocode": "^1.1.0",
-    "react": "^16.13.1",
+    "react": "^16.14.0",
     "react-bootstrap": "^1.3.0",
     "react-bootstrap-icons": "^1.1.0",
     "react-bootstrap-sidebar": "0.0.1",

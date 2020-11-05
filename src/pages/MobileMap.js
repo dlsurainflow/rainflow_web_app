@@ -65,7 +65,7 @@ function MapFunction() {
 
   const proxyurl = "";
   // const proxyurl = "http://192.168.1.3:8080/";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -1223,7 +1223,7 @@ function MapFunction() {
             <Modal.Body className="modal-body">
               <Pane
                 flex="1"
-                height={windowHeight * 0.8}
+                height={windowHeight * 0.5}
                 overflow={"auto"}
                 background="#F9F9FB"
                 paddingX={5}
@@ -1368,7 +1368,7 @@ function MapFunction() {
             <Modal.Body className="modal-body">
               <Pane
                 flex="1"
-                height={windowHeight * 0.8}
+                height={windowHeight * 0.5}
                 overflow={"auto"}
                 background="#F9F9FB"
                 paddingX={5}

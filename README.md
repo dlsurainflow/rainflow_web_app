@@ -1,4 +1,5 @@
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=dlsurainflow/rainflow_web_app)](https://dependabot.com)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

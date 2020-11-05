@@ -24,7 +24,7 @@ import {
 } from "weather-icons-react";
 import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
-
+import Tooltip from "@material-ui/core/Tooltip";
 import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
@@ -33,7 +33,7 @@ import RoomIcon from "@material-ui/icons/Room";
 import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
-import { borders, shadows } from "@material-ui/system";
+// import { borders, shadows } from "@material-ui/system";
 import { useParams } from "react-router";
 import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
 import { Line } from "react-chartjs-2";
@@ -41,7 +41,7 @@ import Divider from '@material-ui/core/Divider';
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import { Container } from "react-bootstrap";
-import useInterval from '@use-it/interval';
+import useInterval from "@use-it/interval";
 
 function MapFunction() {
   let { token_params, latitude_params, longitude_params} = useParams();
@@ -58,19 +58,19 @@ function MapFunction() {
   const [showPopover, setShowPopover] = useState(false);
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
   const [summaryData, setSummaryData] = useState();
-  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState()
-  const [floodCirclesMobile, setFloodCirclesMobile] = useState()
-  const [showCircles, setShowCircles] = useState()
-  const [showMarkers, setShowMarkers] = useState()
+  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
+  const [floodCirclesMobile, setFloodCirclesMobile] = useState();
+  const [showCircles, setShowCircles] = useState();
+  const [showMarkers, setShowMarkers] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
- const proxyurl = "";
- // const proxyurl = "http://localhost:8800/"
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  // const proxyurl = "http://192.168.1.3:8080/";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
     latitude: null,
@@ -79,18 +79,23 @@ function MapFunction() {
     flood_depth: null,
     rainfall_amount: null,
     rainfall_rate: null,
+    water_level: null,
     temperature: null,
     pressure: null,
     humidity: null,
     username: null,
     updatedAt: null,
     charts: null,
+    address: null,
+    badge: null,
     FD1: [],
     TMP1: [],
     RA1: [],
     PR1: [],
     HU1: [],
+    WL1: [],
   });
+
   const [reportInfo, setReportInfo] = useState({
     id: null,
     latitude: null,
@@ -102,6 +107,8 @@ function MapFunction() {
     image: null,
     upvote: null,
     downvote: null,
+    address: null,
+    badge: null,
     currentAction: null,
     description: null,
     rainfall_rate_title: null,
@@ -110,7 +117,6 @@ function MapFunction() {
     flood_depth_color: null,
   });
 
-  
   const [noRain, setNoRain] = useState([]);
   const [lightRain, setLightRain] = useState([]);
   const [modRain, setModRain] = useState([]);
@@ -127,6 +133,7 @@ function MapFunction() {
   const [storey1, setStorey1] = useState([]);
   const [storey2, setStorey2] = useState([]);
   const [storey15, setStorey15] = useState([]);
+
 
   useEffect(()=>{
     setShowCircles(false)
@@ -153,9 +160,8 @@ function MapFunction() {
     }, 10000);
   
 
- 
+
   const fetchData = async () => {
-  
     const url = "https://rainflow.live/api/map/all";
 
     await fetch(proxyurl + url, {
@@ -166,7 +172,7 @@ function MapFunction() {
       },
     })
       .then((response) => {
-       // console.log(response.status);
+        // console.log(response.status);
         if (response.status === 200)
           response.json().then((data) => {
             setMapData(data);
@@ -179,11 +185,11 @@ function MapFunction() {
     if (mapData == null) {
       fetchData();
     } else {
-      console.log("updated markers")
-      setDoneInitialFetch(true)
+      console.log("updated markers");
+      setDoneInitialFetch(true);
       setRaftMarkers(
         mapData.raft.map((data) => {
-         // console.log("raft: ", data);
+          // console.log("raft: ", data);
           return (
             <Marker
               key={data.id}
@@ -217,6 +223,9 @@ function MapFunction() {
                           humidity: data.humidity,
                           pressure: data.pressure,
                           username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          water_level: data.water_level,
                           updatedAt: moment(data.updatedAt).format(
                             "DD MMM YYYY (dddd) HH:mm"
                           ),
@@ -226,6 +235,7 @@ function MapFunction() {
                           RA1: _data.RA1,
                           PR1: _data.PR1,
                           HU1: _data.HU1,
+                          WL1: _data.WL1,
                         });
                       })
                       .catch((error) => console.error("Error:", error));
@@ -240,12 +250,12 @@ function MapFunction() {
         mapData.raft.map((data) => {
           return (
             <Circle
-            key = {data.id}
-            center={{lat: data.latitude, lng: data.longitude}}
-            fillColor={circleColor(data.flood_depth)} 
-            radius={50}
-            fillOpacity={0.75}
-            stroke={false}
+              key={data.id}
+              center={{ lat: data.latitude, lng: data.longitude }}
+              fillColor={circleColor(data.flood_depth)}
+              radius={50}
+              fillOpacity={0.75}
+              stroke={false}
             />
           );
         })
@@ -254,12 +264,12 @@ function MapFunction() {
         mapData.mobile.map((data) => {
           return (
             <Circle
-            key = {data.id}
-            center={{lat: data.latitude, lng: data.longitude}}
-            fillColor={circleColor(data.flood_depth)} 
-            radius={50}
-            fillOpacity={ 0.75}
-            stroke={false}
+              key={data.id}
+              center={{ lat: data.latitude, lng: data.longitude }}
+              fillColor={circleColor(data.flood_depth)}
+              radius={50}
+              fillOpacity={0.75}
+              stroke={false}
             />
           );
         })
@@ -276,37 +286,37 @@ function MapFunction() {
               position={[data.latitude, data.longitude]}
               onclick={(e) => {
                 // eslint-disable-next-line no-lone-blocks
-                if(data.image != null){
-                  e.target.openPopup()
-                }else{
+                if (data.image != null) {
+                  e.target.openPopup();
+                } else {
                   setNodeType("Mobile");
                   reportInfoHandler(data.id, data.username);
                 }
-                
               }}
             >
-                {data.image !== null ? (
+              {data.image !== null ? (
                 <>
-                <Popup>
-                      <Image
-                        src={`https://rainflow.live/api/uploads/reports/${data.image}`}
-                        thumbnail
-                        fluid
-                        />
-                      <Button onClick = {()=>{
+                  <Popup>
+                    <Image
+                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                      thumbnail
+                      fluid
+                    />
+                    <Button
+                      onClick={() => {
                         setNodeType("Mobile");
                         reportInfoHandler(data.id, data.username);
-                      }} 
-                      variant="info" 
+                      }}
+                      variant="info"
                       block
-                      size="sm">
-                          More info
-                        </Button>
-                </Popup>
+                      size="sm"
+                    >
+                      More info
+                    </Button>
+                  </Popup>
                 </>
-                  
-                ) : null}
-            </Marker> 
+              ) : null}
+            </Marker>
           );
         })
       );
@@ -323,19 +333,19 @@ function MapFunction() {
       setHeavyRain([]);
       setIntenseRain([]);
       setTorrentialRain([]);
-  
+
       setNoFlood([]);
       setAnkle([]);
       setWaist([]);
       setNeck([]);
-      setKnee([])
+      setKnee([]);
       setHead([]);
       setStorey1([]);
       setStorey15([]);
       setStorey2([]);
-    
-      setDoneInitialFetchSummary(true)
-      console.log("summary updated!")
+
+      setDoneInitialFetchSummary(true);
+      console.log("summary updated!");
       summaryData[0].map((data) => {
         rainSwitch(data.rainfall_rate_title, data.address, data.latitude, data.longitude);
         floodSwitch(data.flood_depth_title, data.address, data.latitude, data.longitude);
@@ -347,10 +357,7 @@ function MapFunction() {
         floodSwitch(data.flood_depth_title, data.address, data.latitude, data.longitude);
         return null;
       });
-
-      }
-      
-    
+    }
   }, [summaryData]);
 
   
@@ -435,6 +442,8 @@ function MapFunction() {
             downvote: data.downvote,
             currentAction: data.currentAction,
             description: data.description,
+            address: data.address,
+            badge: data.badge,
             rainfall_rate_title: getRainfallRateTitle(data.rainfall_rate),
             flood_depth_title: getFloodDepthTitle(data.flood_depth),
             rainfall_rate_color: getRainfallRateColor(data.rainfall_rate),
@@ -471,11 +480,15 @@ function MapFunction() {
       humidity: null,
       username: null,
       updatedAt: null,
+      badge: null,
+      address: null,
+      water_level: null,
       FD1: [],
       TMP1: [],
       RA1: [],
       PR1: [],
       HU1: [],
+      WL1: [],
     });
 
     setReportInfo({
@@ -495,10 +508,12 @@ function MapFunction() {
       flood_depth_title: null,
       rainfall_rate_color: null,
       flood_depth_color: null,
+      badge: null,
+      address: null,
     });
   };
 
-  const circleColor = (flood_depth) =>{
+  const circleColor = (flood_depth) => {
     var flood;
 
     if (flood_depth <= 10) {
@@ -522,8 +537,8 @@ function MapFunction() {
     }
 
     return flood;
-  }
-  
+  };
+
   const fetchSummary = async () => {
     const url = "https://rainflow.live/api/map/summary";
 
@@ -543,7 +558,6 @@ function MapFunction() {
       .catch((error) => console.error("Error:", error));
   };
 
-  
   function getRainfallRateTitle(rainfall_rate) {
     console.log("I reached here: ", rainfall_rate);
     if (rainfall_rate === 0) {
@@ -674,8 +688,8 @@ function MapFunction() {
 
   return (
     <>
-     <Container maxWidth={false} className={classes.popover}>
-     <Dialog
+      <Container maxWidth={false} className={classes.popover}>
+        <Dialog
           isShown={voteLoggedInDialog}
           title="You're not logged in."
           onCloseComplete={() => setVoteLoggedInDialog(false)}
@@ -690,8 +704,8 @@ function MapFunction() {
           onOpen={() => setShowPopover(true)}
           content={
             <Pane
-              width={ isMobile? windowWidth*0.75 : 410}
-              height={ isMobile? windowHeight*0.65 : 570}
+              width={isMobile ? windowWidth * 0.75 : 410}
+              height={isMobile ? windowHeight * 0.65 : 570}
               display="flex"
               alignItems="flex-start"
               justifyContent="flex-start"
@@ -841,22 +855,22 @@ function MapFunction() {
               <Pane
                 width="100%"
                 overflow="auto"
-                paddingX= {10}
-                marginTop = {0}
-                flexGrow = {1}
-                alignItems = "flex-start"
+                paddingX={10}
+                marginTop={0}
+                flexGrow={1}
+                alignItems="flex-start"
                 backgroundColor="#F9F9FB"
                 id={`panel-legend`}
                 role="tabpanel"
                 aria-labelledby="legend"
                 aria-hidden={tabIndex === 0 ? false : true}
-                justifyContent = "center"
+                justifyContent="center"
                 display={tabIndex === 0 ? "block" : "none"}
               >
                 <Image
-                        src={require('../assets/legend-vertical_legend.png')}
-                        fluid
-                      />
+                  src={require("../assets/legend-vertical_legend.png")}
+                  fluid
+                />
               </Pane>
               <Pane
                 width="100%"
@@ -947,7 +961,7 @@ function MapFunction() {
         >
           <Box borderColor="grey.400" border={1} boxShadow={3}>
             <IconButton
-            onClick = {()=> setShowPopover(!showPopover)}
+              onClick={() => setShowPopover(!showPopover)}
               className={classes.customHoverFocus}
               size="small"
               aria-label="delete"
@@ -1023,9 +1037,20 @@ function MapFunction() {
                     flexDirection="column"
                     padding={10}
                   >
-                    <Heading size={700}>Report ID {reportInfo.id}</Heading>
+                    <Heading size={700}>
+                      {reportInfo.username}'s Report ({reportInfo.id}){" "}
+                      {reportInfo.badge !== null ? (
+                        <>
+                          <Image
+                            src={`https://rainflow.live/api/images/badges/${reportInfo.badge}`}
+                            height="20"
+                          />
+                        </>
+                      ) : null}
+                    </Heading>
                     <Text size={500}>{reportInfo.updatedAt}</Text>
-                    <Text size={500}>Reported by {reportInfo.username}</Text>
+                    <Text size={300}>{reportInfo.address}</Text>
+                    {/* <Text size={500}>Reported by {reportInfo.username}</Text> */}
                     <Pane
                       flexDirection="column"
                       justifyContent="center"
@@ -1038,7 +1063,7 @@ function MapFunction() {
                         }
                         onClick={(e) => {
                           console.log("Upvote pressed!");
-                          var token = token_params;
+                          var token = localStorage.getItem("token");
                           if (token !== "guest") {
                             if (reportInfo.currentAction === "upvote") {
                               var _upvote = reportInfo.upvote - 1;
@@ -1054,6 +1079,8 @@ function MapFunction() {
                                 upvote: _upvote,
                                 downvote: reportInfo.downvote,
                                 currentAction: null,
+                                badge: reportInfo.badge,
+                                address: reportInfo.address,
                                 description: reportInfo.description,
                                 rainfall_rate_title:
                                   reportInfo.rainfall_rate_title,
@@ -1097,6 +1124,8 @@ function MapFunction() {
                                 upvote: _upvote,
                                 downvote: _downvote,
                                 currentAction: "upvote",
+                                badge: reportInfo.badge,
+                                address: reportInfo.address,
                                 description: reportInfo.description,
                                 rainfall_rate_title:
                                   reportInfo.rainfall_rate_title,
@@ -1125,9 +1154,9 @@ function MapFunction() {
                                 })
                                 .catch((err) => console.error(err));
                             }
-                          }else{
+                          } else {
                             setVoteLoggedInDialog(true);
-                            setIsOpen(false)
+                            setIsOpen(false);
                           }
                         }}
                       >
@@ -1141,7 +1170,7 @@ function MapFunction() {
                         }
                         onClick={(e) => {
                           console.log("Downvote pressed!");
-                          var token = token_params
+                          var token = localStorage.getItem("token");
                           if (token !== "guest") {
                             if (reportInfo.currentAction === "downvote") {
                               var _downvote = reportInfo.upvote - 1;
@@ -1158,6 +1187,8 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: null,
                                 description: reportInfo.description,
+                                badge: reportInfo.badge,
+                                address: reportInfo.address,
                                 rainfall_rate_title:
                                   reportInfo.rainfall_rate_title,
                                 flood_depth_title: reportInfo.flood_depth_title,
@@ -1201,6 +1232,8 @@ function MapFunction() {
                                 downvote: _downvote,
                                 currentAction: "downvote",
                                 description: reportInfo.description,
+                                badge: reportInfo.badge,
+                                address: reportInfo.address,
                                 rainfall_rate_title:
                                   reportInfo.rainfall_rate_title,
                                 flood_depth_title: reportInfo.flood_depth_title,
@@ -1228,9 +1261,9 @@ function MapFunction() {
                                 })
                                 .catch((err) => console.error(err));
                             }
-                          }else{
+                          } else {
                             setVoteLoggedInDialog(true);
-                            setIsOpen(false)
+                            setIsOpen(false);
                           }
                         }}
                       >
@@ -1264,12 +1297,22 @@ function MapFunction() {
                 >
                   <WiRain size={30} color="black" />
                   <Heading size={100} marginLeft={5}>
-                    RAINFALL RATE
+                    RAINFALL RATE{" "}
+                    <Tooltip title="The amount of rain that falls over time.">
+                      <InfoSignIcon size={13} color="grey" />
+                    </Tooltip>
                   </Heading>
-                  <Heading size={600} marginLeft={10} color={reportInfo.rainfall_rate_color}>
-                  {reportInfo.rainfall_rate_title}
+                  <Heading
+                    size={600}
+                    marginLeft={10}
+                    color={reportInfo.rainfall_rate_color}
+                  >
+                    {/* {reportInfo.rainfall_rate} */}
+                    {reportInfo.rainfall_rate_title}
                   </Heading>
-                 
+                  {/* <Heading size={300} marginLeft={5}>
+                    mm/Hr
+                  </Heading> */}
                 </Card>
                 <Card
                   backgroundColor="white"
@@ -1285,9 +1328,17 @@ function MapFunction() {
                   <Heading size={100} marginLeft={5}>
                     FLOOD DEPTH
                   </Heading>
-                  <Heading size={600} marginLeft={10} color={reportInfo.flood_depth_color}>
-                  {reportInfo.flood_depth_title}
+                  <Heading
+                    size={600}
+                    marginLeft={10}
+                    color={reportInfo.flood_depth_color}
+                  >
+                    {/* {reportInfo.flood_depth} */}
+                    {reportInfo.flood_depth_title}
                   </Heading>
+                  {/* <Heading size={300} marginLeft={5}>
+                    cm
+                  </Heading> */}
                 </Card>
                 {reportInfo.description !== null &&
                 reportInfo.description !== "" ? (
@@ -1333,12 +1384,10 @@ function MapFunction() {
                     </Pane>
                   </Card>
                 ) : null}
-               
               </Pane>
             </Modal.Body>
           </>
         ) : null}
-
         {nodeType === "RAFT" ? (
           <>
             <Modal.Header closeButton>
@@ -1349,9 +1398,24 @@ function MapFunction() {
                     flexDirection="column"
                     padding={10}
                   >
-                    <Heading size={700}>RAFT Device</Heading>
+                    <Heading size={700}>
+                      {raftInfo.username}'s RAFT{" "}
+                      {raftInfo.badge !== null ? (
+                        <>
+                          <Image
+                            src={`https://rainflow.live/api/images/badges/${raftInfo.badge}`}
+                            height="20"
+                          />
+                        </>
+                      ) : null}
+                      <Image
+                        src="https://rainflow.live/api/images/badges/raft.png"
+                        height="20"
+                      />
+                    </Heading>
                     <Text size={500}>{raftInfo.updatedAt}</Text>
-                    <Text size={500}>Owned by {raftInfo.username}</Text>
+                    <Text size={300}>{raftInfo.address}</Text>
+                    {/* <Text size={500}>Owned by {raftInfo.username}</Text> */}
                   </Pane>
                 </Pane>
               </Modal.Title>
@@ -1365,238 +1429,296 @@ function MapFunction() {
                 paddingX={5}
                 margin={0}
               >
-                <Card
-                  backgroundColor="white"
-                  elevation={0}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="flex-start"
-                  alignContent="center"
-                  padding={20}
-                  marginY={10}
-                  flexDirection="column"
-                >
-                  <Pane
-                    flex="1"
-                    // height={windowHeight * 0.8}
-                    width="100%"
-                    // overflow={"auto"}
-                    // background="#F9F9FB"
-                    justifyContent="flex-start"
+                {raftInfo.RA1 !== null ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
                     alignItems="center"
-                    paddingX={5}
-                    margin={0}
-                    display="inline-flex"
-                    flexDirection="row"
-                  >
-                    <WiRain size={30} color="black" />
-                    <Heading size={100} marginLeft={5}>
-                      RAINFALL RATE
-                    </Heading>
-                    <Heading size={600} marginLeft={10}>
-                      {raftInfo.rainfall_rate}
-                    </Heading>
-                    <Heading size={400} marginLeft={5}>
-                      {"mm/day"}
-                    </Heading>
-                  </Pane>
-                  <Pane
-                    flex="1"
-                    // height={windowHeight * 0.8}
-                    width="100%"
-                    // overflow={"auto"}
-                    // background="#F9F9FB"
                     justifyContent="flex-start"
-                    alignItems="center"
-                    paddingX={5}
-                    margin={0}
-                    display="inline-flex"
-                    flexDirection="row"
+                    alignContent="center"
+                    padding={20}
+                    marginY={10}
+                    flexDirection="column"
                   >
-                    <WiRaindrops size={30} color="black" />
-                    <Heading size={100} marginLeft={5}>
-                      TOTAL RAINFALL AMOUNT
-                    </Heading>
-                    <Heading size={600} marginLeft={10}>
-                      {raftInfo.rainfall_amount}
-                    </Heading>
-                    <Heading size={300} marginLeft={5}>
-                      {"mm/day"}
-                    </Heading>
-                  </Pane>
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        RAINFALL RATE{" "}
+                        <Tooltip title="The amount of rain that falls over time.">
+                          <InfoSignIcon size={13} color="grey" />
+                        </Tooltip>
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.rainfall_rate}
+                      </Heading>
+                      <Heading size={400} marginLeft={5}>
+                        {"mm/hour"}
+                      </Heading>
+                    </Pane>
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiRaindrops size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        TOTAL RAINFALL{" "}
+                        <Tooltip title="The total amount of rain that fell over the past 24 hours.">
+                          <InfoSignIcon size={13} color="grey" />
+                        </Tooltip>
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.rainfall_amount}
+                      </Heading>
+                      <Heading size={300} marginLeft={5}>
+                        {"mm/day"}
+                      </Heading>
+                    </Pane>
+                    {raftInfo.RA1.length > 0 ? (
+                      <Pane flex="1" width="100%">
+                        <Line
+                          data={{
+                            labels: raftInfo.RA1.map((k) =>
+                              moment.unix(k.time).format("h:mm A")
+                            ),
+                            datasets: [
+                              {
+                                data: raftInfo.RA1.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                // height: "75%",
+                                backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                            ],
+                          }}
+                          options={{
+                            aspectRatio: 1,
+                            // maintainAspectRatio: false,
+                            legend: {
+                              display: false,
+                            },
+                            scales: {
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                            },
+                          }}
+                        />
+                      </Pane>
+                    ) : null}
+                  </Card>
+                ) : null}
+                {raftInfo.FD1 !== null ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    alignContent="center"
+                    padding={20}
+                    marginY={10}
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiFlood size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        FLOOD DEPTH
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.flood_depth}
+                      </Heading>
+                      <Heading size={300} marginLeft={5}>
+                        {"cm"}
+                      </Heading>
+                    </Pane>
 
-                  {raftInfo.RA1 !== null || raftInfo.RA1 !== "" ? (
-                    <Pane flex="1" width="100%">
-                      <Line
-                        data={{
-                          labels: raftInfo.RA1.map((k) =>
-                            moment.unix(k.time).format("h:mm")
-                          ),
-                          datasets: [
-                            {
-                              data: raftInfo.RA1.map((k) => k.value),
-                              fill: true,
-                              // width: "125%",
-                              // height: "75%",
-                              backgroundColor: "#00695c",
-                              borderColor: "#00796b",
+                    {raftInfo.FD1.length > 0 ? (
+                      <Pane flex="1" width="100%" height="50%">
+                        <Line
+                          data={{
+                            labels: raftInfo.FD1.map((k) =>
+                              moment.unix(k.time).format("h:mm A")
+                            ),
+                            datasets: [
+                              {
+                                data: raftInfo.FD1.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                height: "50%",
+                                backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                            ],
+                          }}
+                          options={{
+                            aspectRatio: 0.5,
+                            // maintainAspectRatio: false,
+                            legend: {
+                              display: false,
                             },
-                          ],
-                        }}
-                        options={{
-                          aspectRatio: 1,
-                          // maintainAspectRatio: false,
-                          legend: {
-                            display: false,
-                          },
-                          scales: {
-                            xAxes: [{ display: false }],
-                            yAxes: [{ display: true }],
-                          },
-                        }}
-                      />
-                    </Pane>
-                  ) : null}
-                </Card>
-
-                <Card
-                  backgroundColor="white"
-                  elevation={0}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="flex-start"
-                  alignContent="center"
-                  padding={20}
-                  marginY={10}
-                  flexDirection="column"
-                >
-                  <Pane
-                    flex="1"
-                    // height={windowHeight * 0.8}
-                    width="100%"
-                    // overflow={"auto"}
-                    // background="#F9F9FB"
-                    justifyContent="flex-start"
+                            scales: {
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                            },
+                          }}
+                        />
+                      </Pane>
+                    ) : null}
+                  </Card>
+                ) : null}
+                {raftInfo.temperature !== null ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
                     alignItems="center"
-                    paddingX={5}
-                    margin={0}
-                    display="inline-flex"
-                    flexDirection="row"
-                  >
-                    <WiFlood size={30} color="black" />
-                    <Heading size={100} marginLeft={5}>
-                      FLOOD DEPTH
-                    </Heading>
-                    <Heading size={600} marginLeft={10}>
-                      {raftInfo.flood_depth}
-                    </Heading>
-                    <Heading size={300} marginLeft={5}>
-                      {"cm"}
-                    </Heading>
-                  </Pane>
-                  {raftInfo.FD1 !== null || raftInfo.FD1 !== "" ? (
-                    <Pane flex="1" width="100%" height="50%">
-                      <Line
-                        data={{
-                          labels: raftInfo.FD1.map((k) =>
-                            moment.unix(k.time).format("h:mm")
-                          ),
-                          datasets: [
-                            {
-                              data: raftInfo.FD1.map((k) => k.value),
-                              fill: true,
-                              // width: "125%",
-                              height: "50%",
-                              backgroundColor: "#00695c",
-                              borderColor: "#00796b",
-                            },
-                          ],
-                        }}
-                        options={{
-                          aspectRatio: 0.5,
-                          // maintainAspectRatio: false,
-                          legend: {
-                            display: false,
-                          },
-                          scales: {
-                            xAxes: [{ display: false }],
-                            yAxes: [{ display: true }],
-                          },
-                        }}
-                      />
-                    </Pane>
-                  ) : null}
-                </Card>
-                <Card
-                  backgroundColor="white"
-                  elevation={0}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="flex-start"
-                  alignContent="center"
-                  padding={20}
-                  marginY={10}
-                  flexDirection="column"
-                >
-                  <Pane
-                    flex="1"
-                    // height={windowHeight * 0.8}
-                    width="100%"
-                    // overflow={"auto"}
-                    // background="#F9F9FB"
                     justifyContent="flex-start"
-                    alignItems="center"
-                    paddingX={5}
-                    margin={0}
-                    display="inline-flex"
-                    flexDirection="row"
+                    alignContent="center"
+                    padding={20}
+                    marginY={10}
+                    flexDirection="column"
                   >
-                    <WiThermometer size={30} color="black" />
-                    <Heading size={100} marginLeft={5}>
-                      Temperature
-                    </Heading>
-                    <Heading size={600} marginLeft={10}>
-                      {raftInfo.temperature}
-                    </Heading>
-                    <Heading size={300} marginLeft={5}>
-                      {"°C"}
-                    </Heading>
-                  </Pane>
-                  {raftInfo.temperature !== null &&
-                  raftInfo.temperature !== 0 ? (
-                    <Pane flex="1" width="100%" height="50%">
-                      <Line
-                        data={{
-                          labels: raftInfo.TMP1.map((k) =>
-                            moment.unix(k.time).format("h:mm")
-                          ),
-                          datasets: [
-                            {
-                              data: raftInfo.TMP1.map((k) => k.value),
-                              fill: true,
-                              // width: "125%",
-                              height: "50%",
-                              backgroundColor: "#00695c",
-                              borderColor: "#00796b",
-                            },
-                          ],
-                        }}
-                        options={{
-                          aspectRatio: 0.5,
-                          // maintainAspectRatio: false,
-                          legend: {
-                            display: false,
-                          },
-                          scales: {
-                            xAxes: [{ display: false }],
-                            yAxes: [{ display: true }],
-                          },
-                        }}
-                      />
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiThermometer size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        Temperature
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.temperature}
+                      </Heading>
+                      <Heading size={300} marginLeft={5}>
+                        {"°C"}
+                      </Heading>
                     </Pane>
-                  ) : null}
-                </Card>
-                {raftInfo.pressure !== null && raftInfo.pressure !== 0 ? (
+                    {raftInfo.TMP1.length > 0 ? (
+                      <Pane flex="1" width="100%" height="50%">
+                        <Line
+                          data={{
+                            labels: raftInfo.TMP1.map((k) =>
+                              moment.unix(k.time).format("h:mm A")
+                            ),
+                            datasets: [
+                              {
+                                data: raftInfo.TMP1.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                height: "50%",
+                                backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                            ],
+                          }}
+                          options={{
+                            aspectRatio: 0.5,
+                            // maintainAspectRatio: false,
+                            legend: {
+                              display: false,
+                            },
+                            scales: {
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                            },
+                          }}
+                        />
+                      </Pane>
+                    ) : null}
+                  </Card>
+                ) : null}
+                {raftInfo.pressure !== null ? (
                   <Card
                     backgroundColor="white"
                     elevation={0}
@@ -1623,7 +1745,10 @@ function MapFunction() {
                     >
                       <WiBarometer size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
-                        Pressure
+                        Air Pressure{" "}
+                        <Tooltip title="The force exerted on the Earth’s surface by the weight of the air above the surface. Low pressure is usually associated with high winds, warm air, and atmospheric lifting.">
+                          <InfoSignIcon size={13} color="grey" />
+                        </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>
                         {raftInfo.pressure}
@@ -1632,40 +1757,57 @@ function MapFunction() {
                         {"mmBar"}
                       </Heading>
                     </Pane>
-
-                    <Pane flex="1" width="100%" height="50%">
-                      <Line
-                        data={{
-                          labels: raftInfo.PR1.map((k) =>
-                            moment.unix(k.time).format("h:mm")
-                          ),
-                          datasets: [
-                            {
-                              data: raftInfo.PR1.map((k) => k.value),
-                              fill: true,
-                              // width: "125%",
-                              height: "50%",
-                              backgroundColor: "#00695c",
-                              borderColor: "#00796b",
+                    {raftInfo.PR1.length > 0 ? (
+                      <Pane flex="1" width="100%" height="50%">
+                        <Line
+                          data={{
+                            labels: raftInfo.PR1.map((k) =>
+                              moment.unix(k.time).format("h:mm A")
+                            ),
+                            datasets: [
+                              {
+                                data: raftInfo.PR1.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                height: "50%",
+                                backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                            ],
+                          }}
+                          options={{
+                            aspectRatio: 0.5,
+                            // maintainAspectRatio: false,
+                            legend: {
+                              display: false,
                             },
-                          ],
-                        }}
-                        options={{
-                          aspectRatio: 0.5,
-                          // maintainAspectRatio: false,
-                          legend: {
-                            display: false,
-                          },
-                          scales: {
-                            xAxes: [{ display: false }],
-                            yAxes: [{ display: true }],
-                          },
-                        }}
-                      />
-                    </Pane>
+                            scales: {
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                            },
+                          }}
+                        />
+                      </Pane>
+                    ) : null}
                   </Card>
                 ) : null}
-                {raftInfo.humidity !== null && raftInfo.humidity !== 0 ? (
+                {raftInfo.humidity !== null ? (
                   <Card
                     backgroundColor="white"
                     elevation={0}
@@ -1692,7 +1834,10 @@ function MapFunction() {
                     >
                       <WiHumidity size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
-                        HUMIDITY
+                        HUMIDITY{" "}
+                        <Tooltip title="The amount of water vapour in the air.">
+                          <InfoSignIcon size={13} color="grey" />
+                        </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>
                         {raftInfo.humidity}
@@ -1701,37 +1846,143 @@ function MapFunction() {
                         {"%"}
                       </Heading>
                     </Pane>
-
-                    <Pane flex="1" width="100%" height="50%">
-                      <Line
-                        data={{
-                          labels: raftInfo.HU1.map((k) =>
-                            moment.unix(k.time).format("h:mm")
-                          ),
-                          datasets: [
-                            {
-                              data: raftInfo.HU1.map((k) => k.value),
-                              fill: true,
-                              // width: "125%",
-                              height: "50%",
-                              backgroundColor: "#00695c",
-                              borderColor: "#00796b",
+                    {raftInfo.HU1.length > 0 ? (
+                      <Pane flex="1" width="100%" height="50%">
+                        <Line
+                          data={{
+                            labels: raftInfo.HU1.map((k) =>
+                              moment.unix(k.time).format("h:mm A")
+                            ),
+                            datasets: [
+                              {
+                                data: raftInfo.HU1.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                height: "50%",
+                                backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                            ],
+                          }}
+                          options={{
+                            aspectRatio: 0.5,
+                            // maintainAspectRatio: false,
+                            legend: {
+                              display: false,
                             },
-                          ],
-                        }}
-                        options={{
-                          aspectRatio: 0.5,
-                          // maintainAspectRatio: false,
-                          legend: {
-                            display: false,
-                          },
-                          scales: {
-                            xAxes: [{ display: false }],
-                            yAxes: [{ display: true }],
-                          },
-                        }}
-                      />
+                            scales: {
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                            },
+                          }}
+                        />
+                      </Pane>
+                    ) : null}
+                  </Card>
+                ) : null}
+                {raftInfo.water_level !== null ? (
+                  <Card
+                    backgroundColor="white"
+                    elevation={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    alignContent="center"
+                    padding={20}
+                    marginY={10}
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      // height={windowHeight * 0.8}
+                      width="100%"
+                      // overflow={"auto"}
+                      // background="#F9F9FB"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      paddingX={5}
+                      margin={0}
+                      display="inline-flex"
+                      flexDirection="row"
+                    >
+                      <WiFlood size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        WATER LEVEL{" "}
+                        <Tooltip title="The height of river water.">
+                          <InfoSignIcon size={13} color="grey" />
+                        </Tooltip>
+                      </Heading>
+                      <Heading size={600} marginLeft={10}>
+                        {raftInfo.water_level}
+                      </Heading>
+                      <Heading size={300} marginLeft={5}>
+                        {"meters"}
+                      </Heading>
                     </Pane>
+                    {raftInfo.WL1.length > 0 ? (
+                      <Pane flex="1" width="100%" height="50%">
+                        <Line
+                          data={{
+                            labels: raftInfo.WL1.map((k) =>
+                              moment.unix(k.time).format("h:mm A")
+                            ),
+                            datasets: [
+                              {
+                                data: raftInfo.WL1.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                height: "50%",
+                                backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                            ],
+                          }}
+                          options={{
+                            aspectRatio: 0.5,
+                            // maintainAspectRatio: false,
+                            legend: {
+                              display: false,
+                            },
+                            scales: {
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                            },
+                          }}
+                        />
+                      </Pane>
+                    ) : null}
                   </Card>
                 ) : null}
               </Pane>
@@ -1748,7 +1999,7 @@ function MapFunction() {
 
         {raftMarkers && showMarkers ? raftMarkers : null}
         {mobileMarkers && showMarkers ? mobileMarkers : null}
-  
+
         {showCircles ? floodCirclesMobile : null}
         {showCircles ? floodCirclesRAFT : null}
       </Map>
@@ -1776,27 +2027,20 @@ const useStyles = makeStyles({
     borderRadius: 2,
     flexWrap: "wrap",
   },
-  root: { 
+  root: {
     flexWrap: "wrap",
     position: "absolute",
     left: 10,
     top: 160,
-    width: "auto"
-},
-  
- floodON: {
-  "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
-  backgroundColor: "#D2EEF3",
-  borderRadius: 2,
-  flexWrap: "wrap",
- },
+    width: "auto",
+  },
 
- floodOFF: {
-  "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
-  backgroundColor: "white",
-  borderRadius: 2,
-  flexWrap: "wrap",
- },
+  floodON: {
+    "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
+    backgroundColor: "#D2EEF3",
+    borderRadius: 2,
+    flexWrap: "wrap",
+  },
 
 floodCircles:{
   position: "absolute",
@@ -1807,14 +2051,23 @@ floodCircles:{
   padding: 0
 },
 
-markerButton:{
-  position: "absolute",
-  right: 60,
-  top: 10,
-  zIndex: 1,
-  width: "auto",
-  padding: 0
-}
+  floodCircles: {
+    position: "absolute",
+    right: 60,
+    top: 70,
+    zIndex: 1,
+    width: "auto",
+    padding: 0,
+  },
+
+  markerButton: {
+    position: "absolute",
+    right: 60,
+    top: 10,
+    zIndex: 1,
+    width: "auto",
+    padding: 0,
+  },
 });
 
 export const MobileMap = (props) => {

@@ -43,6 +43,7 @@ import { borders, shadows } from "@material-ui/system";
 import Box from "@material-ui/core/Box";
 import L, { circleMarker } from "leaflet";
 import * as nominatim from "nominatim-geocode";
+import Divider from '@material-ui/core/Divider';
 import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
@@ -50,6 +51,8 @@ import useInterval from "@use-it/interval";
 export const Home = (props) => {
   const windowHeight = window.innerHeight;
   const classes = useStyles();
+  const [mapCenter, setMapCenter] = useState();
+  const [mapZoom, setMapZoom] = useState();
   const [mapData, setMapData] = useState();
   const [summaryData, setSummaryData] = useState();
   const [raftMarkers, setRaftMarkers] = useState();
@@ -59,6 +62,7 @@ export const Home = (props) => {
   const [guideShown, setGuideShown] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState();
+  const [noSummary, setNoSummary] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
 
   const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
@@ -68,9 +72,9 @@ export const Home = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
-  const proxyurl = "";
+  //const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-  //const proxyurl = "http://localhost:8800/"
+  const proxyurl = "http://localhost:8800/"
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -344,15 +348,15 @@ export const Home = (props) => {
   useEffect(() => {
     setShowCircles(false);
     setShowMarkers(true);
+    setMapCenter([14.599512, 120.984222])
+    setMapZoom(9)
     decodeToken();
     if (!isMobile) {
       setShowPopover(true);
     }
   }, []);
 
-  {
-    /* Update every map and summary every 10 seconds*/
-  }
+  {/* Update every map and summary every 10 seconds*/}
   useInterval(() => {
     if (doneInitialFetch) {
       fetchData();
@@ -544,59 +548,63 @@ export const Home = (props) => {
 
       setDoneInitialFetchSummary(true);
       console.log("summary updated!");
+     
+      if(summaryData[0].length === 0 && summaryData[1].length === 0){
+        setNoSummary(true)
+      }
       summaryData[0].map((data) => {
-        rainSwitch(data.rainfall_rate_title, data.address);
-        floodSwitch(data.flood_depth_title, data.address);
+        rainSwitch(data.rainfall_rate_title, data.address, data.latitude, data.longitude);
+        floodSwitch(data.flood_depth_title, data.address, data.latitude, data.longitude);
         return null;
       });
 
       summaryData[1].map((data) => {
-        rainSwitch(data.rainfall_rate_title, data.address);
-        floodSwitch(data.flood_depth_title, data.address);
+        rainSwitch(data.rainfall_rate_title, data.address, data.latitude, data.longitude);
+        floodSwitch(data.flood_depth_title, data.address, data.latitude, data.longitude);
         return null;
       });
     }
   }, [summaryData]);
 
-  const rainSwitch = (level, address) => {
+  const rainSwitch = (level, address, lat, lng) => {
     switch (level) {
       case "No Rain":
-        return setNoRain((current) => [...current, address]);
+        return setNoRain((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Light Rain":
-        return setLightRain((current) => [...current, address]);
+        return setLightRain((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Moderate Rain":
-        return setModRain((current) => [...current, address]);
+        return setModRain((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Heavy Rain":
-        return setHeavyRain((current) => [...current, address]);
+        return setHeavyRain((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Intense Rain":
-        return setIntenseRain((current) => [...current, address]);
+        return setIntenseRain((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Torrential Rain":
-        return setTorrentialRain((current) => [...current, address]);
+        return setTorrentialRain((current) => [...current, {address: address, lat: lat, lng: lng}]);
       default:
         return null;
     }
   };
 
-  const floodSwitch = (level, address) => {
+  const floodSwitch = (level, address, lat, lng) => {
     switch (level) {
       case "No Flood":
-        return setNoFlood((current) => [...current, address]);
+        return setNoFlood((current) => [...current,{address: address, lat: lat, lng: lng}]);
       case "Ankle Deep":
-        return setAnkle((current) => [...current, address]);
+        return setAnkle((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Knee Deep":
-        return setKnee((current) => [...current, address]);
+        return setKnee((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Waist Deep":
-        return setWaist((current) => [...current, address]);
+        return setWaist((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Neck Deep":
-        return setNeck((current) => [...current, address]);
+        return setNeck((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "Top of Head Deep":
-        return setHead((current) => [...current, address]);
+        return setHead((current) => [...current,{address: address, lat: lat, lng: lng}]);
       case "1-Storey High":
-        return setStorey1((current) => [...current, address]);
+        return setStorey1((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "1.5-Storey High":
-        return setStorey15((current) => [...current, address]);
+        return setStorey15((current) => [...current, {address: address, lat: lat, lng: lng}]);
       case "2-Storey or Higher":
-        return setStorey2((current) => [...current, address]);
+        return setStorey2((current) => [...current, {address: address, lat: lat, lng: lng}]);
       default:
         return null;
     }
@@ -658,6 +666,15 @@ export const Home = (props) => {
       }
     });
   };
+
+  /* sets state of map center after map has been dragged around */
+  const moveHandler = (e) =>{
+    setMapCenter(e.target.getCenter())
+  }
+  /* sets state of map zoom after map has been dragged around */
+  const zoomHandler = (e) =>{
+    setMapZoom(e.target.getZoom())
+  }
 
   const handleClose = () => {
     setIsOpen(false);
@@ -776,14 +793,27 @@ export const Home = (props) => {
                 aria-hidden={tabIndex === 1 ? false : true}
                 display={tabIndex === 1 ? "block" : "none"}
               >
+
+            
+                <Card
+                  flexDirection="column"
+                  display= "inline-flex"
+                  marginBottom={10}
+                >
+                  <Heading size = {200}>
+                  {noSummary === true ? 'No monitored areas are flooded at the moment.' : 'Click any address to go to its marker.'} 
+                  </Heading>
+                </Card>
+                  <Divider />
+
                 <Card
                   flexDirection="column"
                   display={noFlood.length > 0 ? "inline-flex" : "none"}
                   marginBottom={20}
                 >
                   <Heading>No flood (0 - 0.1 meters): </Heading>
-                  {noFlood.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {noFlood.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -792,8 +822,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Ankle Deep (0.1 - 0.25 meters): </Heading>
-                  {ankle.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {ankle.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}}  paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -802,8 +832,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Knee Deep (0.25 - 0.7 meters): </Heading>
-                  {knee.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {knee.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -812,8 +842,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Waist Deep (0.7 - 1.2 meters): </Heading>
-                  {waist.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {waist.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -822,8 +852,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Neck Deep (1.2 - 1.6 meters): </Heading>
-                  {neck.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {neck.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -832,8 +862,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Top of Head Deep (1.6 - 2.0 meters): </Heading>
-                  {head.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {head.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -842,8 +872,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>1-Storey High (2.0 - 3.0 meters):</Heading>
-                  {storey1.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {storey1.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -852,8 +882,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>1.5-Storey High (3.0 - 4.5 meters): </Heading>
-                  {storey15.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {storey15.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -862,8 +892,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>2-Storey or Higher (4.5+ meters):</Heading>
-                  {storey2.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {storey2.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
               </Pane>
@@ -904,8 +934,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>No rain (0 mm/hr): </Heading>
-                  {noRain.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {noRain.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -914,8 +944,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Light Rain (0.01 - 2.5 mm/hr):</Heading>
-                  {lightRain.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {lightRain.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -924,8 +954,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Moderate Rain (2.5 - 7.5 mm/hr):</Heading>
-                  {modRain.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {modRain.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -934,8 +964,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Heavy Rain (7.5 - 15 mm/hr):</Heading>
-                  {heavyRain.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {heavyRain.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -944,8 +974,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Intense Rain (15 - 30 mm/hr):</Heading>
-                  {intenseRain.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {intenseRain.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
                 <Card
@@ -954,8 +984,8 @@ export const Home = (props) => {
                   marginBottom={20}
                 >
                   <Heading>Torrential Rain (30+ mm/hr):</Heading>
-                  {torrentialRain.map((address) => {
-                    return <Text paddingBottom={4.5}>- {address}</Text>;
+                  {torrentialRain.map((data) => {
+                    return <Text onClick = {()=> {setMapCenter([data.lat,data.lng]); setMapZoom(17)}} paddingBottom={4.5}>- {data.address}</Text>;
                   })}
                 </Card>
               </Pane>
@@ -1922,7 +1952,7 @@ export const Home = (props) => {
         marker legend and all the flooded areas grouped by level.
       </CornerDialog>
 
-      <Map center={[14.41792, 120.97617919999998]} zoom={15}>
+      <Map center={mapCenter} zoom={mapZoom}  onZoomEnd = {zoomHandler} onMoveEnd={moveHandler} minZoom = {2}>  
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

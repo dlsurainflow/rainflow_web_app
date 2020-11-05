@@ -17,7 +17,7 @@ import {
   Tablist,
   Dialog,
   // Tooltip,
-  // Paragraph,
+  Paragraph,
 } from "evergreen-ui";
 import {
   WiRain,

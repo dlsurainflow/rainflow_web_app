@@ -12,7 +12,7 @@ import {
   Tab,
   Tablist,
   Dialog,
-  Tooltip,
+ // Tooltip,
 } from "evergreen-ui";
 import {
   WiRain,
@@ -24,6 +24,7 @@ import {
 } from "weather-icons-react";
 import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
+
 import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
@@ -43,7 +44,7 @@ import { Container } from "react-bootstrap";
 import useInterval from '@use-it/interval';
 
 function MapFunction() {
-  let { token_params } = useParams();
+  let { token_params, latitude_params, longitude_params} = useParams();
   const [mapData, setMapData] = useState();
   const [mapCenter, setMapCenter] = useState();
   const [mapZoom, setMapZoom] = useState();
@@ -130,9 +131,16 @@ function MapFunction() {
   useEffect(()=>{
     setShowCircles(false)
     setShowMarkers(true) 
-    setMapCenter([14.599512, 120.984222])
     setMapZoom(9)
   },[])
+
+  useEffect(()=>{
+    if(latitude_params === 'null' && longitude_params === 'null'){
+      setMapCenter([14.599512, 120.984222])
+    }else{
+      setMapCenter([latitude_params, longitude_params])
+    }
+  },[latitude_params, longitude_params])
 
     {/* Update every map and summary every 10 seconds*/}
     useInterval(() => {
@@ -731,6 +739,16 @@ function MapFunction() {
               >
                 <Card
                   flexDirection="column"
+                  display= "inline-flex"
+                  marginBottom={10}
+                >
+                  <Heading size = {200}>
+                  {noSummary === true ? 'No monitored areas are flooded at the moment.' : 'Click any address to go to its marker.'} 
+                  </Heading>
+                </Card>
+                  <Divider />
+                <Card
+                  flexDirection="column"
                   display={noFlood.length > 0 ? "inline-flex" : "none"}
                   marginBottom={20}
                 >
@@ -851,6 +869,17 @@ function MapFunction() {
                 aria-hidden={tabIndex === 2 ? false : true}
                 display={tabIndex === 2 ? "block" : "none"}
               >
+
+                <Card
+                  flexDirection="column"
+                  display= "inline-flex"
+                  marginBottom={10}
+                >
+                  <Heading size = {200}>
+                  {noSummary === true ? 'No monitored areas are flooded at the moment.' : 'Click any address to go to its marker.'} 
+                  </Heading>
+                </Card>
+                  <Divider />
                 <Card
                   flexDirection="column"
                   display={noRain.length > 0 ? "inline-flex" : "none"}
@@ -930,28 +959,52 @@ function MapFunction() {
       </Container>
 
        {/* Marker button */}
-       <Box maxWidth={false} borderColor="grey.400" className = {classes.markerButton} border={1} boxShadow={3}>
-            <IconButton
-              onClick = {()=>{setShowMarkers(!showMarkers)}}
-              className={showMarkers ? classes.floodON : classes.floodOFF}
-              size="medium"
-              aria-label="markers"
-            >
-              <RoomIcon />
-            </IconButton>
-          </Box>
+
+      <Box
+        maxWidth={false}
+        borderColor="grey.400"
+        className={classes.markerButton}
+        border={1}
+        boxShadow={3}
+      >
+        <IconButton
+          onClick={() => {
+            setShowMarkers(!showMarkers);
+          }}
+          className={showMarkers ? classes.floodON : classes.floodOFF}
+          classes ={{label: classes.iconLabel}}
+          size="medium"
+          aria-label="markers"
+        >
+          <RoomIcon />
+        <Heading size = {100}>{showMarkers? 'ON' : 'OFF'}</Heading>
+        </IconButton>
+      </Box>
+
 
       {/* Flood circle button */}
-      <Box maxWidth={false} borderColor="grey.400" className = {classes.floodCircles} border={1} boxShadow={3}>
-            <IconButton
-              onClick = {()=>{setShowCircles(!showCircles)}}
-              className={showCircles ? classes.floodON : classes.floodOFF}
-              size="medium"
-              aria-label="circles"
-            >
-              <WavesIcon />
-            </IconButton>
-          </Box>
+
+      <Box
+        maxWidth={false}
+        borderColor="grey.400"
+        className={classes.floodCircles}
+        border={1}
+        boxShadow={3}
+      >
+        <IconButton
+          onClick={() => {
+            setShowCircles(!showCircles);
+          }}
+          className={showCircles ? classes.floodON : classes.floodOFF}
+          classes ={{label: classes.iconLabel}}
+          size="medium"
+          aria-label="circles"
+        >
+          <WavesIcon />
+          <Heading size = {100}>{showCircles? 'ON' : 'OFF'}</Heading>
+        </IconButton>
+      </Box>
+  
 
 
       <Modal
@@ -1687,7 +1740,7 @@ function MapFunction() {
         ) : null}
       </Modal>
 
-      <Map center={mapCenter} zoom={mapZoom}  onZoomEnd = {zoomHandler} onMoveEnd={moveHandler} minZoom = {2}>  
+      <Map center={mapCenter} zoom={mapZoom}  onZoomEnd = {zoomHandler} onMoveEnd={moveHandler} minZoom = {3}>  
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -1711,6 +1764,11 @@ const useStyles = makeStyles({
     padding: 0,
     zIndex: 1,
     width: "auto",
+  },
+  
+  iconLabel : {
+    display: 'flex',
+    flexDirection: 'column'
   },
   customHoverFocus: {
     "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
@@ -1743,7 +1801,7 @@ const useStyles = makeStyles({
 floodCircles:{
   position: "absolute",
   right: 60,
-  top: 70,
+  top: 90,
   zIndex: 1,
   width: "auto",
   padding: 0

@@ -72,9 +72,9 @@ export const Home = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
-  //const proxyurl = "";
+  const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-  const proxyurl = "http://localhost:8800/"
+  //const proxyurl = "http://localhost:8800/"
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -929,6 +929,16 @@ export const Home = (props) => {
               >
                 <Card
                   flexDirection="column"
+                  display= "inline-flex"
+                  marginBottom={10}
+                >
+                  <Heading size = {200}>
+                  {noSummary === true ? 'No monitored areas are flooded at the moment.' : 'Click any address to go to its marker.'} 
+                  </Heading>
+                </Card>
+                  <Divider />
+                <Card
+                  flexDirection="column"
                   display={noRain.length > 0 ? "inline-flex" : "none"}
                   marginBottom={20}
                 >
@@ -1006,6 +1016,7 @@ export const Home = (props) => {
       </Container>
 
       {/* Marker button */}
+      <Tooltip title="Click to toggle marker visibility on the map">
       <Box
         maxWidth={false}
         borderColor="grey.400"
@@ -1018,14 +1029,18 @@ export const Home = (props) => {
             setShowMarkers(!showMarkers);
           }}
           className={showMarkers ? classes.floodON : classes.floodOFF}
+          classes ={{label: classes.iconLabel}}
           size="medium"
           aria-label="markers"
         >
           <RoomIcon />
+        <Heading size = {100}>{showMarkers? 'ON' : 'OFF'}</Heading>
         </IconButton>
       </Box>
+      </Tooltip>
 
       {/* Flood circle button */}
+      <Tooltip title="Click to toggle flood circle marker visibility on the map">
       <Box
         maxWidth={false}
         borderColor="grey.400"
@@ -1038,14 +1053,18 @@ export const Home = (props) => {
             setShowCircles(!showCircles);
           }}
           className={showCircles ? classes.floodON : classes.floodOFF}
+          classes ={{label: classes.iconLabel}}
           size="medium"
           aria-label="circles"
         >
           <WavesIcon />
+          <Heading size = {100}>{showCircles? 'ON' : 'OFF'}</Heading>
         </IconButton>
       </Box>
+      </Tooltip>
 
       {/* Report/Raft Info Sidebar */}
+      
       <Modal
         show={isOpen}
         onHide={handleClose}
@@ -1946,12 +1965,13 @@ export const Home = (props) => {
         hasFooter={false}
         position={isMobile ? Position.BOTTOM : Position.BOTTOM_RIGHT}
       >
-        Click on any node on the map to view the rain and flood information
-        reported in that area. Toggle the button at the top left to view the
-        marker legend and all the flooded areas grouped by level.
+        <Paragraph  marginTop ={5}>{'>'} Click on any node on the map to view the rain and flood information reported in that area.</Paragraph>
+        <Paragraph  marginTop ={5}>{'>'} Toggle the button at the top left to view the marker legend and all the areas grouped by rain and levels. </Paragraph>
+
+        <Paragraph marginTop ={5}>{'>'} Click the buttons at the top right to show or hide markers on the map.</Paragraph>
       </CornerDialog>
 
-      <Map center={mapCenter} zoom={mapZoom}  onZoomEnd = {zoomHandler} onMoveEnd={moveHandler} minZoom = {2}>  
+      <Map center={mapCenter} zoom={mapZoom}  onZoomEnd = {zoomHandler} onMoveEnd={moveHandler} minZoom = {3}>  
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -1960,7 +1980,7 @@ export const Home = (props) => {
         {raftMarkers && showMarkers ? raftMarkers : null}
         {mobileMarkers && showMarkers ? mobileMarkers : null}
 
-        {showCircles ? floodCirclesMobile : null}
+        {showCircles ? floodCirclesMobile : null} 
         {showCircles ? floodCirclesRAFT : null}
       </Map>
     </>
@@ -1975,6 +1995,11 @@ const useStyles = makeStyles({
     padding: 0,
     zIndex: 1,
     width: "auto",
+  },
+
+  iconLabel : {
+    display: 'flex',
+    flexDirection: 'column'
   },
   customHoverFocus: {
     "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
@@ -1995,6 +2020,7 @@ const useStyles = makeStyles({
     backgroundColor: "#D2EEF3",
     borderRadius: 2,
     flexWrap: "wrap",
+
   },
 
   floodOFF: {
@@ -2002,12 +2028,14 @@ const useStyles = makeStyles({
     backgroundColor: "white",
     borderRadius: 2,
     flexWrap: "wrap",
+
+   
   },
 
   floodCircles: {
     position: "absolute",
     right: 60,
-    top: 135,
+    top: 150,
     zIndex: 1,
     width: "auto",
     padding: 0,

@@ -94,7 +94,7 @@ function App(props) {
     <React.Fragment>
       <Router>
         <Switch>
-          <Route exact path="/mobile/map/:token_params" component={MobileMap} />
+          <Route exact path="/mobile/map/:token_params/:latitude_params/:longitude_params" component={MobileMap} />
           <Route component={DefaultContainer} />
         </Switch>
       </Router>

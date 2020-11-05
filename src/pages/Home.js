@@ -17,7 +17,7 @@ import {
   Tablist,
   Dialog,
   // Tooltip,
-  Paragraph,
+  // Paragraph,
 } from "evergreen-ui";
 import {
   WiRain,
@@ -39,13 +39,14 @@ import RoomIcon from "@material-ui/icons/Room";
 import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
-import { borders, shadows } from "@material-ui/system";
+// import { borders, shadows } from "@material-ui/system";
 import Box from "@material-ui/core/Box";
-import L, { circleMarker } from "leaflet";
-import * as nominatim from "nominatim-geocode";
+import L from "leaflet";
+// import * as nominatim from "nominatim-geocode";
 import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
+import legendVertical from "../assets/legend-vertical_legend.png";
 
 export const Home = (props) => {
   const windowHeight = window.innerHeight;
@@ -60,7 +61,6 @@ export const Home = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
-
   const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
   const [floodCirclesMobile, setFloodCirclesMobile] = useState();
   const [showCircles, setShowCircles] = useState();
@@ -68,9 +68,9 @@ export const Home = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
-  const proxyurl = "";
+  // const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-  //const proxyurl = "http://localhost:8800/"
+  const proxyurl = "http://localhost:8080/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -96,6 +96,7 @@ export const Home = (props) => {
     HU1: [],
     WL1: [],
   });
+
   const [reportInfo, setReportInfo] = useState({
     id: null,
     latitude: null,
@@ -882,10 +883,7 @@ export const Home = (props) => {
                 justifyContent="center"
                 display={tabIndex === 0 ? "block" : "none"}
               >
-                <Image
-                  src={require("../assets/legend-vertical_legend.png")}
-                  fluid
-                />
+                <Image src={legendVertical} fluid />
               </Pane>
               <Pane
                 width="100%"
@@ -1517,8 +1515,24 @@ export const Home = (props) => {
                               display: false,
                             },
                             scales: {
-                              xAxes: [{ display: true }],
-                              yAxes: [{ display: true }],
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
                             },
                           }}
                         />
@@ -1588,8 +1602,24 @@ export const Home = (props) => {
                               display: false,
                             },
                             scales: {
-                              xAxes: [{ display: true }],
-                              yAxes: [{ display: true }],
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
                             },
                           }}
                         />
@@ -1660,18 +1690,22 @@ export const Home = (props) => {
                             scales: {
                               xAxes: [
                                 {
-                                  afterTickToLabelConversion: function (data) {
-                                    var xLabels = data.ticks;
-
-                                    xLabels.forEach(function (labels, i) {
-                                      if (i % 10 == 1) {
-                                        xLabels[i] = "";
-                                      }
-                                    });
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
                                   },
                                 },
                               ],
-                              yAxes: [{ display: true }],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
                             },
                           }}
                         />
@@ -1743,8 +1777,24 @@ export const Home = (props) => {
                               display: false,
                             },
                             scales: {
-                              xAxes: [{ display: true }],
-                              yAxes: [{ display: true }],
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
                             },
                           }}
                         />
@@ -1816,8 +1866,24 @@ export const Home = (props) => {
                               display: false,
                             },
                             scales: {
-                              xAxes: [{ display: true }],
-                              yAxes: [{ display: true }],
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
                             },
                           }}
                         />
@@ -1889,8 +1955,24 @@ export const Home = (props) => {
                               display: false,
                             },
                             scales: {
-                              xAxes: [{ display: true }],
-                              yAxes: [{ display: true }],
+                              xAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
+                              yAxes: [
+                                {
+                                  display: true,
+                                  ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 5,
+                                  },
+                                },
+                              ],
                             },
                           }}
                         />

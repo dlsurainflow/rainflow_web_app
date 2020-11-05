@@ -351,9 +351,8 @@ export const Home = (props) => {
     setMapCenter([14.599512, 120.984222])
     setMapZoom(9)
     decodeToken();
-    if (!isMobile) {
-      setShowPopover(true);
-    }
+    setShowPopover(true);
+    
   }, []);
 
   {/* Update every map and summary every 10 seconds*/}

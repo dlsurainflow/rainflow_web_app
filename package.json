@@ -37,7 +37,7 @@
     "react-dom": "^16.14.0",
     "react-leaflet": "^2.8.0",
     "react-lottie": "^1.2.3",
-    "react-map-gl": "^5.2.9",
+    "react-map-gl": "^5.2.10",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "react-sidebar": "^3.0.2",

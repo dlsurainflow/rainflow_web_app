@@ -69,7 +69,7 @@ function MapFunction() {
   const windowWidth = window.innerWidth;
 
   const proxyurl = "";
-  // const proxyurl = "http://192.168.1.3:8080/";
+  //const proxyurl = "http://192.168.1.8:8800/";
   // const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -146,6 +146,8 @@ function MapFunction() {
       setMapCenter([14.599512, 120.984222])
     }else{
       setMapCenter([latitude_params, longitude_params])
+      setMapZoom(13)
+      
     }
   },[latitude_params, longitude_params])
 
@@ -345,6 +347,11 @@ function MapFunction() {
       setStorey2([]);
 
       setDoneInitialFetchSummary(true);
+
+      if(summaryData[0].length === 0 && summaryData[1].length === 0){
+        setNoSummary(true)
+      }
+      
       console.log("summary updated!");
       summaryData[0].map((data) => {
         rainSwitch(data.rainfall_rate_title, data.address, data.latitude, data.longitude);
@@ -890,7 +897,7 @@ function MapFunction() {
                   marginBottom={10}
                 >
                   <Heading size = {200}>
-                  {noSummary === true ? 'No monitored areas are flooded at the moment.' : 'Click any address to go to its marker.'} 
+                  {noSummary === true ? 'No monitored areas are experiencing rain at the moment.' : 'Click any address to go to its marker.'} 
                   </Heading>
                 </Card>
                   <Divider />
@@ -2042,23 +2049,23 @@ const useStyles = makeStyles({
     flexWrap: "wrap",
   },
 
+  floodOFF: {
+    "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+    backgroundColor: "white",
+    borderRadius: 2,
+    flexWrap: "wrap",
+
+   
+  },
+
 floodCircles:{
   position: "absolute",
   right: 60,
-  top: 90,
+  top: 100,
   zIndex: 1,
   width: "auto",
   padding: 0
 },
-
-  floodCircles: {
-    position: "absolute",
-    right: 60,
-    top: 70,
-    zIndex: 1,
-    width: "auto",
-    padding: 0,
-  },
 
   markerButton: {
     position: "absolute",

@@ -74,7 +74,7 @@ export const Home = (props) => {
 
   const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-  // const proxyurl = "http://localhost:8080/";
+ // const proxyurl = "http://192.168.1.8:8800/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -931,7 +931,7 @@ export const Home = (props) => {
                   marginBottom={10}
                 >
                   <Heading size = {200}>
-                  {noSummary === true ? 'No monitored areas are flooded at the moment.' : 'Click any address to go to its marker.'} 
+                  {noSummary === true ? 'No monitored areas are experiencing rain at the moment.' : 'Click any address to go to its marker.'} 
                   </Heading>
                 </Card>
                   <Divider />

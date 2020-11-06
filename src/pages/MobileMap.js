@@ -42,6 +42,7 @@ import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import { Container } from "react-bootstrap";
 import useInterval from "@use-it/interval";
+import legendVertical from "../assets/legend-vertical_legend.png";
 
 function MapFunction() {
   let { token_params, latitude_params, longitude_params} = useParams();
@@ -875,7 +876,7 @@ function MapFunction() {
                 display={tabIndex === 0 ? "block" : "none"}
               >
                 <Image
-                  src={require("../assets/legend-vertical_legend.png")}
+                  src={legendVertical}
                   fluid
                 />
               </Pane>

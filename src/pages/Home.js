@@ -72,10 +72,10 @@ export const Home = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
-  // const proxyurl = "";
+  const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
   // const pr  // const proxyurl = "http://192.168.1.8:8800/";
-  const proxyurl = "http://192.168.1.4:8080/";
+  // const proxyurl = "http://192.168.1.4:8080/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,

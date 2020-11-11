@@ -2166,7 +2166,7 @@ export const Home = (props) => {
                     ) : null}
                   </Card>
                 ) : null}
-                {raftInfo.humidity !== null ? (
+                {raftInfo.humidity !== null || raftInfo.humidity !== 0 ? (
                   <Card
                     backgroundColor="white"
                     elevation={0}

@@ -78,6 +78,7 @@ export const SignIn = (props) => {
   const [openError, setOpenError] = useState(false);
   const proxyurl = "";
   // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  // const proxyurl = "http://192.168.1.4:8080/";
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {

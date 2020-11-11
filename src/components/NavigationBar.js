@@ -3,6 +3,9 @@ import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import logo from "../assets/rainflow_logo.png";
 import MenuIcon from "@material-ui/icons/Menu";
 import { Tooltip } from "evergreen-ui";
+import Icon from "@mdi/react";
+import { mdiShieldHalfFull } from "@mdi/js";
+import PersonIcon from "@material-ui/icons/Person";
 import Image from "react-bootstrap/Image";
 
 export const NavigationBar = (props) => {
@@ -57,7 +60,7 @@ export const NavigationBar = (props) => {
           {" "}
           <Navbar.Text color="#F9F9FB">
             {username}{" "}
-            {badge !== null ? (
+            {badge !== "null" ? (
               <Tooltip
                 content={`Points: ${points}`}
                 appearance="card"
@@ -68,12 +71,25 @@ export const NavigationBar = (props) => {
                   height="20"
                 />
               </Tooltip>
-            ) : null}
+            ) : (
+              <Tooltip content={`Points: ${points}`} appearance="card">
+                <Icon
+                  path={mdiShieldHalfFull}
+                  size={1}
+                  horizontal
+                  vertical
+                  rotate={180}
+                  color="white"
+                />
+              </Tooltip>
+            )}
           </Navbar.Text>
         </Nav>
       ) : (
         <Nav>
-          <Navbar.Text color="#F9F9FB">guest</Navbar.Text>
+          <Navbar.Text color="#F9F9FB">
+            guest <PersonIcon style={{ color: "white" }} />
+          </Navbar.Text>
         </Nav>
       )}
     </Navbar>

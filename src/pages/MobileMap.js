@@ -158,9 +158,8 @@ function MapFunction() {
     }
   }, [latitude_params, longitude_params]);
 
-  {
-    /* Update every map and summary every 10 seconds*/
-  }
+  /* Update every map and summary every 10 seconds*/
+
   useInterval(() => {
     if (doneInitialFetch) {
       fetchData();
@@ -1596,7 +1595,7 @@ function MapFunction() {
                   <Heading size={100} marginLeft={5}>
                     RAINFALL RATE{" "}
                     <Tooltip title="The amount of rain that falls over time.">
-                      <InfoSignIcon size={13} color="grey" />
+                      <InfoSignIcon size={20} color="grey" />
                     </Tooltip>
                   </Heading>
                   <Heading
@@ -1770,7 +1769,7 @@ function MapFunction() {
                       <Heading size={100} marginLeft={5}>
                         RAINFALL RATE{" "}
                         <Tooltip title="The amount of rain that falls over time.">
-                          <InfoSignIcon size={13} color="grey" />
+                          <InfoSignIcon size={20} color="grey" />
                         </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>
@@ -1804,7 +1803,7 @@ function MapFunction() {
                       <Heading size={100} marginLeft={5}>
                         TOTAL RAINFALL{" "}
                         <Tooltip title="The total amount of rain that fell over the past 24 hours.">
-                          <InfoSignIcon size={13} color="grey" />
+                          <InfoSignIcon size={20} color="grey" />
                         </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>
@@ -2073,7 +2072,7 @@ function MapFunction() {
                       <Heading size={100} marginLeft={5}>
                         Air Pressure{" "}
                         <Tooltip title="The force exerted on the Earth’s surface by the weight of the air above the surface. Low pressure is usually associated with high winds, warm air, and atmospheric lifting.">
-                          <InfoSignIcon size={13} color="grey" />
+                          <InfoSignIcon size={20} color="grey" />
                         </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>
@@ -2133,7 +2132,7 @@ function MapFunction() {
                     ) : null}
                   </Card>
                 ) : null}
-                {raftInfo.humidity !== null ? (
+                {raftInfo.humidity !== null || raftInfo.humidity !== 0 ? (
                   <Card
                     backgroundColor="white"
                     elevation={0}
@@ -2162,7 +2161,7 @@ function MapFunction() {
                       <Heading size={100} marginLeft={5}>
                         HUMIDITY{" "}
                         <Tooltip title="The amount of water vapour in the air.">
-                          <InfoSignIcon size={13} color="grey" />
+                          <InfoSignIcon size={20} color="grey" />
                         </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>
@@ -2251,7 +2250,7 @@ function MapFunction() {
                       <Heading size={100} marginLeft={5}>
                         WATER LEVEL{" "}
                         <Tooltip title="The height of river water.">
-                          <InfoSignIcon size={13} color="grey" />
+                          <InfoSignIcon size={20} color="grey" />
                         </Tooltip>
                       </Heading>
                       <Heading size={600} marginLeft={10}>

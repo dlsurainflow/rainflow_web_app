@@ -15,6 +15,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { ResetPasswordWithParams } from "./pages/ResetPasswordWithParams";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ChangePassword } from "./pages/ChangePassword";
+import { BadgeIndex } from "./pages/BadgeIndex";
 // import { Logout } from "./pages/Logout";
 import { Layout } from "./components/Layout";
 // import { NavigationBar } from "./components/NavigationBar";
@@ -54,6 +55,7 @@ function App(props) {
       <Route exact path="/report" component={Report} />
       <Route exact path="/about" component={About} />
       <Route exact path="/docs" component={Docs} />
+      <Route exact path="/badge-index" component={BadgeIndex} />
       <Route
         exact
         path="/logout"

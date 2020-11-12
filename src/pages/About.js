@@ -29,27 +29,47 @@ import Card from "@material-ui/core/Card";
 // import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import tmpImage from "../assets/contemplative-reptile.jpg";
+import tmpImage from "../assets/placeholder.png";
 import { makeStyles } from "@material-ui/core/styles";
+import ivanphoto from "../assets/ivan.png";
+import michiphoto from "../assets/michi.jpg";
+import johannphoto from "../assets/johann.jpg";
+import ralphphoto from "../assets/ralph.png";
+import tammyphoto from "../assets/tammy.jpg";
+import groupphoto from "../assets/group.png";
+
 
 const useStyles = makeStyles({
   root: {
     maxWidth: 345,
   },
   media: {
-    height: 140,
+    height: 440,
+  },
+  media2: {
+    height: 50,
+  },
+  container: {
+    width: "100%",
+    paddingLeft: 40,
+    paddingRight: 40,
+    paddingY: 10,
+    backgroundColor: "#F8F8F8",
   },
 });
 
 export const About = () => {
   const classes = useStyles();
   return (
-    <Container>
+    <Container  maxWidth={false} className = {classes.container}>
       <Grid container spacing={3} justify="center">
         <Grid item xs={12}>
           <Jumbotron
             style={{
-              backgroundImage: `url(https://mdbootstrap.com/img/Photos/Others/gradient1.jpg)`,
+              backgroundColor: "#3CB371",
+              marginTop: 10,
+              marginBottom: 0
+              //backgroundImage: `url(../assets/background-1789175_1280.png)`,
             }}
           >
             <center>
@@ -59,7 +79,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={6}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+             {/*<CardMedia className={classes.media2} image={tmpImage} />*/}
             <CardContent>
               <Typography gutterBottom variant="h5" component="h2">
                 Guest
@@ -81,7 +101,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={6}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+            {/*<CardMedia className={classes.media2} image={tmpImage} />*/}
             <CardContent>
               <Typography gutterBottom variant="h5" component="h2">
                 Authenticated User
@@ -114,7 +134,8 @@ export const About = () => {
         <Grid item xs={12}>
           <Jumbotron
             style={{
-              backgroundImage: `url(https://mdbootstrap.com/img/Photos/Others/gradient1.jpg)`,
+              backgroundColor: "#45B39D"
+              //backgroundImage: `require(https://mdbootstrap.com/img/Photos/Others/gradient1.jpg)`,
             }}
           >
             <center>
@@ -134,7 +155,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={3}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+            <CardMedia className={classes.media} image={michiphoto} />
             <CardContent>
               <center>
                 <Typography variant="h6">Michael Busiños</Typography>
@@ -145,7 +166,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={3}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+            <CardMedia className={classes.media} image={tammyphoto} />
             <CardContent>
               <center>
                 <Typography variant="h6">Tammara Capa</Typography>
@@ -156,7 +177,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={3}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+            <CardMedia className={classes.media} image={johannphoto} />
             <CardContent>
               <center>
                 <Typography variant="h6">Johann Carta</Typography>
@@ -167,7 +188,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={3}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+            <CardMedia className={classes.media} image={ralphphoto} />
             <CardContent>
               <center>
                 <Typography variant="h6">Ralph De Rojas</Typography>
@@ -178,7 +199,7 @@ export const About = () => {
         </Grid>
         <Grid item xs={3}>
           <Card>
-            <CardMedia className={classes.media} image={tmpImage} />
+            <CardMedia className={classes.media} image={ivanphoto} />
             <CardContent>
               <center>
                 <Typography variant="h6">Ivan Garan</Typography>

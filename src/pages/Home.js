@@ -74,8 +74,8 @@ export const Home = (props) => {
 
   const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-  // const pr  // const proxyurl = "http://192.168.1.8:8800/";
-  // const proxyurl = "http://192.168.1.4:8080/";
+ //const proxyurl = "http://localhost:8800/";
+   //const proxyurl = "http://localhost:8080/";
 
   const [raftInfo, setRaftInfo] = useState({
     id: null,
@@ -477,6 +477,23 @@ export const Home = (props) => {
             >
               {isMobile ? null : (
                 <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
                   Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
                   {data.flood_depth_title}
                 </Popup>
@@ -540,6 +557,23 @@ export const Home = (props) => {
             >
               {isMobile ? null : (
                 <Popup>
+                   {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
                   {data.image !== null ? (
                     <>
                       <Image
@@ -1618,7 +1652,8 @@ export const Home = (props) => {
               <Pane
                 flex="1"
                 height={windowHeight * 0.8}
-                overflow={"auto"}
+                overflow-y={"auto"}
+                overflow-x={"hidden"}
                 background="#F9F9FB"
                 paddingX={5}
                 margin={0}
@@ -1771,7 +1806,8 @@ export const Home = (props) => {
               <Pane
                 flex="1"
                 height={windowHeight * 0.8}
-                overflow={"auto"}
+                overflow-y={"auto"}
+                overflow-x={"hidden"}
                 background="#F9F9FB"
                 paddingX={5}
                 margin={0}
@@ -1799,8 +1835,9 @@ export const Home = (props) => {
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
-                      flexDirection="row"
+                      flexDirection="column"
                     >
+                      <Pane flex = "1" flexDirection = "row" width = "100%" alignItems = "center"  justifyContent="flex-start" display="inline-flex">
                       <WiRain size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
                         RAINFALL RATE{" "}
@@ -1814,12 +1851,15 @@ export const Home = (props) => {
                       <Heading size={400} marginLeft={5}>
                         {"mm/hour"}
                       </Heading>
+                      </Pane>
                       <Heading
-                        size={600}
-                        marginLeft={15}
+                        size={500}
+                        marginLeft={70}
+                        width = "100%"  
+                        justifyContent="flex-start"
                         color={raftInfo.rainfall_rate_color}
                       >
-                        ({raftInfo.rainfall_rate_title})
+                      ({raftInfo.rainfall_rate_title})
                       </Heading>
                     </Pane>
                     <Pane
@@ -1854,7 +1894,7 @@ export const Home = (props) => {
                         <Line
                           data={{
                             labels: raftInfo.RA1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -1922,8 +1962,9 @@ export const Home = (props) => {
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
-                      flexDirection="row"
+                      flexDirection="column"
                     >
+                      <Pane flex = "1" flexDirection = "row" width = "100%" alignItems = "center"  justifyContent="flex-start" display="inline-flex">
                       <WiFlood size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
                         FLOOD DEPTH
@@ -1934,9 +1975,13 @@ export const Home = (props) => {
                       <Heading size={300} marginLeft={5}>
                         {"cm"}
                       </Heading>
+                      </Pane>
                       <Heading
-                        size={600}
-                        marginLeft={15}
+                        size={500}
+                        marginLeft={70}
+                        justifyContent="flex-start"
+                        width = "100%"
+                        marginBottom = {10} 
                         color={raftInfo.flood_depth_color}
                       >
                         ({raftInfo.flood_depth_title})
@@ -1947,7 +1992,7 @@ export const Home = (props) => {
                         <Line
                           data={{
                             labels: raftInfo.FD1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2033,7 +2078,7 @@ export const Home = (props) => {
                         <Line
                           data={{
                             labels: raftInfo.TMP1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2122,7 +2167,7 @@ export const Home = (props) => {
                         <Line
                           data={{
                             labels: raftInfo.PR1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2211,7 +2256,7 @@ export const Home = (props) => {
                         <Line
                           data={{
                             labels: raftInfo.HU1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2300,7 +2345,7 @@ export const Home = (props) => {
                         <Line
                           data={{
                             labels: raftInfo.WL1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {

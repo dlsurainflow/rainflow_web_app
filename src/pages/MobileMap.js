@@ -70,7 +70,7 @@ function MapFunction() {
   const windowWidth = window.innerWidth;
 
   const proxyurl = "";
-  //const proxyurl = "http://192.168.1.8:8800/";
+  //const proxyurl = "http://localhost:8800/";
   // const proxyurl = "https://cors-anywhere.herokuapp.com/";
   // const proxyurl = "http://192.168.1.4:8080/";
 
@@ -321,6 +321,23 @@ function MapFunction() {
               {data.image !== null ? (
                 <>
                   <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
                     <Image
                       src={`https://rainflow.live/api/uploads/reports/${data.image}`}
                       thumbnail
@@ -1353,7 +1370,7 @@ function MapFunction() {
                       }
                       onClick={(e) => {
                         console.log("Upvote pressed!");
-                        var token = localStorage.getItem("token");
+                        var token = {token_params};
                         if (token !== null) {
                           if (reportInfo.currentAction === "upvote") {
                             var _upvote = reportInfo.upvote - 1;
@@ -1464,7 +1481,7 @@ function MapFunction() {
                       }
                       onClick={(e) => {
                         console.log("Downvote pressed!");
-                        var token = localStorage.getItem("token");
+                        var token = {token_params};
                         if (token !== null) {
                           if (reportInfo.currentAction === "downvote") {
                             var _downvote = reportInfo.upvote - 1;
@@ -1576,7 +1593,8 @@ function MapFunction() {
               <Pane
                 flex="1"
                 height={windowHeight * 0.5}
-                overflow={"auto"}
+                overflow-y={"auto"}
+                overflow-x={"hidden"}
                 background="#F9F9FB"
                 paddingX={5}
                 margin={0}
@@ -1736,7 +1754,8 @@ function MapFunction() {
               <Pane
                 flex="1"
                 height={windowHeight * 0.5}
-                overflow={"auto"}
+                overflow-y={"auto"}
+                overflow-x={"hidden"}
                 background="#F9F9FB"
                 paddingX={5}
                 margin={0}
@@ -1764,8 +1783,9 @@ function MapFunction() {
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
-                      flexDirection="row"
+                      flexDirection="column"
                     >
+                       <Pane flex = "1" flexDirection = "row" width = "100%" alignItems = "center"  justifyContent="flex-start" display="inline-flex">
                       <WiRain size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
                         RAINFALL RATE{" "}
@@ -1779,9 +1799,12 @@ function MapFunction() {
                       <Heading size={400} marginLeft={5}>
                         {"mm/hour"}
                       </Heading>
+                      </Pane>
                       <Heading
-                        size={600}
-                        marginLeft={15}
+                        size={500}
+                        marginLeft={70}
+                        width = "100%"
+                        justifyContent="flex-start"
                         color={raftInfo.rainfall_rate_color}
                       >
                         ({raftInfo.rainfall_rate_title})
@@ -1819,7 +1842,7 @@ function MapFunction() {
                         <Line
                           data={{
                             labels: raftInfo.RA1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -1887,8 +1910,9 @@ function MapFunction() {
                       paddingX={5}
                       margin={0}
                       display="inline-flex"
-                      flexDirection="row"
+                      flexDirection="column"
                     >
+                       <Pane flex = "1" flexDirection = "row" width = "100%" alignItems = "center"  justifyContent="flex-start" display="inline-flex">
                       <WiFlood size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
                         FLOOD DEPTH
@@ -1899,9 +1923,12 @@ function MapFunction() {
                       <Heading size={300} marginLeft={5}>
                         {"cm"}
                       </Heading>
+                      </Pane>
                       <Heading
-                        size={600}
-                        marginLeft={15}
+                        size={500}
+                        marginLeft={70}
+                        width = "100%"
+                        justifyContent="flex-start"
                         color={raftInfo.flood_depth_color}
                       >
                         ({raftInfo.flood_depth_title})
@@ -1913,7 +1940,7 @@ function MapFunction() {
                         <Line
                           data={{
                             labels: raftInfo.FD1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -1999,7 +2026,7 @@ function MapFunction() {
                         <Line
                           data={{
                             labels: raftInfo.TMP1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2088,7 +2115,7 @@ function MapFunction() {
                         <Line
                           data={{
                             labels: raftInfo.PR1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2177,7 +2204,7 @@ function MapFunction() {
                         <Line
                           data={{
                             labels: raftInfo.HU1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {
@@ -2266,7 +2293,7 @@ function MapFunction() {
                         <Line
                           data={{
                             labels: raftInfo.WL1.map((k) =>
-                              moment.unix(k.time).format("h:mm A")
+                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
                             ),
                             datasets: [
                               {

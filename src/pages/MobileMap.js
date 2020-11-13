@@ -1370,7 +1370,7 @@ function MapFunction() {
                       onClick={(e) => {
                         console.log("Upvote pressed!");
                         var token = {token_params};
-                        if (token !== null) {
+                        if (token !== null && token !=="guest") {
                           if (reportInfo.currentAction === "upvote") {
                             var _upvote = reportInfo.upvote - 1;
                             setReportInfo({
@@ -1481,7 +1481,7 @@ function MapFunction() {
                       onClick={(e) => {
                         console.log("Downvote pressed!");
                         var token = {token_params};
-                        if (token !== null) {
+                        if (token !== null && token !=="guest") {
                           if (reportInfo.currentAction === "downvote") {
                             var _downvote = reportInfo.upvote - 1;
                             setReportInfo({

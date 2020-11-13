@@ -52,9 +52,10 @@
   align-self: center;
 }
 
+
 .modal-main-web{
-  min-width: 28%;
-  max-width: 28%;
+  min-width: 410px;
+  max-width: 410px;
   right: 0;
   position: absolute;
   margin-right: 30;
@@ -82,4 +83,19 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.mainlist {
+  display: flex;
+  flex-flow: column wrap; /* flex-direction: column */
+  height: 600px;
+}
+
+ .mainlist ~ .mainlist {
+  flex-flow: row wrap; /* flex-direction: row */
+  max-height: auto; /* override max-height of the column direction */
+}
+.listitem {
+  width: 150px;
+  margin-bottom: 15px;
 }

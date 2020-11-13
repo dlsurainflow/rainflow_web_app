@@ -71,7 +71,7 @@ export const SignIn = (props) => {
   // // this.setState({ username: event.state.username, password: event.state.password });
   // }
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [openWarning, setOpenWarning] = useState(false);
@@ -97,16 +97,16 @@ export const SignIn = (props) => {
     const url = "https://rainflow.live/api/users/login";
     setIsLoading(true);
     event.preventDefault();
-    console.log("Username:", username, "Password: ", password);
+    console.log("Email:", email, "Password: ", password);
     console.log(
       JSON.stringify({
-        username: username,
+        email: email,
         password: password,
       })
     );
     axios
       .post(proxyurl + url, {
-        username: username,
+        email: email,
         password: password,
       })
       .then(
@@ -153,12 +153,12 @@ export const SignIn = (props) => {
             margin="normal"
             required
             fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoComplete="username"
+            id="email"
+            label="Email"
+            name="email"
+            autoComplete="email"
             autoFocus
-            onInput={(e) => setUsername(e.target.value)}
+            onInput={(e) => setEmail(e.target.value)}
           />
           <TextField
             variant="outlined"

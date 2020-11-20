@@ -22,7 +22,7 @@
     "geojson-world-map": "0.0.2",
     "jwt-decode": "^3.1.1",
     "leaflet": "^1.7.1",
-    "mapbox-gl": "^1.12.0",
+    "mapbox-gl": "^1.13.0",
     "material-ui": "^0.20.2",
     "moment": "^2.29.1",
     "nominatim-geocode": "^1.1.0",

@@ -56,8 +56,9 @@ export const Home = (props) => {
   const [mapZoom, setMapZoom] = useState();
   const [mapData, setMapData] = useState();
   const [summaryData, setSummaryData] = useState();
-  const [raftMarkers, setRaftMarkers] = useState();
   const [mobileMarkers, setMobileMarkers] = useState();
+  const [raftMarkers, setRaftMarkers] = useState();
+  const [dostMarkers, setDostMarkers] = useState();
   const [isOpen, setIsOpen] = useState();
   const [nodeType, setNodeType] = useState("RAFT");
   const [guideShown, setGuideShown] = useState(true);
@@ -65,15 +66,18 @@ export const Home = (props) => {
   const [showPopover, setShowPopover] = useState();
   const [noSummary, setNoSummary] = useState();
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState(false);
-  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
-  const [floodCirclesMobile, setFloodCirclesMobile] = useState();
+  // const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
+  // const [floodCirclesMobile, setFloodCirclesMobile] = useState();
   const [showCircles, setShowCircles] = useState();
+  const [showMobile, setShowMobile] = useState();
+  const [showRAFT, setShowRAFT] = useState();
+  const [showDOST, setShowDOST] = useState();
   const [showMarkers, setShowMarkers] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
-  const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+ // const proxyurl = "";
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
  //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
@@ -366,8 +370,9 @@ export const Home = (props) => {
   };
 
   useEffect(() => {
-    setShowCircles(false);
-    setShowMarkers(true);
+    setShowMobile(true);
+    setShowRAFT(true);
+    setShowDOST(true);
     setMapCenter([14.599512, 120.984222]);
     setMapZoom(9);
     decodeToken();
@@ -392,146 +397,261 @@ export const Home = (props) => {
     } else {
       console.log("updated markers");
       setDoneInitialFetch(true);
+
       setRaftMarkers(
         mapData.raft.map((data) => {
-          return (
-            <Marker
-              key={data.id}
-              position={[data.latitude, data.longitude]}
-              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
-              onMouseOver={(e) => {
-                if (!isMobile) {
-                  e.target.openPopup();
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!isMobile) {
-                  e.target.closePopup();
-                }
-              }}
-              onclick={() => {
-                setNodeType("RAFT");
-                //setSummaryData(data);
-                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
-                // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+          if(data.username !== "dost"){
+            return (
+              <Marker
+                key={data.id}
+                position={[data.latitude, data.longitude]}
+                icon={markerPicker(data.rainfall_rate, data.flood_depth)}
+                onMouseOver={(e) => {
+                  if (!isMobile) {
+                    e.target.openPopup();
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!isMobile) {
+                    e.target.closePopup();
+                  }
+                }}
+                onclick={() => {
+                  setNodeType("RAFT");
+                  //setSummaryData(data);
+                  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                  // const proxyurl = "";
+                  const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
 
-                fetch(proxyurl + url, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                  },
-                }).then((response) => {
-                  if (response.status === 200)
-                    response
-                      .json()
-                      .then((_data) => {
-                        onSideSheetHandler();
-                        setRaftInfo({
-                          id: data.id,
-                          latitude: data.latitude,
-                          longitude: data.longitude,
-                          altitude: data.altitude,
-                          flood_depth: data.flood_depth,
-                          rainfall_amount: data.rainfall_amount,
-                          rainfall_rate: data.rainfall_rate,
-                          temperature: data.temperature,
-                          humidity: data.humidity,
-                          pressure: data.pressure,
-                          username: data.username,
-                          badge: data.badge,
-                          address: data.address,
-                          rainfall_rate_title: getRainfallRateTitle(
-                            data.rainfall_rate
-                          ),
-                          flood_depth_title: getFloodDepthTitle(
-                            data.flood_depth
-                          ),
-                          rainfall_rate_color: getRainfallRateColor(
-                            data.rainfall_rate
-                          ),
-                          flood_depth_color: getFloodDepthColor(
-                            data.flood_depth
-                          ),
-                          flood_depth_subtitle: getFloodDepthSubTitle(
-                            data.flood_depth
-                          ),
-                          water_level: data.water_level,
-                          updatedAt: moment(data.updatedAt).format(
-                            "DD MMM YYYY (dddd) HH:mm"
-                          ),
-                          charts: _data,
-                          FD1: _data.FD1,
-                          TMP1: _data.TMP1,
-                          RA1: _data.RA1,
-                          PR1: _data.PR1,
-                          HU1: _data.HU1,
-                          WL1: _data.WL1,
-                        });
-                      })
-                      .catch((error) => console.error("Error:", error));
-                });
-              }}
-            >
-              {isMobile ? null : (
-                <Popup>
-                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
-                  <>
-                  <Text
-                    size={200}
-                    color={getFloodDepthColor(
-                      data.flood_depth
-                    )}
-                  >
-                    <b>
-                  {getFloodDepthSubTitle(
-                            data.flood_depth
-                          )}
-                    </b>
-                  </Text>
-                  <br/>
-                  </>
-                  ): null }
-                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
-                  {data.flood_depth_title}
-                </Popup>
-              )}
-            </Marker>
-          );
+                  fetch(proxyurl + url, {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Accept: "application/json",
+                    },
+                  }).then((response) => {
+                    if (response.status === 200)
+                      response
+                        .json()
+                        .then((_data) => {
+                          onSideSheetHandler();
+                          setRaftInfo({
+                            id: data.id,
+                            latitude: data.latitude,
+                            longitude: data.longitude,
+                            altitude: data.altitude,
+                            flood_depth: data.flood_depth,
+                            rainfall_amount: data.rainfall_amount,
+                            rainfall_rate: data.rainfall_rate,
+                            temperature: data.temperature,
+                            humidity: data.humidity,
+                            pressure: data.pressure,
+                            username: data.username,
+                            badge: data.badge,
+                            address: data.address,
+                            rainfall_rate_title: getRainfallRateTitle(
+                              data.rainfall_rate
+                            ),
+                            flood_depth_title: getFloodDepthTitle(
+                              data.flood_depth
+                            ),
+                            rainfall_rate_color: getRainfallRateColor(
+                              data.rainfall_rate
+                            ),
+                            flood_depth_color: getFloodDepthColor(
+                              data.flood_depth
+                            ),
+                            flood_depth_subtitle: getFloodDepthSubTitle(
+                              data.flood_depth
+                            ),
+                            water_level: data.water_level,
+                            updatedAt: moment(data.updatedAt).format(
+                              "DD MMM YYYY (dddd) HH:mm"
+                            ),
+                            charts: _data,
+                            FD1: _data.FD1,
+                            TMP1: _data.TMP1,
+                            RA1: _data.RA1,
+                            PR1: _data.PR1,
+                            HU1: _data.HU1,
+                            WL1: _data.WL1,
+                          });
+                        })
+                        .catch((error) => console.error("Error:", error));
+                  });
+                }}
+              >
+                {isMobile ? null : (
+                  <Popup>
+                    {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                    <>
+                    <Text
+                      size={200}
+                      color={getFloodDepthColor(
+                        data.flood_depth
+                      )}
+                    >
+                      <b>
+                    {getFloodDepthSubTitle(
+                              data.flood_depth
+                            )}
+                      </b>
+                    </Text>
+                    <br/>
+                    </>
+                    ): null }
+                    Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                    {data.flood_depth_title}
+                  </Popup>
+                )}
+              </Marker>
+            );
+          }
         })
       );
-      setFloodCirclesRAFT(
+
+      setDostMarkers(
         mapData.raft.map((data) => {
-          return (
-            <Circle
-              key={data.id}
-              center={{ lat: data.latitude, lng: data.longitude }}
-              fillColor={circleColor(data.flood_depth)}
-              radius={50}
-              fillOpacity={0.75}
-              stroke={false}
-            />
-          );
+          if(data.username === "dost"){
+            return (
+              <Marker
+                key={data.id}
+                position={[data.latitude, data.longitude]}
+                icon={markerPicker(data.rainfall_rate, data.flood_depth)}
+                onMouseOver={(e) => {
+                  if (!isMobile) {
+                    e.target.openPopup();
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!isMobile) {
+                    e.target.closePopup();
+                  }
+                }}
+                onclick={() => {
+                  setNodeType("RAFT");
+                  //setSummaryData(data);
+                  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                  // const proxyurl = "";
+                  const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+  
+                  fetch(proxyurl + url, {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Accept: "application/json",
+                    },
+                  }).then((response) => {
+                    if (response.status === 200)
+                      response
+                        .json()
+                        .then((_data) => {
+                          onSideSheetHandler();
+                          setRaftInfo({
+                            id: data.id,
+                            latitude: data.latitude,
+                            longitude: data.longitude,
+                            altitude: data.altitude,
+                            flood_depth: data.flood_depth,
+                            rainfall_amount: data.rainfall_amount,
+                            rainfall_rate: data.rainfall_rate,
+                            temperature: data.temperature,
+                            humidity: data.humidity,
+                            pressure: data.pressure,
+                            username: data.username,
+                            badge: data.badge,
+                            address: data.address,
+                            rainfall_rate_title: getRainfallRateTitle(
+                              data.rainfall_rate
+                            ),
+                            flood_depth_title: getFloodDepthTitle(
+                              data.flood_depth
+                            ),
+                            rainfall_rate_color: getRainfallRateColor(
+                              data.rainfall_rate
+                            ),
+                            flood_depth_color: getFloodDepthColor(
+                              data.flood_depth
+                            ),
+                            flood_depth_subtitle: getFloodDepthSubTitle(
+                              data.flood_depth
+                            ),
+                            water_level: data.water_level,
+                            updatedAt: moment(data.updatedAt).format(
+                              "DD MMM YYYY (dddd) HH:mm"
+                            ),
+                            charts: _data,
+                            FD1: _data.FD1,
+                            TMP1: _data.TMP1,
+                            RA1: _data.RA1,
+                            PR1: _data.PR1,
+                            HU1: _data.HU1,
+                            WL1: _data.WL1,
+                          });
+                        })
+                        .catch((error) => console.error("Error:", error));
+                  });
+                }}
+              >
+                {isMobile ? null : (
+                  <Popup>
+                    {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                    <>
+                    <Text
+                      size={200}
+                      color={getFloodDepthColor(
+                        data.flood_depth
+                      )}
+                    >
+                      <b>
+                    {getFloodDepthSubTitle(
+                              data.flood_depth
+                            )}
+                      </b>
+                    </Text>
+                    <br/>
+                    </>
+                    ): null }
+                    Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                    {data.flood_depth_title}
+                  </Popup>
+                )}
+              </Marker>
+            );
+          }
         })
       );
-      setFloodCirclesMobile(
-        mapData.mobile.map((data) => {
-          return (
-            <Circle
-              key={data.id}
-              center={{ lat: data.latitude, lng: data.longitude }}
-              fillColor={circleColor(data.flood_depth)}
-              radius={50}
-              fillOpacity={0.75}
-              stroke={false}
-            />
-          );
-        })
-      );
+      // setFloodCirclesRAFT(
+      //   mapData.raft.map((data) => {
+      //     return (
+      //       <Circle
+      //         key={data.id}
+      //         center={{ lat: data.latitude, lng: data.longitude }}
+      //         fillColor={circleColor(data.flood_depth)}
+      //         radius={50}
+      //         fillOpacity={0.75}
+      //         stroke={false}
+      //       />
+      //     );
+      //   })
+      // );
+      // setFloodCirclesMobile(
+      //   mapData.mobile.map((data) => {
+      //     return (
+      //       <Circle
+      //         key={data.id}
+      //         center={{ lat: data.latitude, lng: data.longitude }}
+      //         fillColor={circleColor(data.flood_depth)}
+      //         radius={50}
+      //         fillOpacity={0.75}
+      //         stroke={false}
+      //       />
+      //     );
+      //   })
+      // );
 
-      console.log("Mobile: ", mapData.mobile);
-      console.log("RAFT: ", mapData.raft);
+      // console.log("Mobile: ", mapData.mobile);
+      // console.log("RAFT: ", mapData.raft);
       setMobileMarkers(
         mapData.mobile.map((data) => {
           return (
@@ -1307,8 +1427,8 @@ export const Home = (props) => {
         </Popover>
       </Container>
 
-      {/* Marker button */}
-      <Tooltip title="Click to toggle marker visibility on the map">
+      {/* Show RAFTs button */}
+      <Tooltip title="Click to toggle RAFT visibility on the map">
         <Box
           maxWidth={false}
           borderColor="grey.400"
@@ -1318,39 +1438,66 @@ export const Home = (props) => {
         >
           <IconButton
             onClick={() => {
-              setShowMarkers(!showMarkers);
+              setShowRAFT(!showRAFT);
             }}
-            className={showMarkers ? classes.floodON : classes.floodOFF}
+            className={showRAFT ? classes.floodON : classes.floodOFF}
             classes={{ label: classes.iconLabel }}
             size="medium"
             aria-label="markers"
           >
+            <Heading size={100}>RAFTS</Heading>
             <RoomIcon />
-            <Heading size={100}>{showMarkers ? "ON" : "OFF"}</Heading>
+            <Heading size={100}>{showRAFT ? "ON" : "OFF"}</Heading>
           </IconButton>
         </Box>
       </Tooltip>
 
-      {/* Flood circle button */}
-      <Tooltip title="Click to toggle flood circle marker visibility on the map">
+      {/* Show Mobile reports button */}
+      <Tooltip title="Click to toggle mobile report visibility on the map">
         <Box
           maxWidth={false}
           borderColor="grey.400"
-          className={classes.floodCircles}
+          className={classes.mobileButton}
           border={1}
           boxShadow={3}
         >
           <IconButton
             onClick={() => {
-              setShowCircles(!showCircles);
+              setShowMobile(!showMobile);
             }}
-            className={showCircles ? classes.floodON : classes.floodOFF}
+            className={showMobile ? classes.floodON : classes.floodOFF}
             classes={{ label: classes.iconLabel }}
             size="medium"
             aria-label="circles"
           >
+            <Heading size={100}>MOBILE</Heading>
             <WavesIcon />
-            <Heading size={100}>{showCircles ? "ON" : "OFF"}</Heading>
+            <Heading size={100}>{showMobile ? "ON" : "OFF"}</Heading>
+          </IconButton>
+        </Box>
+      </Tooltip>
+
+      {/* Show DOST devices button */}
+      <Tooltip title="Click to toggle DOST device visibility on the map">
+        <Box
+          maxWidth={false}
+          borderColor="grey.400"
+          className={classes.dostButton}
+          border={1}
+          boxShadow={3}
+        >
+          <IconButton
+            onClick={() => {
+              setShowDOST(!showDOST);
+            }}
+            className={showDOST ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="circles"
+          >
+            <Heading size={100}>DOST</Heading>
+            <WavesIcon />
+            <Heading size={100}>{showDOST ? "ON" : "OFF"}</Heading>
           </IconButton>
         </Box>
       </Tooltip>
@@ -2435,11 +2582,13 @@ export const Home = (props) => {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {raftMarkers && showMarkers ? raftMarkers : null}
-        {mobileMarkers && showMarkers ? mobileMarkers : null}
+        {raftMarkers && showRAFT ? raftMarkers : null}
+        {mobileMarkers && showMobile ? mobileMarkers : null}
+        {dostMarkers && showDOST ? dostMarkers : null}
 
-        {showCircles ? floodCirclesMobile : null}
-        {showCircles ? floodCirclesRAFT : null}
+ 
+        {/* {showCircles ? floodCirclesMobile : null}
+        {showCircles ? floodCirclesRAFT : null} */}
       </Map>
     </>
   );
@@ -2487,10 +2636,18 @@ const useStyles = makeStyles({
     flexWrap: "wrap",
   },
 
-  floodCircles: {
+  mobileButton: {
+    position: "absolute",
+    right: 70,
+    top: 150,
+    zIndex: 1,
+    width: "auto",
+    padding: 0,
+  },
+  dostButton: {
     position: "absolute",
     right: 60,
-    top: 150,
+    top: 240,
     zIndex: 1,
     width: "auto",
     padding: 0,

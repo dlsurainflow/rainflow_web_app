@@ -37,6 +37,7 @@ import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import RoomIcon from "@material-ui/icons/Room";
 import WavesIcon from "@material-ui/icons/Waves";
+import PhoneIcon from "@material-ui/icons/PhoneAndroid"
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
 // import { borders, shadows } from "@material-ui/system";
@@ -1470,8 +1471,8 @@ export const Home = (props) => {
             size="medium"
             aria-label="circles"
           >
-            <Heading size={100}>MOBILE</Heading>
-            <WavesIcon />
+            <Heading size={100}>PHONE</Heading>
+            <PhoneIcon />
             <Heading size={100}>{showMobile ? "ON" : "OFF"}</Heading>
           </IconButton>
         </Box>
@@ -2626,30 +2627,33 @@ const useStyles = makeStyles({
     "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
     backgroundColor: "#D2EEF3",
     borderRadius: 2,
-    flexWrap: "wrap",
+    width: 50,
+    height: 70,
+  
   },
 
   floodOFF: {
     "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
     backgroundColor: "white",
     borderRadius: 2,
-    flexWrap: "wrap",
+    width: 50,
+    height: 70,
   },
 
   mobileButton: {
     position: "absolute",
-    right: 70,
-    top: 150,
+    right: 60,
+    top: 155,
     zIndex: 1,
-    width: "auto",
+    width: 200,
     padding: 0,
   },
   dostButton: {
     position: "absolute",
     right: 60,
-    top: 240,
+    top: 235,
     zIndex: 1,
-    width: "auto",
+    width: 90,
     padding: 0,
   },
 
@@ -2658,7 +2662,7 @@ const useStyles = makeStyles({
     right: 60,
     top: 75,
     zIndex: 1,
-    width: "auto",
+    width: 90,
     padding: 0,
   },
 });

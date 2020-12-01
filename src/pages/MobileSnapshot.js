@@ -46,11 +46,10 @@ import Divider from "@material-ui/core/Divider";
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import { Container } from "react-bootstrap";
-import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
 
 function MapFunction() {
-  let { token_params, latitude_params, longitude_params } = useParams();
+  let { token_params, latitude_params, longitude_params, start_date, end_date } = useParams();
   const history = useHistory();
   const [mapData, setMapData] = useState();
   const [mapCenter, setMapCenter] = useState();
@@ -174,19 +173,9 @@ function MapFunction() {
     }
   }, [latitude_params, longitude_params]);
 
-  /* Update every map and summary every 10 seconds*/
-
-  useInterval(() => {
-    if (doneInitialFetch) {
-      fetchData();
-    }
-    if (doneInitialFetchSummary) {
-      fetchSummary();
-    }
-  }, 10000);
 
   const fetchData = async () => {
-    const url = "https://rainflow.live/api/map/all";
+    const url = `https://rainflow.live/api/map/snapshot/${start_date}/${end_date}`;
 
     await fetch(proxyurl + url, {
       method: "GET",
@@ -385,7 +374,7 @@ function MapFunction() {
   }
 
   const reportInfoHandler = async (id, username) => {
-    const url = `https://rainflow.live/api/report/${id}`;
+    const url = `https://rainflow.live/api/report/history/${id}`;
     var header;
     if (token_params === "guest") {
       header = {
@@ -417,8 +406,8 @@ function MapFunction() {
               "DD MMM YYYY (dddd) HH:mm"
             ),
             image: data.image,
-            upvote: data.upvote,
-            downvote: data.downvote,
+            upvote: (data.upvote).length,
+            downvote: (data.downvote).length,
             currentAction: data.currentAction,
             description: data.description,
             address: data.address,
@@ -711,13 +700,13 @@ function MapFunction() {
               key={data.id}
               position={[data.latitude, data.longitude]}
               icon={markerPickerRAIN(data.rainfall_rate, data.flood_depth)}
-              
+             
               onclick={() => {
                 setNodeType("RAFT");
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -820,7 +809,7 @@ function MapFunction() {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -912,60 +901,60 @@ function MapFunction() {
     setMobileMarkers(
       mapData.mobile.map((data) => {
         return (
-          <Marker
-              key={data.id}
-              icon={markerPickerRAIN(data.rainfall_rate, data.flood_depth)}
-              position={[data.latitude, data.longitude]}
-              onclick={(e) => {
-                // eslint-disable-next-line no-lone-blocks
-                if (data.image != null) {
-                  e.target.openPopup();
-                } else {
-                  setNodeType("Mobile");
-                  reportInfoHandler(data.id, data.username);
-                }
-              }}
-            >
-              {data.image !== null ? (
+            <Marker
+            key={data.id}
+            icon={markerPickerRAIN(data.rainfall_rate, data.flood_depth)}
+            position={[data.latitude, data.longitude]}
+            onclick={(e) => {
+              // eslint-disable-next-line no-lone-blocks
+              if (data.image != null) {
+                e.target.openPopup();
+              } else {
+                setNodeType("Mobile");
+                reportInfoHandler(data.id, data.username);
+              }
+            }}
+          >
+            {data.image !== null ? (
+              <>
+                <Popup>
+                {getFloodDepthSubTitle(data.flood_depth) !== null ? (
                 <>
-                  <Popup>
-                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
-                  <>
-                  <Text
-                    size={200}
-                    color={getFloodDepthColor(
-                      data.flood_depth
-                    )}
-                  >
-                    <b>
-                  {getFloodDepthSubTitle(
-                            data.flood_depth
-                          )}
-                    </b>
-                  </Text>
-                  <br/>
-                  </>
-                  ): null }
-                    <Image
-                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
-                      thumbnail
-                      fluid
-                    />
-                    <Button
-                      onClick={() => {
-                        setNodeType("Mobile");
-                        reportInfoHandler(data.id, data.username);
-                      }}
-                      variant="info"
-                      block
-                      size="sm"
-                    >
-                      More info
-                    </Button>
-                  </Popup>
+                <Text
+                  size={200}
+                  color={getFloodDepthColor(
+                    data.flood_depth
+                  )}
+                >
+                  <b>
+                {getFloodDepthSubTitle(
+                          data.flood_depth
+                        )}
+                  </b>
+                </Text>
+                <br/>
                 </>
-              ) : null}
-            </Marker>
+                ): null }
+                  <Image
+                    src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                    thumbnail
+                    fluid
+                  />
+                  <Button
+                    onClick={() => {
+                      setNodeType("Mobile");
+                      reportInfoHandler(data.id, data.username);
+                    }}
+                    variant="info"
+                    block
+                    size="sm"
+                  >
+                    More info
+                  </Button>
+                </Popup>
+              </>
+            ) : null}
+          </Marker>
         );
       })
     );
@@ -985,7 +974,7 @@ function MapFunction() {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1088,7 +1077,7 @@ function MapFunction() {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1180,60 +1169,60 @@ function MapFunction() {
     setMobileMarkers(
       mapData.mobile.map((data) => {
         return (
-          <Marker
-              key={data.id}
-              icon={markerPickerFLOOD(data.rainfall_rate, data.flood_depth)}
-              position={[data.latitude, data.longitude]}
-              onclick={(e) => {
-                // eslint-disable-next-line no-lone-blocks
-                if (data.image != null) {
-                  e.target.openPopup();
-                } else {
-                  setNodeType("Mobile");
-                  reportInfoHandler(data.id, data.username);
-                }
-              }}
-            >
-              {data.image !== null ? (
+            <Marker
+            key={data.id}
+            icon={markerPickerFLOOD(data.rainfall_rate, data.flood_depth)}
+            position={[data.latitude, data.longitude]}
+            onclick={(e) => {
+              // eslint-disable-next-line no-lone-blocks
+              if (data.image != null) {
+                e.target.openPopup();
+              } else {
+                setNodeType("Mobile");
+                reportInfoHandler(data.id, data.username);
+              }
+            }}
+          >
+            {data.image !== null ? (
+              <>
+                <Popup>
+                {getFloodDepthSubTitle(data.flood_depth) !== null ? (
                 <>
-                  <Popup>
-                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
-                  <>
-                  <Text
-                    size={200}
-                    color={getFloodDepthColor(
-                      data.flood_depth
-                    )}
-                  >
-                    <b>
-                  {getFloodDepthSubTitle(
-                            data.flood_depth
-                          )}
-                    </b>
-                  </Text>
-                  <br/>
-                  </>
-                  ): null }
-                    <Image
-                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
-                      thumbnail
-                      fluid
-                    />
-                    <Button
-                      onClick={() => {
-                        setNodeType("Mobile");
-                        reportInfoHandler(data.id, data.username);
-                      }}
-                      variant="info"
-                      block
-                      size="sm"
-                    >
-                      More info
-                    </Button>
-                  </Popup>
+                <Text
+                  size={200}
+                  color={getFloodDepthColor(
+                    data.flood_depth
+                  )}
+                >
+                  <b>
+                {getFloodDepthSubTitle(
+                          data.flood_depth
+                        )}
+                  </b>
+                </Text>
+                <br/>
                 </>
-              ) : null}
-            </Marker>
+                ): null }
+                  <Image
+                    src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                    thumbnail
+                    fluid
+                  />
+                  <Button
+                    onClick={() => {
+                      setNodeType("Mobile");
+                      reportInfoHandler(data.id, data.username);
+                    }}
+                    variant="info"
+                    block
+                    size="sm"
+                  >
+                    More info
+                  </Button>
+                </Popup>
+              </>
+            ) : null}
+          </Marker>
         );
       })
     );
@@ -1255,7 +1244,7 @@ function MapFunction() {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1358,7 +1347,7 @@ function MapFunction() {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1452,60 +1441,60 @@ function MapFunction() {
     setMobileMarkers(
       mapData.mobile.map((data) => {
         return (
-          <Marker
-              key={data.id}
-              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
-              position={[data.latitude, data.longitude]}
-              onclick={(e) => {
-                // eslint-disable-next-line no-lone-blocks
-                if (data.image != null) {
-                  e.target.openPopup();
-                } else {
-                  setNodeType("Mobile");
-                  reportInfoHandler(data.id, data.username);
-                }
-              }}
-            >
-              {data.image !== null ? (
+            <Marker
+            key={data.id}
+            icon={markerPicker(data.rainfall_rate, data.flood_depth)}
+            position={[data.latitude, data.longitude]}
+            onclick={(e) => {
+              // eslint-disable-next-line no-lone-blocks
+              if (data.image != null) {
+                e.target.openPopup();
+              } else {
+                setNodeType("Mobile");
+                reportInfoHandler(data.id, data.username);
+              }
+            }}
+          >
+            {data.image !== null ? (
+              <>
+                <Popup>
+                {getFloodDepthSubTitle(data.flood_depth) !== null ? (
                 <>
-                  <Popup>
-                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
-                  <>
-                  <Text
-                    size={200}
-                    color={getFloodDepthColor(
-                      data.flood_depth
-                    )}
-                  >
-                    <b>
-                  {getFloodDepthSubTitle(
-                            data.flood_depth
-                          )}
-                    </b>
-                  </Text>
-                  <br/>
-                  </>
-                  ): null }
-                    <Image
-                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
-                      thumbnail
-                      fluid
-                    />
-                    <Button
-                      onClick={() => {
-                        setNodeType("Mobile");
-                        reportInfoHandler(data.id, data.username);
-                      }}
-                      variant="info"
-                      block
-                      size="sm"
-                    >
-                      More info
-                    </Button>
-                  </Popup>
+                <Text
+                  size={200}
+                  color={getFloodDepthColor(
+                    data.flood_depth
+                  )}
+                >
+                  <b>
+                {getFloodDepthSubTitle(
+                          data.flood_depth
+                        )}
+                  </b>
+                </Text>
+                <br/>
                 </>
-              ) : null}
-            </Marker>
+                ): null }
+                  <Image
+                    src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                    thumbnail
+                    fluid
+                  />
+                  <Button
+                    onClick={() => {
+                      setNodeType("Mobile");
+                      reportInfoHandler(data.id, data.username);
+                    }}
+                    variant="info"
+                    block
+                    size="sm"
+                  >
+                    More info
+                  </Button>
+                </Popup>
+              </>
+            ) : null}
+          </Marker>
         );
       })
     );
@@ -1550,229 +1539,8 @@ function MapFunction() {
                 >
                   Legend
                 </Tab>
-                <Tab
-                  id="flood"
-                  onSelect={() => setTabIndex(1)}
-                  isSelected={tabIndex === 1}
-                  aria-controls={`panel-flood`}
-                >
-                  Areas by Flood Level
-                </Tab>
-                <Tab
-                  id="flood"
-                  onSelect={() => setTabIndex(2)}
-                  isSelected={tabIndex === 2}
-                  aria-controls={`panel-rain`}
-                >
-                  Areas by Rain Intensity Level
-                </Tab>
               </Tablist>
 
-              <Pane
-                width="100%"
-                flexGrow={1}
-                overflow="auto"
-                padding={20}
-                backgroundColor="#F9F9FB"
-                id={`panel-flood`}
-                role="tabpanel"
-                aria-labelledby="flood"
-                aria-hidden={tabIndex === 1 ? false : true}
-                display={tabIndex === 1 ? "block" : "none"}
-              >
-                <Card
-                  flexDirection="column"
-                  display="inline-flex"
-                  marginBottom={10}
-                >
-                  <Heading size={200}>
-                    {noSummary === true
-                      ? "No monitored areas are flooded at the moment."
-                      : "Click any address to go to its marker."}
-                  </Heading>
-                </Card>
-                <Divider />
-                <Card
-                  flexDirection="column"
-                  display={noFlood.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>No flood (0 - 0.1 meters): </Heading>
-                  {noFlood.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={ankle.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Ankle Deep (0.1 - 0.25 meters): </Heading>
-                  {ankle.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={knee.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Knee Deep (0.25 - 0.7 meters): </Heading>
-                  {knee.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={waist.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Waist Deep (0.7 - 1.2 meters): </Heading>
-                  {waist.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={neck.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Neck Deep (1.2 - 1.6 meters): </Heading>
-                  {neck.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={head.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Top of Head Deep (1.6 - 2.0 meters): </Heading>
-                  {head.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey1.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>1-Storey High (2.0 - 3.0 meters):</Heading>
-                  {storey1.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey15.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>1.5-Storey High (3.0 - 4.5 meters): </Heading>
-                  {storey15.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey2.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>2-Storey or Higher (4.5+ meters):</Heading>
-                  {storey2.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-              </Pane>
               <Pane
                 width="100%"
                 overflow="auto"
@@ -1789,150 +1557,6 @@ function MapFunction() {
                 display={tabIndex === 0 ? "block" : "none"}
               >
                 <Image src={legendVertical} fluid />
-              </Pane>
-              <Pane
-                width="100%"
-                flexGrow={1}
-                padding={20}
-                backgroundColor="#F9F9FB"
-                id={`panel-rain`}
-                role="tabpanel"
-                aria-labelledby="rain"
-                aria-hidden={tabIndex === 2 ? false : true}
-                display={tabIndex === 2 ? "block" : "none"}
-              >
-                <Card
-                  flexDirection="column"
-                  display="inline-flex"
-                  marginBottom={10}
-                >
-                  <Heading size={200}>
-                    {noSummary === true
-                      ? "No monitored areas are experiencing rain at the moment."
-                      : "Click any address to go to its marker."}
-                  </Heading>
-                </Card>
-                <Divider />
-                <Card
-                  flexDirection="column"
-                  display={noRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>No rain (0 mm/hr): </Heading>
-                  {noRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={lightRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Light Rain (0.01 - 2.5 mm/hr):</Heading>
-                  {lightRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={modRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Moderate Rain (2.5 - 7.5 mm/hr):</Heading>
-                  {modRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={heavyRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Heavy Rain (7.5 - 15 mm/hr):</Heading>
-                  {heavyRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={intenseRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Intense Rain (15 - 30 mm/hr):</Heading>
-                  {intenseRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={torrentialRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Torrential Rain (30+ mm/hr):</Heading>
-                  {torrentialRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
               </Pane>
             </Pane>
           }
@@ -1951,35 +1575,21 @@ function MapFunction() {
         </Popover>
       </Container>
 
-     {/* SNAPSHOT */}
-    <Tooltip title="Pick a date to view the data recorded on that day.">
+      {/* Go back to live site */}
+    <Tooltip title="Go back to real-time updates on the live site">
         <Box
           width = "auto"
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-          <DatePicker
-            value={snapshotDate}
-            calendarClassName = "calendar-style"
-            className = "calendar-input-style"
-            onChange={(date)=>setSnapshotDate(date)}
-            format ="y-MM-dd" 
-          />
           <IconButton
-            onClick={() => {
-              if(snapshotDate !== null){
-                let start = moment(snapshotDate).format("YYYY-MM-DD");
-                let addDay = moment(start).add(1, 'days');
-                let end = moment(addDay).format("YYYY-MM-DD");
-                history.push(`/mobile/map/snapshot/${token_params}/${latitude_params}/${longitude_params}/${start}/${end}`)
-              }
-            }}
+            onClick={() => history.push(`/mobile/map/${token_params}/${latitude_params}/${longitude_params}`)}
             className={classes.snapshotButton}
             classes={{ label: classes.iconLabel }}
             size="medium"
             aria-label="markers"
           >
-            <Heading size={100}>SNAPSHOT</Heading>
+            <Heading size={100}>Go back to real-time site</Heading>
           </IconButton>
         </Box>
       </Tooltip>
@@ -2217,222 +1827,12 @@ function MapFunction() {
                   >
                     <Button
                       variant="success"
-                      active={
-                        reportInfo.currentAction === "upvote" ? true : false
-                      }
-                      onClick={(e) => {
-                        console.log("Upvote pressed!");
-                        var token = token_params;
-                        if (token !== null && token !=="guest") {
-                          if (reportInfo.currentAction === "upvote") {
-                            var _upvote = reportInfo.upvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: _upvote,
-                              downvote: reportInfo.downvote,
-                              currentAction: null,
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              description: reportInfo.description,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "DELETE",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          } else if (
-                            reportInfo.currentAction === null ||
-                            reportInfo.currentAction === "downvote"
-                          ) {
-                            var _upvote = reportInfo.upvote + 1;
-                            var _downvote = reportInfo.downvote;
-                            if (reportInfo.currentAction === "downvote")
-                              _downvote = _downvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: _upvote,
-                              downvote: _downvote,
-                              currentAction: "upvote",
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              description: reportInfo.description,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "POST",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                  action: "upvote",
-                                  reportID: reportInfo.id,
-                                }), // body data type must match "Content-Type" header
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          }
-                        } else {
-                          setVoteLoggedInDialog(true);
-                          setIsOpen(false);
-                        }
-                      }}
                     >
                       <HandThumbsUp color="white" size={20} />{" "}
                       {reportInfo.upvote}
                     </Button>{" "}
                     <Button
                       variant="danger"
-                      active={
-                        reportInfo.currentAction === "downvote" ? true : false
-                      }
-                      onClick={(e) => {
-                        console.log("Downvote pressed!");
-                        var token = token_params;
-                        if (token !== null && token !=="guest") {
-                          if (reportInfo.currentAction === "downvote") {
-                            var _downvote = reportInfo.upvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: reportInfo.upvote,
-                              downvote: _downvote,
-                              currentAction: null,
-                              description: reportInfo.description,
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "DELETE",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          } else if (
-                            reportInfo.currentAction === null ||
-                            reportInfo.currentAction === "upvote"
-                          ) {
-                            var _downvote = reportInfo.downvote + 1;
-                            var _upvote = reportInfo.upvote;
-                            if (reportInfo.currentAction === "upvote")
-                              _upvote = _upvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: _upvote,
-                              downvote: _downvote,
-                              currentAction: "downvote",
-                              description: reportInfo.description,
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "POST",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                  action: "downvote",
-                                  reportID: reportInfo.id,
-                                }), // body data type must match "Content-Type" header
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          }
-                        } else {
-                          setVoteLoggedInDialog(true);
-                          setIsOpen(false);
-                        }
-                      }}
                     >
                       <HandThumbsDown color="white" size={20} />{" "}
                       {reportInfo.downvote}
@@ -3365,7 +2765,7 @@ const useStyles = makeStyles({
   },
 });
 
-export const MobileMap = (props) => {
+export const MobileSnapshot = (props) => {
   // useEffect(() => props.setIsNavBarHidden(true));
   return (
     // <Container>

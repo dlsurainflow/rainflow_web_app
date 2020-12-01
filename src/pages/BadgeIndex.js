@@ -64,13 +64,13 @@ export const BadgeIndex = () => {
               <Typography variant="body2" component="p">
                 <ul>
                   <li>
-                    Submit reports through the mobile app.
+                  Registered users gain a point for every upvote on their flood reports.
                   </li>
                   <li>
-                    Receive upvotes from other users on your reports. (The higher your badge level is, the more trustworthy your reports are!)
+                  Likewise, they lose a point for every downvote.
                   </li>
                   <li>
-                    Setup your own RAFT device.
+                  Points are added once a report has been archived.
                   </li>
                 </ul>
               </Typography>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useHistory } from 'react-router-dom'
-import { Map, Marker, TileLayer, Popup } from "react-leaflet";
-import DatePicker from 'react-date-picker';
+import { useHistory, useParams } from 'react-router-dom'
+import { Map, Marker, TileLayer, Popup} from "react-leaflet";
+
 import { Container } from "react-bootstrap";
 import "../App.css";
 import {
@@ -52,9 +52,10 @@ import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
 
-export const Home = (props) => {
-  const history = useHistory();
+export const WebSnapshot = (props) => {
   const windowHeight = window.innerHeight;
+  const history = useHistory();
+  let {start_date, end_date} = useParams();
   const classes = useStyles();
   const [mapCenter, setMapCenter] = useState();
   const [mapZoom, setMapZoom] = useState();
@@ -79,7 +80,6 @@ export const Home = (props) => {
   const [showDOST, setShowDOST] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
-  const [snapshotDate, setSnapshotDate] = useState(new Date());
 
  const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -160,7 +160,8 @@ export const Home = (props) => {
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
-    const url = "https://rainflow.live/api/map/all";
+    console.log("date range: ", start_date, end_date)
+    const url = `https://rainflow.live/api/map/snapshot/${start_date}/${end_date}`
 
     await fetch(proxyurl + url, {
       method: "GET",
@@ -415,19 +416,19 @@ export const Home = (props) => {
     setMapCenter([14.599512, 120.984222]);
     setMapZoom(9);
     decodeToken();
-    setShowPopover(true);
+   // setShowPopover(true);
   }, []);
 
   /* Update every map and summary every 10 seconds*/
 
-  useInterval(() => {
-    if (doneInitialFetch) {
-      fetchData();
-    }
-    if (doneInitialFetchSummary) {
-      fetchSummary();
-    }
-  }, 10000);
+//   useInterval(() => {
+//     if (doneInitialFetch) {
+//       fetchData();
+//     }
+//     if (doneInitialFetchSummary) {
+//       fetchSummary();
+//     }
+//   }, 10000);
 
   const filterHandlerRAIN = () =>{
     setRaftMarkers(
@@ -453,7 +454,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -565,7 +566,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -737,7 +738,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -849,7 +850,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1023,8 +1024,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
-
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
                 fetch(proxyurl + url, {
                   method: "GET",
                   headers: {
@@ -1135,7 +1135,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1292,6 +1292,7 @@ export const Home = (props) => {
       fetchData();
     } else {
      // console.log("updated markers");
+     console.log(mapData)
       setDoneInitialFetch(true);
        if(allFilter){
           filterHandlerALL()
@@ -1456,7 +1457,8 @@ export const Home = (props) => {
   const reportInfoHandler = async (id, username) => {
     // const proxyurl = "https://cors-anywhere.herokuapp.com/";
     // const proxyurl = "";
-    const url = `https://rainflow.live/api/report/${id}`;
+    console.log("haha ", id, username)
+    const url = `https://rainflow.live/api/report/history/${id}`;
     var token = await localStorage.getItem("token");
     var header;
     if (token === null) {
@@ -1480,7 +1482,7 @@ export const Home = (props) => {
     }).then((response) => {
       if (response.status === 200)
         response.json().then((data) => {
-          console.log("report info test ", data)
+            console.log(data)
           setReportInfo({
             id: data.id,
             latitude: data.latitude,
@@ -1492,8 +1494,8 @@ export const Home = (props) => {
               "DD MMM YYYY (dddd) HH:mm"
             ),
             image: data.image,
-            upvote: data.upvote,
-            downvote: data.downvote,
+            upvote: (data.upvote).length,
+            downvote: (data.downvote).length,
             currentAction: data.currentAction,
             description: data.description,
             address: data.address,
@@ -1616,230 +1618,9 @@ export const Home = (props) => {
                 >
                   Legend
                 </Tab>
-                <Tab
-                  id="flood"
-                  onSelect={() => setTabIndex(1)}
-                  isSelected={tabIndex === 1}
-                  aria-controls={`panel-flood`}
-                >
-                  Areas by Flood Level
-                </Tab>
-                <Tab
-                  id="flood"
-                  onSelect={() => setTabIndex(2)}
-                  isSelected={tabIndex === 2}
-                  aria-controls={`panel-rain`}
-                >
-                  Areas by Rain Intensity Level
-                </Tab>
+                
               </Tablist>
 
-              <Pane
-                width="100%"
-                flexGrow={1}
-                overflow="auto"
-                padding={20}
-                backgroundColor="#F9F9FB"
-                id={`panel-flood`}
-                role="tabpanel"
-                aria-labelledby="flood"
-                aria-hidden={tabIndex === 1 ? false : true}
-                display={tabIndex === 1 ? "block" : "none"}
-              >
-                <Card
-                  flexDirection="column"
-                  display="inline-flex"
-                  marginBottom={10}
-                >
-                  <Heading size={200}>
-                    {noSummary === true
-                      ? "No monitored areas are flooded at the moment."
-                      : "Click any address to go to its marker."}
-                  </Heading>
-                </Card>
-                <Divider />
-
-                <Card
-                  flexDirection="column"
-                  display={noFlood.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>No flood (0 - 0.1 meters): </Heading>
-                  {noFlood.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={ankle.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Ankle Deep (0.1 - 0.25 meters): </Heading>
-                  {ankle.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={knee.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Knee Deep (0.25 - 0.7 meters): </Heading>
-                  {knee.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={waist.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Waist Deep (0.7 - 1.2 meters): </Heading>
-                  {waist.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={neck.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Neck Deep (1.2 - 1.6 meters): </Heading>
-                  {neck.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={head.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Top of Head Deep (1.6 - 2.0 meters): </Heading>
-                  {head.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey1.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>1-Storey High (2.0 - 3.0 meters):</Heading>
-                  {storey1.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey15.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>1.5-Storey High (3.0 - 4.5 meters): </Heading>
-                  {storey15.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey2.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>2-Storey or Higher (4.5+ meters):</Heading>
-                  {storey2.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-              </Pane>
               <Pane
                 width="100%"
                 overflow="auto"
@@ -1856,150 +1637,6 @@ export const Home = (props) => {
                 display={tabIndex === 0 ? "block" : "none"}
               >
                 <Image src={legendVertical} fluid />
-              </Pane>
-              <Pane
-                width="100%"
-                flexGrow={1}
-                padding={20}
-                backgroundColor="#F9F9FB"
-                id={`panel-rain`}
-                role="tabpanel"
-                aria-labelledby="rain"
-                aria-hidden={tabIndex === 2 ? false : true}
-                display={tabIndex === 2 ? "block" : "none"}
-              >
-                <Card
-                  flexDirection="column"
-                  display="inline-flex"
-                  marginBottom={10}
-                >
-                  <Heading size={200}>
-                    {noSummary === true
-                      ? "No monitored areas are experiencing rain at the moment."
-                      : "Click any address to go to its marker."}
-                  </Heading>
-                </Card>
-                <Divider />
-                <Card
-                  flexDirection="column"
-                  display={noRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>No rain (0 mm/hr): </Heading>
-                  {noRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={lightRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Light Rain (0.01 - 2.5 mm/hr):</Heading>
-                  {lightRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={modRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Moderate Rain (2.5 - 7.5 mm/hr):</Heading>
-                  {modRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={heavyRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Heavy Rain (7.5 - 15 mm/hr):</Heading>
-                  {heavyRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={intenseRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Intense Rain (15 - 30 mm/hr):</Heading>
-                  {intenseRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={torrentialRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Torrential Rain (30+ mm/hr):</Heading>
-                  {torrentialRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
               </Pane>
             </Pane>
           }
@@ -2018,35 +1655,21 @@ export const Home = (props) => {
         </Popover>
       </Container>
 
-    {/* SNAPSHOT */}
-    <Tooltip title="Pick a date to view the data recorded on that day.">
+    {/* Go back to live site */}
+    <Tooltip title="Go back to real-time updates on the live site">
         <Box
           width = "auto"
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-          <DatePicker
-            value={snapshotDate}
-            calendarClassName = "calendar-style"
-            className = "calendar-input-style"
-            onChange={(date)=>setSnapshotDate(date)}
-            format ="y-MM-dd" 
-          />
           <IconButton
-            onClick={() => {
-              if(snapshotDate !== null){
-                let start = moment(snapshotDate).format("YYYY-MM-DD");
-                let addDay = moment(start).add(1, 'days');
-                let end = moment(addDay).format("YYYY-MM-DD");
-                history.push(`/snapshot/${start}/${end}`)
-              }
-            }}
+            onClick={() => history.push('/')}
             className={classes.snapshotButton}
             classes={{ label: classes.iconLabel }}
             size="medium"
             aria-label="markers"
           >
-            <Heading size={100}>SNAPSHOT</Heading>
+            <Heading size={100}>Go back to real-time site</Heading>
           </IconButton>
         </Box>
       </Tooltip>
@@ -2287,222 +1910,12 @@ export const Home = (props) => {
                   >
                     <Button
                       variant="success"
-                      active={
-                        reportInfo.currentAction === "upvote" ? true : false
-                      }
-                      onClick={(e) => {
-                       // console.log("Upvote pressed!");
-                        var token = localStorage.getItem("token");
-                        if (token !== null) {
-                          if (reportInfo.currentAction === "upvote") {
-                            var _upvote = reportInfo.upvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: _upvote,
-                              downvote: reportInfo.downvote,
-                              currentAction: null,
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              description: reportInfo.description,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "DELETE",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          } else if (
-                            reportInfo.currentAction === null ||
-                            reportInfo.currentAction === "downvote"
-                          ) {
-                            var _upvote = reportInfo.upvote + 1;
-                            var _downvote = reportInfo.downvote;
-                            if (reportInfo.currentAction === "downvote")
-                              _downvote = _downvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: _upvote,
-                              downvote: _downvote,
-                              currentAction: "upvote",
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              description: reportInfo.description,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "POST",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                  action: "upvote",
-                                  reportID: reportInfo.id,
-                                }), // body data type must match "Content-Type" header
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          }
-                        } else {
-                          setVoteLoggedInDialog(true);
-                          setIsOpen(false);
-                        }
-                      }}
                     >
                       <HandThumbsUp color="white" size={20} />{" "}
                       {reportInfo.upvote}
                     </Button>{" "}
                     <Button
                       variant="danger"
-                      active={
-                        reportInfo.currentAction === "downvote" ? true : false
-                      }
-                      onClick={(e) => {
-                      //  console.log("Downvote pressed!");
-                        var token = localStorage.getItem("token");
-                        if (token !== null) {
-                          if (reportInfo.currentAction === "downvote") {
-                            var _downvote = reportInfo.upvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: reportInfo.upvote,
-                              downvote: _downvote,
-                              currentAction: null,
-                              description: reportInfo.description,
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "DELETE",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          } else if (
-                            reportInfo.currentAction === null ||
-                            reportInfo.currentAction === "upvote"
-                          ) {
-                            var _downvote = reportInfo.downvote + 1;
-                            var _upvote = reportInfo.upvote;
-                            if (reportInfo.currentAction === "upvote")
-                              _upvote = _upvote - 1;
-                            setReportInfo({
-                              id: reportInfo.id,
-                              latitude: reportInfo.latitude,
-                              longitude: reportInfo.longitude,
-                              flood_depth: reportInfo.flood_depth,
-                              rainfall_rate: reportInfo.rainfall_rate,
-                              username: reportInfo.username,
-                              updatedAt: reportInfo.updatedAt,
-                              image: reportInfo.image,
-                              upvote: _upvote,
-                              downvote: _downvote,
-                              currentAction: "downvote",
-                              description: reportInfo.description,
-                              badge: reportInfo.badge,
-                              address: reportInfo.address,
-                              rainfall_rate_title:
-                                reportInfo.rainfall_rate_title,
-                              flood_depth_title: reportInfo.flood_depth_title,
-                              flood_depth_subtitle:
-                                reportInfo.flood_depth_subtitle,
-                              rainfall_rate_color:
-                                reportInfo.rainfall_rate_color,
-                              flood_depth_color: reportInfo.flood_depth_color,
-                            });
-                            fetch(
-                              proxyurl +
-                                "https://rainflow.live/api/report/vote",
-                              {
-                                method: "POST",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                  action: "downvote",
-                                  reportID: reportInfo.id,
-                                }), // body data type must match "Content-Type" header
-                              }
-                            )
-                              .then((res) => {
-                                console.log(res);
-                              })
-                              .catch((err) => console.error(err));
-                          }
-                        } else {
-                          setVoteLoggedInDialog(true);
-                          setIsOpen(false);
-                        }
-                      }}
                     >
                       <HandThumbsDown color="white" size={20} />{" "}
                       {reportInfo.downvote}
@@ -3258,38 +2671,6 @@ export const Home = (props) => {
           </>
         ) : null}
       </Modal>
-
-      <CornerDialog
-        width={isMobile ? windowWidth * 0.75 : windowWidth * 0.3}
-        title={
-          <Pane flexDirection="row" display="flex" alignItems="center">
-            <InfoSignIcon size={20} color="info" marginRight={10} />{" "}
-            <Heading size={600}>Welcome to RainFLOW!</Heading>
-          </Pane>
-        }
-        isShown={guideShown}
-        onCloseComplete={() => setGuideShown(false)}
-        hasFooter={false}
-        position={isMobile ? Position.BOTTOM : Position.BOTTOM_RIGHT}
-      >
-        <Paragraph marginTop={5}>
-          {">"} Click on any node on the map to view the rain and flood
-          information reported in that area.
-        </Paragraph>
-        <Paragraph marginTop={5}>
-          {">"} Toggle the button at the top left to view the marker legend and
-          all the areas grouped by rain and levels.{" "}
-        </Paragraph>
-
-        <Paragraph marginTop={5}>
-          {">"} Click the buttons at the top right to show or hide markers on
-          the map.
-        </Paragraph>
-
-        <Paragraph marginTop={5}>
-          {">"} Choose a date and click snapshot to see the data recorded on that day.
-        </Paragraph>
-      </CornerDialog>
 
       <Map
         center={mapCenter}

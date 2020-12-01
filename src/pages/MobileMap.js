@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Map, Marker, TileLayer, Popup, Circle } from "react-leaflet";
+import { Map, Marker, TileLayer, Popup } from "react-leaflet";
 import "../App.css";
 import {
   Pane,
@@ -19,6 +19,7 @@ import {
   WiFlood,
   WiThermometer,
   WiBarometer,
+  WiFog,
   WiHumidity,
   WiRaindrops,
 } from "weather-icons-react";
@@ -30,8 +31,12 @@ import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import RoomIcon from "@material-ui/icons/Room";
+import PhoneIcon from "@material-ui/icons/PhoneAndroid"
+import FilterIcon from "@material-ui/icons/FilterList";
 import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
+import DatePicker from 'react-date-picker';
+import { useHistory } from 'react-router-dom'
 import { isMobile } from "react-device-detect";
 // import { borders, shadows } from "@material-ui/system";
 import { useParams } from "react-router";
@@ -46,25 +51,31 @@ import legendVertical from "../assets/legend-vertical_legend.png";
 
 function MapFunction() {
   let { token_params, latitude_params, longitude_params } = useParams();
+  const history = useHistory();
   const [mapData, setMapData] = useState();
   const [mapCenter, setMapCenter] = useState();
   const [mapZoom, setMapZoom] = useState();
   const [noSummary, setNoSummary] = useState();
   const classes = useStyles();
-  const [raftMarkers, setRaftMarkers] = useState();
   const [mobileMarkers, setMobileMarkers] = useState();
+  const [raftMarkers, setRaftMarkers] = useState();
+  const [dostMarkers, setDostMarkers] = useState();
+  const [allFilter, setAllFilter] = useState();
+  const [rainFilter, setRainFilter] = useState();
+  const [floodFilter, setFloodFilter] = useState();
   const [isOpen, setIsOpen] = useState();
   const [nodeType, setNodeType] = useState("RAFT");
   const [tabIndex, setTabIndex] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
   const [voteLoggedInDialog, setVoteLoggedInDialog] = useState();
   const [summaryData, setSummaryData] = useState();
-  const [floodCirclesRAFT, setFloodCirclesRAFT] = useState();
-  const [floodCirclesMobile, setFloodCirclesMobile] = useState();
-  const [showCircles, setShowCircles] = useState();
-  const [showMarkers, setShowMarkers] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
+  const [showFilters, setShowFilters] = useState();
+  const [showMobile, setShowMobile] = useState();
+  const [showRAFT, setShowRAFT] = useState();
+  const [showDOST, setShowDOST] = useState();
+  const [snapshotDate, setSnapshotDate] = useState(new Date());
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
@@ -144,8 +155,13 @@ function MapFunction() {
   const [storey15, setStorey15] = useState([]);
 
   useEffect(() => {
-    setShowCircles(false);
-    setShowMarkers(true);
+    setShowMobile(true);
+    setShowRAFT(true);
+    setShowDOST(true);
+    setAllFilter(true);
+    setRainFilter(false);
+    setFloodFilter(false)
+    setShowFilters(false)
     setMapZoom(9);
   }, []);
 
@@ -193,174 +209,16 @@ function MapFunction() {
     if (mapData == null) {
       fetchData();
     } else {
-      console.log("updated markers");
+    //  console.log("updated markers");
       setDoneInitialFetch(true);
-      setRaftMarkers(
-        mapData.raft.map((data) => {
-          // console.log("raft: ", data);
-          return (
-            <Marker
-              key={data.id}
-              position={[data.latitude, data.longitude]}
-              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
-              onclick={() => {
-                setNodeType("RAFT");
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
-
-                fetch(proxyurl + url, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                  },
-                }).then((response) => {
-                  if (response.status === 200)
-                    response
-                      .json()
-                      .then((_data) => {
-                        onSideSheetHandler();
-                        setRaftInfo({
-                          id: data.id,
-                          latitude: data.latitude,
-                          longitude: data.longitude,
-                          altitude: data.altitude,
-                          flood_depth: data.flood_depth,
-                          rainfall_amount: data.rainfall_amount,
-                          rainfall_rate: data.rainfall_rate,
-                          temperature: data.temperature,
-                          humidity: data.humidity,
-                          pressure: data.pressure,
-                          username: data.username,
-                          badge: data.badge,
-                          address: data.address,
-                          rainfall_rate_title: getRainfallRateTitle(
-                            data.rainfall_rate
-                          ),
-                          flood_depth_title: getFloodDepthTitle(
-                            data.flood_depth
-                          ),
-                          rainfall_rate_color: getRainfallRateColor(
-                            data.rainfall_rate
-                          ),
-                          flood_depth_color: getFloodDepthColor(
-                            data.flood_depth
-                          ),
-                          flood_depth_subtitle: getFloodDepthSubTitle(
-                            data.flood_depth
-                          ),
-                          water_level: data.water_level,
-                          updatedAt: moment(data.updatedAt).format(
-                            "DD MMM YYYY (dddd) HH:mm"
-                          ),
-                          charts: _data,
-                          FD1: _data.FD1,
-                          TMP1: _data.TMP1,
-                          RA1: _data.RA1,
-                          PR1: _data.PR1,
-                          HU1: _data.HU1,
-                          WL1: _data.WL1,
-                        });
-                      })
-                      .catch((error) => console.error("Error:", error));
-                });
-              }}
-            />
-          );
-        })
-      );
-
-      setFloodCirclesRAFT(
-        mapData.raft.map((data) => {
-          return (
-            <Circle
-              key={data.id}
-              center={{ lat: data.latitude, lng: data.longitude }}
-              fillColor={circleColor(data.flood_depth)}
-              radius={50}
-              fillOpacity={0.75}
-              stroke={false}
-            />
-          );
-        })
-      );
-      setFloodCirclesMobile(
-        mapData.mobile.map((data) => {
-          return (
-            <Circle
-              key={data.id}
-              center={{ lat: data.latitude, lng: data.longitude }}
-              fillColor={circleColor(data.flood_depth)}
-              radius={50}
-              fillOpacity={0.75}
-              stroke={false}
-            />
-          );
-        })
-      );
-
-      console.log("Mobile: ", mapData.mobile);
-      console.log("RAFT: ", mapData.raft);
-      setMobileMarkers(
-        mapData.mobile.map((data) => {
-          return (
-            <Marker
-              key={data.id}
-              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
-              position={[data.latitude, data.longitude]}
-              onclick={(e) => {
-                // eslint-disable-next-line no-lone-blocks
-                if (data.image != null) {
-                  e.target.openPopup();
-                } else {
-                  setNodeType("Mobile");
-                  reportInfoHandler(data.id, data.username);
-                }
-              }}
-            >
-              {data.image !== null ? (
-                <>
-                  <Popup>
-                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
-                  <>
-                  <Text
-                    size={200}
-                    color={getFloodDepthColor(
-                      data.flood_depth
-                    )}
-                  >
-                    <b>
-                  {getFloodDepthSubTitle(
-                            data.flood_depth
-                          )}
-                    </b>
-                  </Text>
-                  <br/>
-                  </>
-                  ): null }
-                    <Image
-                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
-                      thumbnail
-                      fluid
-                    />
-                    <Button
-                      onClick={() => {
-                        setNodeType("Mobile");
-                        reportInfoHandler(data.id, data.username);
-                      }}
-                      variant="info"
-                      block
-                      size="sm"
-                    >
-                      More info
-                    </Button>
-                  </Popup>
-                </>
-              ) : null}
-            </Marker>
-          );
-        })
-      );
-    }
+      if(allFilter){
+        filterHandlerALL()
+     }else if(rainFilter){
+        filterHandlerRAIN()
+     }else if(floodFilter){
+       filterHandlerFLOOD()
+     }
+  }
   }, [mapData]);
 
   useEffect(() => {
@@ -643,32 +501,6 @@ function MapFunction() {
     });
   };
 
-  const circleColor = (flood_depth) => {
-    var flood;
-
-    if (flood_depth <= 10) {
-      flood = "#00ae4d";
-    } else if (flood_depth > 10 && flood_depth <= 25) {
-      flood = "#b2d235";
-    } else if (flood_depth > 25 && flood_depth <= 70) {
-      flood = "#ffd100";
-    } else if (flood_depth > 70 && flood_depth <= 120) {
-      flood = "#f78d1e";
-    } else if (flood_depth > 120 && flood_depth <= 160) {
-      flood = "#ed1b39";
-    } else if (flood_depth > 160 && flood_depth <= 200) {
-      flood = "#c12026";
-    } else if (flood_depth > 200 && flood_depth <= 300) {
-      flood = "#941619";
-    } else if (flood_depth > 300 && flood_depth <= 450) {
-      flood = "#7c112f";
-    } else if (flood_depth > 450) {
-      flood = "#5f001e";
-    }
-
-    return flood;
-  };
-
   const fetchSummary = async () => {
     const url = "https://rainflow.live/api/map/summary";
 
@@ -810,6 +642,873 @@ function MapFunction() {
       iconAnchor: [23, 44],
       popupAnchor: [-2, -38],
     });
+  }
+
+  
+  function markerPickerFLOOD(rainfall_rate, flood_depth) {
+    var flood;
+
+    if (flood_depth <= 10) {
+      flood = "A";
+    } else if (flood_depth > 10 && flood_depth <= 25) {
+      flood = "B";
+    } else if (flood_depth > 25 && flood_depth <= 70) {
+      flood = "C";
+    } else if (flood_depth > 70 && flood_depth <= 120) {
+      flood = "D";
+    } else if (flood_depth > 120 && flood_depth <= 160) {
+      flood = "E";
+    } else if (flood_depth > 160 && flood_depth <= 200) {
+      flood = "F";
+    } else if (flood_depth > 200 && flood_depth <= 300) {
+      flood = "G";
+    } else if (flood_depth > 300 && flood_depth <= 450) {
+      flood = "H";
+    } else if (flood_depth > 450) {
+      flood = "I";
+    }
+
+    return L.icon({
+      iconUrl: `https://rainflow.live/api/images/marker/0_${flood}${flood}.png`,
+      iconSize: [50, 50],
+      iconAnchor: [23, 44],
+      popupAnchor: [-2, -38],
+    });
+  }
+
+  function markerPickerRAIN(rainfall_rate, flood_depth) {
+    var rain;
+
+    if (rainfall_rate === 0) {
+      rain = "A";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      rain = "B";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      rain = "C";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      rain = "D";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      rain = "E";
+    } else if (rainfall_rate >= 30) {
+      rain = "F";
+    }
+
+    return L.icon({
+      iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${rain}.png`,
+      iconSize: [50, 50],
+      iconAnchor: [23, 44],
+      popupAnchor: [-2, -38],
+    });
+  }
+
+  
+  const filterHandlerRAIN = () =>{
+    setRaftMarkers(
+      mapData.raft.map((data) => {
+        if(data.username !== "dost"){
+          return (
+            <Marker
+              key={data.id}
+              position={[data.latitude, data.longitude]}
+              icon={markerPickerRAIN(data.rainfall_rate, data.flood_depth)}
+              
+              onclick={() => {
+                setNodeType("RAFT");
+                //setSummaryData(data);
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          rainfall_rate_title: getRainfallRateTitle(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_title: getFloodDepthTitle(
+                            data.flood_depth
+                          ),
+                          rainfall_rate_color: getRainfallRateColor(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_color: getFloodDepthColor(
+                            data.flood_depth
+                          ),
+                          flood_depth_subtitle: getFloodDepthSubTitle(
+                            data.flood_depth
+                          ),
+                          water_level: data.water_level,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                          WL1: _data.WL1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
+                });
+              }}
+            >
+              {isMobile ? null : (
+                <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+      })
+    );
+
+    setDostMarkers(
+      mapData.raft.map((data) => {
+        if(data.username === "dost"){
+          return (
+            <Marker
+              key={data.id}
+              position={[data.latitude, data.longitude]}
+              icon={markerPickerRAIN(data.rainfall_rate, data.flood_depth)}
+              
+              onclick={() => {
+                setNodeType("RAFT");
+                //setSummaryData(data);
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          rainfall_rate_title: getRainfallRateTitle(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_title: getFloodDepthTitle(
+                            data.flood_depth
+                          ),
+                          rainfall_rate_color: getRainfallRateColor(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_color: getFloodDepthColor(
+                            data.flood_depth
+                          ),
+                          flood_depth_subtitle: getFloodDepthSubTitle(
+                            data.flood_depth
+                          ),
+                          water_level: data.water_level,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                          WL1: _data.WL1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
+                });
+              }}
+            >
+              {isMobile ? null : (
+                <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+      })
+    );
+
+    setMobileMarkers(
+      mapData.mobile.map((data) => {
+        return (
+          <Marker
+              key={data.id}
+              icon={markerPickerRAIN(data.rainfall_rate, data.flood_depth)}
+              position={[data.latitude, data.longitude]}
+              onclick={(e) => {
+                // eslint-disable-next-line no-lone-blocks
+                if (data.image != null) {
+                  e.target.openPopup();
+                } else {
+                  setNodeType("Mobile");
+                  reportInfoHandler(data.id, data.username);
+                }
+              }}
+            >
+              {data.image !== null ? (
+                <>
+                  <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                    <Image
+                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                      thumbnail
+                      fluid
+                    />
+                    <Button
+                      onClick={() => {
+                        setNodeType("Mobile");
+                        reportInfoHandler(data.id, data.username);
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      More info
+                    </Button>
+                  </Popup>
+                </>
+              ) : null}
+            </Marker>
+        );
+      })
+    );
+  }
+  const filterHandlerFLOOD = () =>{
+    setRaftMarkers(
+      mapData.raft.map((data) => {
+        if(data.username !== "dost"){
+          return (
+            <Marker
+              key={data.id}
+              position={[data.latitude, data.longitude]}
+              icon={markerPickerFLOOD(data.rainfall_rate, data.flood_depth)}
+              
+              onclick={() => {
+                setNodeType("RAFT");
+                //setSummaryData(data);
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          rainfall_rate_title: getRainfallRateTitle(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_title: getFloodDepthTitle(
+                            data.flood_depth
+                          ),
+                          rainfall_rate_color: getRainfallRateColor(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_color: getFloodDepthColor(
+                            data.flood_depth
+                          ),
+                          flood_depth_subtitle: getFloodDepthSubTitle(
+                            data.flood_depth
+                          ),
+                          water_level: data.water_level,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                          WL1: _data.WL1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
+                });
+              }}
+            >
+              {isMobile ? null : (
+                <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+      })
+    );
+
+    setDostMarkers(
+      mapData.raft.map((data) => {
+        if(data.username === "dost"){
+          return (
+            <Marker
+              key={data.id}
+              position={[data.latitude, data.longitude]}
+              icon={markerPickerFLOOD(data.rainfall_rate, data.flood_depth)}
+              
+              onclick={() => {
+                setNodeType("RAFT");
+                //setSummaryData(data);
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          rainfall_rate_title: getRainfallRateTitle(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_title: getFloodDepthTitle(
+                            data.flood_depth
+                          ),
+                          rainfall_rate_color: getRainfallRateColor(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_color: getFloodDepthColor(
+                            data.flood_depth
+                          ),
+                          flood_depth_subtitle: getFloodDepthSubTitle(
+                            data.flood_depth
+                          ),
+                          water_level: data.water_level,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                          WL1: _data.WL1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
+                });
+              }}
+            >
+              {isMobile ? null : (
+                <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+      })
+    );
+
+    setMobileMarkers(
+      mapData.mobile.map((data) => {
+        return (
+          <Marker
+              key={data.id}
+              icon={markerPickerFLOOD(data.rainfall_rate, data.flood_depth)}
+              position={[data.latitude, data.longitude]}
+              onclick={(e) => {
+                // eslint-disable-next-line no-lone-blocks
+                if (data.image != null) {
+                  e.target.openPopup();
+                } else {
+                  setNodeType("Mobile");
+                  reportInfoHandler(data.id, data.username);
+                }
+              }}
+            >
+              {data.image !== null ? (
+                <>
+                  <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                    <Image
+                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                      thumbnail
+                      fluid
+                    />
+                    <Button
+                      onClick={() => {
+                        setNodeType("Mobile");
+                        reportInfoHandler(data.id, data.username);
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      More info
+                    </Button>
+                  </Popup>
+                </>
+              ) : null}
+            </Marker>
+        );
+      })
+    );
+  }
+
+  const filterHandlerALL = () =>{
+
+    setRaftMarkers(
+      mapData.raft.map((data) => {
+        if(data.username !== "dost"){
+          return (
+            <Marker
+              key={data.id}
+              position={[data.latitude, data.longitude]}
+              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
+              
+              onclick={() => {
+                setNodeType("RAFT");
+                //setSummaryData(data);
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          rainfall_rate_title: getRainfallRateTitle(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_title: getFloodDepthTitle(
+                            data.flood_depth
+                          ),
+                          rainfall_rate_color: getRainfallRateColor(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_color: getFloodDepthColor(
+                            data.flood_depth
+                          ),
+                          flood_depth_subtitle: getFloodDepthSubTitle(
+                            data.flood_depth
+                          ),
+                          water_level: data.water_level,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                          WL1: _data.WL1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
+                });
+              }}
+            >
+              {isMobile ? null : (
+                <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+      })
+    );
+
+    setDostMarkers(
+      mapData.raft.map((data) => {
+        if(data.username === "dost"){
+          return (
+            <Marker
+              key={data.id}
+              position={[data.latitude, data.longitude]}
+              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
+              
+              onclick={() => {
+                setNodeType("RAFT");
+                //setSummaryData(data);
+                // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                // const proxyurl = "";
+                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+
+                fetch(proxyurl + url, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }).then((response) => {
+                  if (response.status === 200)
+                    response
+                      .json()
+                      .then((_data) => {
+                        onSideSheetHandler();
+                        setRaftInfo({
+                          id: data.id,
+                          latitude: data.latitude,
+                          longitude: data.longitude,
+                          altitude: data.altitude,
+                          flood_depth: data.flood_depth,
+                          rainfall_amount: data.rainfall_amount,
+                          rainfall_rate: data.rainfall_rate,
+                          temperature: data.temperature,
+                          humidity: data.humidity,
+                          pressure: data.pressure,
+                          username: data.username,
+                          badge: data.badge,
+                          address: data.address,
+                          rainfall_rate_title: getRainfallRateTitle(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_title: getFloodDepthTitle(
+                            data.flood_depth
+                          ),
+                          rainfall_rate_color: getRainfallRateColor(
+                            data.rainfall_rate
+                          ),
+                          flood_depth_color: getFloodDepthColor(
+                            data.flood_depth
+                          ),
+                          flood_depth_subtitle: getFloodDepthSubTitle(
+                            data.flood_depth
+                          ),
+                          water_level: data.water_level,
+                          updatedAt: moment(data.updatedAt).format(
+                            "DD MMM YYYY (dddd) HH:mm"
+                          ),
+                          charts: _data,
+                          FD1: _data.FD1,
+                          TMP1: _data.TMP1,
+                          RA1: _data.RA1,
+                          PR1: _data.PR1,
+                          HU1: _data.HU1,
+                          WL1: _data.WL1,
+                        });
+                      })
+                      .catch((error) => console.error("Error:", error));
+                });
+              }}
+            >
+              {isMobile ? null : (
+                <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                  Rainfall rate: {data.rainfall_rate_title} <br /> Flood depth:{" "}
+                  {data.flood_depth_title}
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+      })
+    );
+
+    // console.log("Mobile: ", mapData.mobile);
+     //console.log("RAFT: ", mapData.raft);
+    setMobileMarkers(
+      mapData.mobile.map((data) => {
+        return (
+          <Marker
+              key={data.id}
+              icon={markerPicker(data.rainfall_rate, data.flood_depth)}
+              position={[data.latitude, data.longitude]}
+              onclick={(e) => {
+                // eslint-disable-next-line no-lone-blocks
+                if (data.image != null) {
+                  e.target.openPopup();
+                } else {
+                  setNodeType("Mobile");
+                  reportInfoHandler(data.id, data.username);
+                }
+              }}
+            >
+              {data.image !== null ? (
+                <>
+                  <Popup>
+                  {getFloodDepthSubTitle(data.flood_depth) !== null ? (
+                  <>
+                  <Text
+                    size={200}
+                    color={getFloodDepthColor(
+                      data.flood_depth
+                    )}
+                  >
+                    <b>
+                  {getFloodDepthSubTitle(
+                            data.flood_depth
+                          )}
+                    </b>
+                  </Text>
+                  <br/>
+                  </>
+                  ): null }
+                    <Image
+                      src={`https://rainflow.live/api/uploads/reports/${data.image}`}
+                      thumbnail
+                      fluid
+                    />
+                    <Button
+                      onClick={() => {
+                        setNodeType("Mobile");
+                        reportInfoHandler(data.id, data.username);
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      More info
+                    </Button>
+                  </Popup>
+                </>
+              ) : null}
+            </Marker>
+        );
+      })
+    );
   }
 
   const onSideSheetHandler = () => {
@@ -1252,52 +1951,206 @@ function MapFunction() {
         </Popover>
       </Container>
 
-      {/* Marker button */}
-
-      <Box
-        maxWidth={false}
-        borderColor="grey.400"
-        className={classes.markerButton}
-        border={1}
-        boxShadow={3}
-      >
-        <IconButton
-          onClick={() => {
-            setShowMarkers(!showMarkers);
-          }}
-          className={showMarkers ? classes.floodON : classes.floodOFF}
-          classes={{ label: classes.iconLabel }}
-          size="medium"
-          aria-label="markers"
+     {/* SNAPSHOT */}
+    <Tooltip title="Pick a date to view the data recorded on that day.">
+        <Box
+          width = "auto"
+          className={classes.snapshotBox}
+          box-shadow = {3}
         >
-          <RoomIcon />
-          <Heading size={100}>{showMarkers ? "ON" : "OFF"}</Heading>
-        </IconButton>
-      </Box>
+          <DatePicker
+            value={snapshotDate}
+            calendarClassName = "calendar-style"
+            className = "calendar-input-style"
+            onChange={(date)=>setSnapshotDate(date)}
+            format ="y-MM-dd" 
+          />
+          <IconButton
+            onClick={() => {
+              if(snapshotDate !== null){
+                let start = moment(snapshotDate).format("YYYY-MM-DD");
+                let addDay = moment(start).add(1, 'days');
+                let end = moment(addDay).format("YYYY-MM-DD");
+                history.push(`/mobile/map/snapshot/${token_params}/${latitude_params}/${longitude_params}/${start}/${end}`)
+              }
+            }}
+            className={classes.snapshotButton}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="markers"
+          >
+            <Heading size={100}>SNAPSHOT</Heading>
+          </IconButton>
+        </Box>
+      </Tooltip>
 
-      {/* Flood circle button */}
-
-      <Box
-        maxWidth={false}
-        borderColor="grey.400"
-        className={classes.floodCircles}
-        border={1}
-        boxShadow={3}
-      >
-        <IconButton
-          onClick={() => {
-            setShowCircles(!showCircles);
-          }}
-          className={showCircles ? classes.floodON : classes.floodOFF}
-          classes={{ label: classes.iconLabel }}
-          size="medium"
-          aria-label="circles"
+    {/* MAIN FILTER BUTTON */}
+    <Tooltip title="Click to change filters">
+        <Box
+          maxWidth={false}
+          borderColor="grey.400"
+          className={classes.mainFilterButton}
         >
-          <WavesIcon />
-          <Heading size={100}>{showCircles ? "ON" : "OFF"}</Heading>
-        </IconButton>
-      </Box>
+          <IconButton
+            onClick={() => {
+              setShowFilters(!showFilters)
+            }}
+            className={classes.mainButton}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="markers"
+          >
+            <FilterIcon />
+          </IconButton>
+        </Box>
+      </Tooltip>
+  
+      {/* Show RAFTs button */}
+      <Tooltip title="Click to toggle RAFT visibility on the map">
+        <Box
+          maxWidth={false}
+          className={showFilters ? classes.markerButton : classes.hiddenButton}
+        >
+          <IconButton
+            onClick={() => {
+              setShowRAFT(!showRAFT);
+            }}
+            className={showRAFT ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="markers"
+          >
+            <Heading size={100}>RAFTS</Heading>
+            <RoomIcon />
+            {/* <Heading size={100}>{showRAFT ? "ON" : "OFF"}</Heading> */}
+          </IconButton>
+        </Box>
+      </Tooltip>
 
+      {/* Show Mobile reports button */}
+      <Tooltip title="Click to toggle mobile report visibility on the map">
+        <Box
+          maxWidth={false}
+          className={showFilters? classes.mobileButton : classes.hiddenButton}
+        >
+          <IconButton
+            onClick={() => {
+              setShowMobile(!showMobile);
+            }}
+            className={showMobile ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="circles"
+          >
+            <Heading size={100}>PHONE</Heading>
+            <PhoneIcon />
+            {/* <Heading size={100}>{showMobile ? "ON" : "OFF"}</Heading> */}
+          </IconButton>
+        </Box>
+      </Tooltip>
+
+      {/* Show DOST devices button */}
+      <Tooltip title="Click to toggle DOST device visibility on the map">
+        <Box
+          maxWidth={false}
+          className={ showFilters? classes.dostButton : classes.hiddenButton}
+        >
+          <IconButton
+            onClick={() => {
+              setShowDOST(!showDOST);
+            }}
+            className={showDOST ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="circles"
+          >
+            <Heading size={100}>DOST</Heading>
+            <WavesIcon />
+            {/* <Heading size={100}>{showDOST ? "ON" : "OFF"}</Heading> */}
+          </IconButton>
+        </Box>
+      </Tooltip>
+
+      {/* Source filter ALL  */}
+      <Tooltip title="Markers show both rain and flood levels">
+        <Box
+          maxWidth={false}
+          className={showFilters ? classes.filterALL : classes.hiddenButton}
+        >
+          <IconButton
+            onClick={() => {
+              if(!allFilter){
+                setRainFilter(false)
+                setFloodFilter(false)
+                setAllFilter(true)
+                filterHandlerALL()
+              };
+            }}
+            className={allFilter ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="circles"
+          >
+            <Heading size={100}>BOTH</Heading>
+            <WiFog size={30} color="#767676" />
+            {/* <Heading size={100}>{showDOST ? "ON" : "OFF"}</Heading> */}
+          </IconButton>
+        </Box>
+      </Tooltip>
+
+      {/* Source filter RAIN  */}
+      <Tooltip title="Markers show only rain intensity levels">
+        <Box
+          maxWidth={false}
+          className={showFilters ? classes.filterRAIN : classes.hiddenButton}
+        >
+          <IconButton
+            onClick={() => {
+              if(!rainFilter){
+                setRainFilter(true)
+                setFloodFilter(false)
+                setAllFilter(false)
+                filterHandlerRAIN()
+              };
+            }}
+            className={rainFilter ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="circles"
+          >
+            <Heading size={100}>RAIN</Heading>
+            <WiRain size={30} color="#767676" />
+            {/* <Heading size={100}>{showDOST ? "ON" : "OFF"}</Heading> */}
+          </IconButton>
+        </Box>
+      </Tooltip>
+
+      {/* Source filter FLOOD  */}
+      <Tooltip title="Markers show only flood depth ">
+        <Box
+          maxWidth={false}
+          className={showFilters ? classes.filterFLOOD : classes.hiddenButton}
+        >
+          <IconButton
+            onClick={() => {
+              if(!floodFilter){
+                setRainFilter(false)
+                setFloodFilter(true)
+                setAllFilter(false)
+                filterHandlerFLOOD()
+              };
+            }}
+            className={floodFilter ? classes.floodON : classes.floodOFF}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="circles"
+          >
+            <Heading size={100}>FLOOD</Heading>
+            <WiFlood size={30} color="#767676" />
+            {/* <Heading size={100}>{showDOST ? "ON" : "OFF"}</Heading> */}
+          </IconButton>
+        </Box>
+      </Tooltip>
       <Modal
         show={isOpen}
         onHide={handleClose}
@@ -2159,7 +3012,7 @@ function MapFunction() {
                     ) : null}
                   </Card>
                 ) : null}
-                {raftInfo.humidity !== null || raftInfo.humidity !== 0 ? (
+                {raftInfo.humidity !== null && raftInfo.humidity !== 0 ? (
                   <Card
                     backgroundColor="white"
                     elevation={0}
@@ -2355,21 +3208,22 @@ function MapFunction() {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {raftMarkers && showMarkers ? raftMarkers : null}
-        {mobileMarkers && showMarkers ? mobileMarkers : null}
+       {raftMarkers && showRAFT ? raftMarkers : null}
+        {mobileMarkers && showMobile ? mobileMarkers : null}
+        {dostMarkers && showDOST ? dostMarkers : null}
 
-        {showCircles ? floodCirclesMobile : null}
-        {showCircles ? floodCirclesRAFT : null}
+     
       </Map>
     </>
   );
 }
 
+
 const useStyles = makeStyles({
   popover: {
     position: "absolute",
     left: 10,
-    top: 90,
+    top: 82,
     padding: 0,
     zIndex: 1,
     width: "auto",
@@ -2394,35 +3248,120 @@ const useStyles = makeStyles({
   },
 
   floodON: {
-    "&:hover, &.Mui-focusVisible": { backgroundColor: "#D2EEF3" },
-    backgroundColor: "#D2EEF3",
-    borderRadius: 2,
-    flexWrap: "wrap",
+    "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+    backgroundColor: "white",
+    borderRadius: 5,
+    width: 50,
+    height: 60,
+    boxShadow: '1px 1px 2px 1px #bcbcbc',
+  
+  },
+  mainButton: {
+    "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+    backgroundColor: "white",
+    borderRadius: 50,
+    width: 50,
+    borderWidth: 1,
+    borderColor: "#555555",
+    height: 50,
+    boxShadow: '1px 1px 2px 1px #bcbcbc',
+  },
+
+  snapshotButton: {
+    "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
+    backgroundColor: "white",
+    borderRadius: 50,
+    width: "auto",
+    borderWidth: 1,
+    paddingX: 15,
+    paddingY: 5,
+    borderColor: "#555555",
+    height: "auto",
+    marginLeft: 5,
+    boxShadow: '1px 1px 2px 1px #bcbcbc',
   },
 
   floodOFF: {
-    "&:hover, &.Mui-focusVisible": { backgroundColor: "white" },
-    backgroundColor: "white",
-    borderRadius: 2,
-    flexWrap: "wrap",
-  },
-
-  floodCircles: {
-    position: "absolute",
-    right: 60,
-    top: 100,
-    zIndex: 1,
-    width: "auto",
-    padding: 0,
+    "&:hover, &.Mui-focusVisible": { backgroundColor: "#dedede" },
+    backgroundColor: "#dedede",
+    borderRadius: 5,
+    width: 50,
+    height: 60,
+    boxShadow: '1px 1px 2px 1px #bcbcbc',
   },
 
   markerButton: {
     position: "absolute",
     right: 60,
-    top: 10,
+    top: 70,
     zIndex: 1,
-    width: "auto",
+    width: 200,
     padding: 0,
+  },
+
+  hiddenButton:{
+    display: "none"
+  }, 
+
+  mobileButton: {
+    position: "absolute",
+    right: 60,
+    top: 140,
+    zIndex: 1,
+    width: 90,
+    padding: 0,
+  },
+  dostButton: {
+    position: "absolute",
+    right: 60,
+    top: 210,
+    zIndex: 1,
+    width: 90,
+    padding: 0,
+  },
+
+  filterALL: {
+    position: "absolute",
+    right: 60,
+    top: 295,
+    zIndex: 1,
+    width: 90,
+    padding: 0,
+  },
+  filterRAIN: {
+    position: "absolute",
+    right: 60,
+    top: 365,
+    zIndex: 1,
+    width: 90,
+    padding: 0,
+  },
+
+  filterFLOOD: {
+    position: "absolute",
+    right: 60,
+    top: 435,
+    zIndex: 1,
+    width: 90,
+    padding: 0,
+  },
+
+ 
+  mainFilterButton: {
+    position: "absolute",
+    right: 60,
+    top: 12,
+    zIndex: 1,
+    padding: 0,
+    borderRadius: 50,
+  },
+  snapshotBox: {
+    position: "absolute",
+    right: 70,
+    top: 15,
+    zIndex: 1,
+    padding: 0,
+    alignItems: "center"
   },
 });
 

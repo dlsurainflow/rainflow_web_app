@@ -21,6 +21,8 @@ import { Layout } from "./components/Layout";
 // import { NavigationBar } from "./components/NavigationBar";
 import { MobileMap } from "./pages/MobileMap";
 import { Docs } from "./pages/Docs";
+import { WebSnapshot } from "./pages/WebSnapshot";
+import { MobileSnapshot } from "./pages/MobileSnapshot";
 // import PublicRoute from "./auth/PublicRoute";
 // import PrivateRoute from "./auth/PrivateRoute";
 // import Container from "@material-ui/core/Container";
@@ -56,6 +58,7 @@ function App(props) {
       <Route exact path="/about" component={About} />
       <Route exact path="/docs" component={Docs} />
       <Route exact path="/badge-index" component={BadgeIndex} />
+      <Route exact path="/snapshot/:start_date/:end_date" component={WebSnapshot} />
       <Route
         exact
         path="/logout"
@@ -97,6 +100,7 @@ function App(props) {
       <Router>
         <Switch>
           <Route exact path="/mobile/map/:token_params/:latitude_params/:longitude_params" component={MobileMap} />
+          <Route exact path="/mobile/map/snapshot/:token_params/:latitude_params/:longitude_params/:start_date/:end_date" component={MobileSnapshot} />
           <Route component={DefaultContainer} />
         </Switch>
       </Router>

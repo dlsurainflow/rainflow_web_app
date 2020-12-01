@@ -41,6 +41,18 @@
   min-height: 100%;
 }
 
+.calendar-style {
+  font-size: small;
+}
+
+.calendar-input-style {
+  font-size: small;
+  background-color:#F9F9FB;
+  border-color: #F9F9FB;
+  border-width: 0;
+  box-shadow: 1px 1px 2px 1px #bcbcbc;
+}
+
 .modal-main{
   min-width: 100%;
   bottom: 0;

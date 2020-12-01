@@ -81,9 +81,9 @@ export const WebSnapshot = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
 
- // const proxyurl = "";
+ const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
- const proxyurl = "http://localhost:8800/";
+ //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
   const [raftInfo, setRaftInfo] = useState({

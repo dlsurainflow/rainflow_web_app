@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useHistory } from 'react-router-dom'
-import { Map, Marker, TileLayer, Popup } from "react-leaflet";
-import DatePicker from 'react-date-picker';
+import { useHistory, useParams } from 'react-router-dom'
+import { Map, Marker, TileLayer, Popup} from "react-leaflet";
+
 import { Container } from "react-bootstrap";
 import "../App.css";
 import {
@@ -52,9 +52,10 @@ import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
 
-export const Home = (props) => {
-  const history = useHistory();
+export const WebSnapshot = (props) => {
   const windowHeight = window.innerHeight;
+  const history = useHistory();
+  let {start_date, end_date} = useParams();
   const classes = useStyles();
   const [mapCenter, setMapCenter] = useState();
   const [mapZoom, setMapZoom] = useState();
@@ -79,7 +80,6 @@ export const Home = (props) => {
   const [showDOST, setShowDOST] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
-  const [snapshotDate, setSnapshotDate] = useState(new Date());
 
  // const proxyurl = "";
   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -160,7 +160,8 @@ export const Home = (props) => {
   const windowWidth = window.innerWidth;
 
   const fetchData = async () => {
-    const url = "https://rainflow.live/api/map/all";
+    console.log("date range: ", start_date, end_date)
+    const url = `https://rainflow.live/api/map/snapshot/${start_date}/${end_date}`
 
     await fetch(proxyurl + url, {
       method: "GET",
@@ -420,14 +421,14 @@ export const Home = (props) => {
 
   /* Update every map and summary every 10 seconds*/
 
-  useInterval(() => {
-    if (doneInitialFetch) {
-      fetchData();
-    }
-    if (doneInitialFetchSummary) {
-      fetchSummary();
-    }
-  }, 10000);
+//   useInterval(() => {
+//     if (doneInitialFetch) {
+//       fetchData();
+//     }
+//     if (doneInitialFetchSummary) {
+//       fetchSummary();
+//     }
+//   }, 10000);
 
   const filterHandlerRAIN = () =>{
     setRaftMarkers(
@@ -453,7 +454,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -565,7 +566,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -737,7 +738,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -849,7 +850,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1023,8 +1024,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
-
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
                 fetch(proxyurl + url, {
                   method: "GET",
                   headers: {
@@ -1135,7 +1135,7 @@ export const Home = (props) => {
                 //setSummaryData(data);
                 // const proxyurl = "https://cors-anywhere.herokuapp.com/";
                 // const proxyurl = "";
-                const url = `https://rainflow.live/api/raft/charts/${data.deviceID}`;
+                const url = `https://rainflow.live/api/raft/charts/history/${data.deviceID}/${start_date}/${end_date}`;
 
                 fetch(proxyurl + url, {
                   method: "GET",
@@ -1292,6 +1292,7 @@ export const Home = (props) => {
       fetchData();
     } else {
      // console.log("updated markers");
+     console.log(mapData)
       setDoneInitialFetch(true);
        if(allFilter){
           filterHandlerALL()
@@ -1456,7 +1457,8 @@ export const Home = (props) => {
   const reportInfoHandler = async (id, username) => {
     // const proxyurl = "https://cors-anywhere.herokuapp.com/";
     // const proxyurl = "";
-    const url = `https://rainflow.live/api/report/${id}`;
+    console.log("haha ", id, username)
+    const url = `https://rainflow.live/api/report/history/${id}`;
     var token = await localStorage.getItem("token");
     var header;
     if (token === null) {
@@ -1480,7 +1482,7 @@ export const Home = (props) => {
     }).then((response) => {
       if (response.status === 200)
         response.json().then((data) => {
-          console.log("report info test ", data)
+            console.log(data)
           setReportInfo({
             id: data.id,
             latitude: data.latitude,
@@ -1492,8 +1494,8 @@ export const Home = (props) => {
               "DD MMM YYYY (dddd) HH:mm"
             ),
             image: data.image,
-            upvote: data.upvote,
-            downvote: data.downvote,
+            upvote: (data.upvote).length,
+            downvote: (data.downvote).length,
             currentAction: data.currentAction,
             description: data.description,
             address: data.address,
@@ -2018,35 +2020,21 @@ export const Home = (props) => {
         </Popover>
       </Container>
 
-    {/* SNAPSHOT */}
-    <Tooltip title="Pick a date to view the data recorded on that day.">
+    {/* Go back to live site */}
+    <Tooltip title="Go back to real-time updates on the live site">
         <Box
           width = "auto"
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-          <DatePicker
-            value={snapshotDate}
-            calendarClassName = "calendar-style"
-            className = "calendar-input-style"
-            onChange={(date)=>setSnapshotDate(date)}
-            format ="y-MM-dd" 
-          />
           <IconButton
-            onClick={() => {
-              if(snapshotDate !== null){
-                let start = moment(snapshotDate).format("YYYY-MM-DD");
-                let addDay = moment(start).add(1, 'days');
-                let end = moment(addDay).format("YYYY-MM-DD");
-                history.push(`/snapshot/${start}/${end}`)
-              }
-            }}
+            onClick={() => history.push('/')}
             className={classes.snapshotButton}
             classes={{ label: classes.iconLabel }}
             size="medium"
             aria-label="markers"
           >
-            <Heading size={100}>SNAPSHOT</Heading>
+            <Heading size={100}>Go back to real-time site</Heading>
           </IconButton>
         </Box>
       </Tooltip>
@@ -3258,39 +3246,7 @@ export const Home = (props) => {
           </>
         ) : null}
       </Modal>
-
-      <CornerDialog
-        width={isMobile ? windowWidth * 0.75 : windowWidth * 0.3}
-        title={
-          <Pane flexDirection="row" display="flex" alignItems="center">
-            <InfoSignIcon size={20} color="info" marginRight={10} />{" "}
-            <Heading size={600}>Welcome to RainFLOW!</Heading>
-          </Pane>
-        }
-        isShown={guideShown}
-        onCloseComplete={() => setGuideShown(false)}
-        hasFooter={false}
-        position={isMobile ? Position.BOTTOM : Position.BOTTOM_RIGHT}
-      >
-        <Paragraph marginTop={5}>
-          {">"} Click on any node on the map to view the rain and flood
-          information reported in that area.
-        </Paragraph>
-        <Paragraph marginTop={5}>
-          {">"} Toggle the button at the top left to view the marker legend and
-          all the areas grouped by rain and levels.{" "}
-        </Paragraph>
-
-        <Paragraph marginTop={5}>
-          {">"} Click the buttons at the top right to show or hide markers on
-          the map.
-        </Paragraph>
-
-        <Paragraph marginTop={5}>
-          {">"} Choose a date and click snapshot to see the data recorded on that day.
-        </Paragraph>
-      </CornerDialog>
-
+      
       <Map
         center={mapCenter}
         zoom={mapZoom}

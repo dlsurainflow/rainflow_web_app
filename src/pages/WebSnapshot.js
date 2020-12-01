@@ -416,7 +416,7 @@ export const WebSnapshot = (props) => {
     setMapCenter([14.599512, 120.984222]);
     setMapZoom(9);
     decodeToken();
-    setShowPopover(true);
+   // setShowPopover(true);
   }, []);
 
   /* Update every map and summary every 10 seconds*/
@@ -1618,7 +1618,7 @@ export const WebSnapshot = (props) => {
                 >
                   Legend
                 </Tab>
-                <Tab
+                {/* <Tab
                   id="flood"
                   onSelect={() => setTabIndex(1)}
                   isSelected={tabIndex === 1}
@@ -1633,7 +1633,7 @@ export const WebSnapshot = (props) => {
                   aria-controls={`panel-rain`}
                 >
                   Areas by Rain Intensity Level
-                </Tab>
+                </Tab> */}
               </Tablist>
 
               <Pane
@@ -3246,7 +3246,7 @@ export const WebSnapshot = (props) => {
           </>
         ) : null}
       </Modal>
-      
+
       <Map
         center={mapCenter}
         zoom={mapZoom}

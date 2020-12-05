@@ -2030,22 +2030,26 @@ export const Home = (props) => {
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-          <DatePicker
-            value={snapshotDate}
-            calendarClassName = "calendar-style"
-            className = "calendar-input-style"
-            onChange={(date)=>setSnapshotDate(date)}
-            format ="y-MM-dd" 
-          />
-          <TimeRangePicker
-            onChange={(e)=>{
-              setSnapshottTime(e)
-              console.log(e)
-            }}
-            value={snapshotTime}
-            className = "calendar-input-style"
-            disableClock
-          />
+     
+          <Box width = "auto" className = {classes.dateTime}>
+            <DatePicker
+              value={snapshotDate}
+              calendarClassName = "calendar-style"
+              className = "calendar-input-style"
+              onChange={(date)=>setSnapshotDate(date)}
+              format ="y-MM-dd" 
+            />
+            <TimeRangePicker
+              onChange={(e)=>{
+                setSnapshottTime(e)
+                console.log(e)
+              }}
+              value={snapshotTime}
+              className = "calendar-input-style"
+              disableClock
+            />
+          </Box>
+      
           <IconButton
             onClick={() => {
               if(snapshotDate !== null && snapshotTime !== null && (snapshotTime[0] < snapshotTime[1])){
@@ -3479,12 +3483,22 @@ const useStyles = makeStyles({
     padding: 0,
     borderRadius: 50,
   },
+
+  dateTime: {
+    flexDirection: "column",
+    display: "flex",
+    flexWrap: "wrap"
+  },
+
   snapshotBox: {
     position: "absolute",
     right: 70,
-    top: 80,
+    top: 75,
     zIndex: 1,
     padding: 0,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    display: "flex",
+    flexWrap: "wrap"
   },
 });

@@ -30,6 +30,7 @@ import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
+import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
 import RoomIcon from "@material-ui/icons/Room";
 import PhoneIcon from "@material-ui/icons/PhoneAndroid"
 import FilterIcon from "@material-ui/icons/FilterList";
@@ -74,14 +75,16 @@ function MapFunction() {
   const [showMobile, setShowMobile] = useState();
   const [showRAFT, setShowRAFT] = useState();
   const [showDOST, setShowDOST] = useState();
-  const [snapshotDate, setSnapshotDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState();
+  const [lowerRange, setLowerRange] = useState();
+  const [upperRange, setUpperRange] = useState();
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  const proxyurl = "";
+  //const proxyurl = "";
   //const proxyurl = "http://localhost:8800/";
-   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+   const proxyurl = "https://cors-anywhere.herokuapp.com/";
   // const proxyurl = "http://192.168.1.4:8080/";
 
   const [raftInfo, setRaftInfo] = useState({
@@ -162,6 +165,11 @@ function MapFunction() {
     setFloodFilter(false)
     setShowFilters(false)
     setMapZoom(9);
+    let date1 = new Date(start_date)
+    let date2 = new Date(end_date)
+   setSelectedDate(moment(date1).format("yyyy-MM-DD"))
+   setUpperRange(date2.toISOString().replace(/^[^:]*([0-2]\d:[0-5]\d).*$/, "$1"))
+   setLowerRange(date1.toISOString().replace(/^[^:]*([0-2]\d:[0-5]\d).*$/, "$1"))
   }, []);
 
   useEffect(() => {
@@ -1582,6 +1590,25 @@ function MapFunction() {
           className={classes.snapshotBox}
           box-shadow = {3}
         >
+           <Box width = "auto" className = {classes.dateTime}>
+            <DatePicker
+              value={selectedDate}
+              calendarClassName = "calendar-style"
+              className = "calendar-input-style"
+              disabled
+              disableCalendar
+              format ="y-MM-dd" 
+            />
+
+            <TimeRangePicker
+              value={[lowerRange, upperRange]}
+              className = "calendar-input-style"
+              disableClock
+              disabled
+              format = "hh:mm a"
+            />
+          </Box>
+          
           <IconButton
             onClick={() => history.push(`/mobile/map/${token_params}/${latitude_params}/${longitude_params}`)}
             className={classes.snapshotButton}
@@ -2755,13 +2782,23 @@ const useStyles = makeStyles({
     padding: 0,
     borderRadius: 50,
   },
+  dateTime: {
+    flexDirection: "column",
+    display: "flex",
+    flexWrap: "wrap",
+    zIndex: 2
+  },
+
   snapshotBox: {
     position: "absolute",
     right: 70,
-    top: 15,
-    zIndex: 1,
+    top: 10,
+    zIndex: 2,
     padding: 0,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    display: "flex",
+    flexWrap: "wrap"
   },
 });
 

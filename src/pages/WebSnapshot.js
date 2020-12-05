@@ -37,6 +37,8 @@ import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import RoomIcon from "@material-ui/icons/Room";
+import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
+import DatePicker from 'react-date-picker';
 import FilterIcon from "@material-ui/icons/FilterList";
 import WavesIcon from "@material-ui/icons/Waves";
 import PhoneIcon from "@material-ui/icons/PhoneAndroid"
@@ -80,6 +82,10 @@ export const WebSnapshot = (props) => {
   const [showDOST, setShowDOST] = useState();
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
+  const [selectedDate, setSelectedDate] = useState();
+  const [lowerRange, setLowerRange] = useState();
+  const [upperRange, setUpperRange] = useState();
+
 
  //const proxyurl = "";
   const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -416,6 +422,11 @@ export const WebSnapshot = (props) => {
     setMapCenter([14.599512, 120.984222]);
     setMapZoom(9);
     decodeToken();
+    let date1 = new Date(start_date)
+    let date2 = new Date(end_date)
+   setSelectedDate(moment(date1).format("yyyy-MM-DD"))
+   setUpperRange(date2.toISOString().replace(/^[^:]*([0-2]\d:[0-5]\d).*$/, "$1"))
+   setLowerRange(date1.toISOString().replace(/^[^:]*([0-2]\d:[0-5]\d).*$/, "$1"))
    // setShowPopover(true);
   }, []);
 
@@ -1662,6 +1673,26 @@ export const WebSnapshot = (props) => {
           className={classes.snapshotBox}
           box-shadow = {3}
         >
+
+          
+          <Box width = "auto" className = {classes.dateTime}>
+            <DatePicker
+              value={selectedDate}
+              calendarClassName = "calendar-style"
+              className = "calendar-input-style"
+              disabled
+              disableCalendar
+              format ="y-MM-dd" 
+            />
+
+            <TimeRangePicker
+              value={[lowerRange, upperRange]}
+              className = "calendar-input-style"
+              disableClock
+              disabled
+              format = "hh:mm a"
+            />
+          </Box>
           <IconButton
             onClick={() => history.push('/')}
             className={classes.snapshotButton}
@@ -2832,12 +2863,22 @@ const useStyles = makeStyles({
     padding: 0,
     borderRadius: 50,
   },
+  dateTime: {
+    flexDirection: "column",
+    display: "flex",
+    flexWrap: "wrap",
+    zIndex: 2
+  },
+
   snapshotBox: {
     position: "absolute",
     right: 70,
-    top: 80,
-    zIndex: 1,
+    top: 75,
+    zIndex: 2,
     padding: 0,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    display: "flex",
+    flexWrap: "wrap"
   },
 });

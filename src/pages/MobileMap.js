@@ -26,12 +26,14 @@ import {
 import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
 import Tooltip from "@material-ui/core/Tooltip";
+import MuiAlert from '@material-ui/lab/Alert';
 import moment from "moment";
 import Button from "react-bootstrap/Button";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import RoomIcon from "@material-ui/icons/Room";
 import PhoneIcon from "@material-ui/icons/PhoneAndroid"
+import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
 import FilterIcon from "@material-ui/icons/FilterList";
 import WavesIcon from "@material-ui/icons/Waves";
 import { makeStyles } from "@material-ui/core/styles";
@@ -48,6 +50,7 @@ import L from "leaflet";
 import { Container } from "react-bootstrap";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
+import Snackbar from '@material-ui/core/Snackbar';
 
 function MapFunction() {
   let { token_params, latitude_params, longitude_params } = useParams();
@@ -76,6 +79,8 @@ function MapFunction() {
   const [showRAFT, setShowRAFT] = useState();
   const [showDOST, setShowDOST] = useState();
   const [snapshotDate, setSnapshotDate] = useState(new Date());
+  const [snapshotTime, setSnapshottTime] = useState(['10:00', '11:00']);
+  const [showSnackbar, setShowSnackbar] = useState(false);
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
@@ -1958,20 +1963,33 @@ function MapFunction() {
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-          <DatePicker
-            value={snapshotDate}
-            calendarClassName = "calendar-style"
-            className = "calendar-input-style"
-            onChange={(date)=>setSnapshotDate(date)}
-            format ="y-MM-dd" 
-          />
+          <Box width = "auto" className = {classes.dateTime}>
+            <DatePicker
+              value={snapshotDate}
+              calendarClassName = "calendar-style"
+              className = "calendar-input-style"
+              onChange={(date)=>setSnapshotDate(date)}
+              format ="y-MM-dd" 
+            />
+            <TimeRangePicker
+              onChange={(e)=>{
+                setSnapshottTime(e)
+                console.log(e)
+              }}
+              value={snapshotTime}
+              className = "calendar-input-style"
+              disableClock
+            />
+          </Box>
           <IconButton
             onClick={() => {
               if(snapshotDate !== null){
                 let start = moment(snapshotDate).format("YYYY-MM-DD");
                 let addDay = moment(start).add(1, 'days');
                 let end = moment(addDay).format("YYYY-MM-DD");
-                history.push(`/mobile/map/snapshot/${token_params}/${latitude_params}/${longitude_params}/${start}/${end}`)
+                let time1 =  `T${snapshotTime[0]}:00.000Z`;
+                let time2 = `T${snapshotTime[1]}:00.000Z`;
+                history.push(`/mobile/map/snapshot/${token_params}/${latitude_params}/${longitude_params}/${start}${time1}/${end}${time2}`)
               }
             }}
             className={classes.snapshotButton}
@@ -3196,6 +3214,16 @@ function MapFunction() {
         ) : null}
       </Modal>
 
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setShowSnackbar(false)}
+        key={ {vertical: 'top'} + {horizontal: 'center'}}
+      >
+        <MuiAlert severity="error">Please enter a valid time range!</MuiAlert>
+      </Snackbar>
+
       <Map
         center={mapCenter}
         zoom={mapZoom}
@@ -3355,13 +3383,24 @@ const useStyles = makeStyles({
     padding: 0,
     borderRadius: 50,
   },
+
+  dateTime: {
+    flexDirection: "column",
+    display: "flex",
+    flexWrap: "wrap",
+    zIndex: 2
+  },
+
   snapshotBox: {
     position: "absolute",
     right: 70,
-    top: 15,
-    zIndex: 1,
+    top: 10,
+    zIndex: 2,
     padding: 0,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    display: "flex",
+    flexWrap: "wrap"
   },
 });
 

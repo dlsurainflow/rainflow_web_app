@@ -3487,14 +3487,15 @@ const useStyles = makeStyles({
   dateTime: {
     flexDirection: "column",
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    zIndex: 2
   },
 
   snapshotBox: {
     position: "absolute",
     right: 70,
     top: 75,
-    zIndex: 1,
+    zIndex: 2,
     padding: 0,
     alignItems: "center",
     flexDirection: "row",

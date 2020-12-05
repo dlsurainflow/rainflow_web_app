@@ -43,8 +43,7 @@
 
 .calendar-style {
   font-size: small;
-  z-index: 9999;
-  margin-right: 5;
+  z-index: 9997;
 }
 
 .calendar-input-style {
@@ -53,6 +52,7 @@
   border-color: #F9F9FB;
   border-width: 0;
   box-shadow: 1px 1px 2px 1px #bcbcbc;
+  align-items: center;
 }
 
 .modal-main{

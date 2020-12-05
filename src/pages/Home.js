@@ -33,6 +33,7 @@ import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
 import Button from "react-bootstrap/Button";
 import moment from "moment";
+import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
 import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
@@ -42,7 +43,7 @@ import WavesIcon from "@material-ui/icons/Waves";
 import PhoneIcon from "@material-ui/icons/PhoneAndroid"
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
-// import { borders, shadows } from "@material-ui/system";
+import MuiAlert from '@material-ui/lab/Alert';
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import Divider from "@material-ui/core/Divider";
@@ -51,6 +52,7 @@ import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
+import Snackbar from '@material-ui/core/Snackbar';
 
 export const Home = (props) => {
   const history = useHistory();
@@ -80,9 +82,12 @@ export const Home = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
   const [snapshotDate, setSnapshotDate] = useState(new Date());
+  const [snapshotTime, setSnapshottTime] = useState(['10:00', '11:00']);
+  const [showSnackbar, setShowSnackbar] = useState(false);
 
- const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+
+ //const proxyurl = "";
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
  //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
@@ -2019,7 +2024,7 @@ export const Home = (props) => {
       </Container>
 
     {/* SNAPSHOT */}
-    <Tooltip title="Pick a date to view the data recorded on that day.">
+    <Tooltip title="Pick a date and time range to view the data recorded on that day.">
         <Box
           width = "auto"
           className={classes.snapshotBox}
@@ -2032,13 +2037,26 @@ export const Home = (props) => {
             onChange={(date)=>setSnapshotDate(date)}
             format ="y-MM-dd" 
           />
+          <TimeRangePicker
+            onChange={(e)=>{
+              setSnapshottTime(e)
+              console.log(e)
+            }}
+            value={snapshotTime}
+            className = "calendar-input-style"
+            disableClock
+          />
           <IconButton
             onClick={() => {
-              if(snapshotDate !== null){
+              if(snapshotDate !== null && snapshotTime !== null && (snapshotTime[0] < snapshotTime[1])){
                 let start = moment(snapshotDate).format("YYYY-MM-DD");
                 let addDay = moment(start).add(1, 'days');
                 let end = moment(addDay).format("YYYY-MM-DD");
-                history.push(`/snapshot/${start}/${end}`)
+                let time1 =  `T${snapshotTime[0]}:00.000Z`;
+                let time2 = `T${snapshotTime[1]}:00.000Z`;
+                history.push(`/snapshot/${start}${time1}/${end}${time2}`)
+              }else if(snapshotTime[0] > snapshotTime[1]){
+                setShowSnackbar(true)
               }
             }}
             className={classes.snapshotButton}
@@ -3290,6 +3308,16 @@ export const Home = (props) => {
           {">"} Choose a date and click snapshot to see the data recorded on that day.
         </Paragraph>
       </CornerDialog>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setShowSnackbar(false)}
+        key={ {vertical: 'top'} + {horizontal: 'center'}}
+      >
+        <MuiAlert severity="error">Please enter a valid time range!</MuiAlert>
+      </Snackbar>
 
       <Map
         center={mapCenter}

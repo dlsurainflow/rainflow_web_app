@@ -82,9 +82,9 @@ function MapFunction() {
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  //const proxyurl = "";
+  const proxyurl = "";
   //const proxyurl = "http://localhost:8800/";
-   const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  //  const proxyurl = "https://cors-anywhere.herokuapp.com/";
   // const proxyurl = "http://192.168.1.4:8080/";
 
   const [raftInfo, setRaftInfo] = useState({

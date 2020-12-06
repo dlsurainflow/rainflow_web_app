@@ -53,6 +53,7 @@ import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
+import floatingLegend from "../assets/legend/floating-legend-21.png"
 
 export const WebSnapshot = (props) => {
   const windowHeight = window.innerHeight;
@@ -87,8 +88,8 @@ export const WebSnapshot = (props) => {
   const [upperRange, setUpperRange] = useState();
 
 
- //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+ const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
  //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
@@ -1705,6 +1706,17 @@ export const WebSnapshot = (props) => {
         </Box>
       </Tooltip>
 
+      {/* Corner Legend */}
+      <Box
+          width = "50%"
+          className={classes.cornerLegend}
+          box-shadow = {3}
+        >
+          <Image src = {floatingLegend} fluid />
+      
+        </Box>
+
+
     {/* MAIN FILTER BUTTON */}
     <Tooltip title="Click to change filters">
         <Box
@@ -2879,6 +2891,19 @@ const useStyles = makeStyles({
     alignItems: "center",
     flexDirection: "row",
     display: "flex",
+    flexWrap: "wrap"
+  },
+
+  cornerLegend: {
+    position: "absolute",
+    left: 20,
+    bottom: 15,
+    zIndex: 2,
+    padding: 0,
+    margin: 0,
+    alignItems: "center",
+    flexDirection: "row",
+    display: isMobile? "none" : "flex",
     flexWrap: "wrap"
   },
 });

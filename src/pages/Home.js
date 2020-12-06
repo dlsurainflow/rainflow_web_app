@@ -52,6 +52,8 @@ import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
+import floatingLegend from "../assets/legend/floating-legend-21.png"
+
 import Snackbar from '@material-ui/core/Snackbar';
 
 export const Home = (props) => {
@@ -86,8 +88,8 @@ export const Home = (props) => {
   const [showSnackbar, setShowSnackbar] = useState(false);
 
 
- //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+ const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
  //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
@@ -420,7 +422,7 @@ export const Home = (props) => {
     setMapCenter([14.599512, 120.984222]);
     setMapZoom(9);
     decodeToken();
-    setShowPopover(true);
+    setShowPopover(false);
   }, []);
 
   /* Update every map and summary every 10 seconds*/
@@ -1860,7 +1862,7 @@ export const Home = (props) => {
                 justifyContent="center"
                 display={tabIndex === 0 ? "block" : "none"}
               >
-                <Image src={legendVertical} fluid />
+                <Image src = {legendVertical} fluid />
               </Pane>
               <Pane
                 width="100%"
@@ -3313,6 +3315,17 @@ export const Home = (props) => {
         </Paragraph>
       </CornerDialog>
 
+      {/* Corner Legend */}
+      <Box
+          width = "50%"
+          className={classes.cornerLegend}
+          box-shadow = {3}
+        >
+          <Image src = {floatingLegend} fluid />
+      
+        </Box>
+
+
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={showSnackbar}
@@ -3500,6 +3513,19 @@ const useStyles = makeStyles({
     alignItems: "center",
     flexDirection: "row",
     display: "flex",
+    flexWrap: "wrap"
+  },
+
+  cornerLegend: {
+    position: "absolute",
+    left: 20,
+    bottom: 15,
+    zIndex: 2,
+    padding: 0,
+    margin: 0,
+    alignItems: "center",
+    flexDirection: "row",
+    display: isMobile? "none" : "flex",
     flexWrap: "wrap"
   },
 });

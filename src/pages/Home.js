@@ -33,6 +33,7 @@ import Modal from "react-bootstrap/Modal";
 import Image from "react-bootstrap/Image";
 import Button from "react-bootstrap/Button";
 import moment from "moment";
+import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
 import { HandThumbsUp, HandThumbsDown } from "react-bootstrap-icons";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
@@ -42,7 +43,7 @@ import WavesIcon from "@material-ui/icons/Waves";
 import PhoneIcon from "@material-ui/icons/PhoneAndroid"
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from "react-device-detect";
-// import { borders, shadows } from "@material-ui/system";
+import MuiAlert from '@material-ui/lab/Alert';
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
 import Divider from "@material-ui/core/Divider";
@@ -51,6 +52,9 @@ import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
 import useInterval from "@use-it/interval";
 import legendVertical from "../assets/legend-vertical_legend.png";
+import floatingLegend from "../assets/legend/floating-legend-21.png"
+
+import Snackbar from '@material-ui/core/Snackbar';
 
 export const Home = (props) => {
   const history = useHistory();
@@ -80,9 +84,12 @@ export const Home = (props) => {
   const [doneInitialFetch, setDoneInitialFetch] = useState();
   const [doneInitialFetchSummary, setDoneInitialFetchSummary] = useState();
   const [snapshotDate, setSnapshotDate] = useState(new Date());
+  const [snapshotTime, setSnapshottTime] = useState(['10:00', '11:00']);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+
 
  const proxyurl = "";
-  //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
  //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
@@ -415,7 +422,7 @@ export const Home = (props) => {
     setMapCenter([14.599512, 120.984222]);
     setMapZoom(9);
     decodeToken();
-    setShowPopover(true);
+    setShowPopover(false);
   }, []);
 
   /* Update every map and summary every 10 seconds*/
@@ -1855,7 +1862,7 @@ export const Home = (props) => {
                 justifyContent="center"
                 display={tabIndex === 0 ? "block" : "none"}
               >
-                <Image src={legendVertical} fluid />
+                <Image src = {legendVertical} fluid />
               </Pane>
               <Pane
                 width="100%"
@@ -2019,26 +2026,43 @@ export const Home = (props) => {
       </Container>
 
     {/* SNAPSHOT */}
-    <Tooltip title="Pick a date to view the data recorded on that day.">
+    <Tooltip title="Pick a date and time range to view the data recorded on that day.">
         <Box
           width = "auto"
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-          <DatePicker
-            value={snapshotDate}
-            calendarClassName = "calendar-style"
-            className = "calendar-input-style"
-            onChange={(date)=>setSnapshotDate(date)}
-            format ="y-MM-dd" 
-          />
+     
+          <Box width = "auto" className = {classes.dateTime}>
+            <DatePicker
+              value={snapshotDate}
+              calendarClassName = "calendar-style"
+              className = "calendar-input-style"
+              onChange={(date)=>setSnapshotDate(date)}
+              format ="y-MM-dd" 
+            />
+            <TimeRangePicker
+              onChange={(e)=>{
+                setSnapshottTime(e)
+                console.log(e)
+              }}
+              value={snapshotTime}
+              className = "calendar-input-style"
+              disableClock
+            />
+          </Box>
+      
           <IconButton
             onClick={() => {
-              if(snapshotDate !== null){
+              if(snapshotDate !== null && snapshotTime !== null && (snapshotTime[0] < snapshotTime[1])){
                 let start = moment(snapshotDate).format("YYYY-MM-DD");
                 let addDay = moment(start).add(1, 'days');
                 let end = moment(addDay).format("YYYY-MM-DD");
-                history.push(`/snapshot/${start}/${end}`)
+                let time1 =  `T${snapshotTime[0]}:00.000Z`;
+                let time2 = `T${snapshotTime[1]}:00.000Z`;
+                history.push(`/snapshot/${start}${time1}/${end}${time2}`)
+              }else if(snapshotTime[0] > snapshotTime[1]){
+                setShowSnackbar(true)
               }
             }}
             className={classes.snapshotButton}
@@ -3291,6 +3315,27 @@ export const Home = (props) => {
         </Paragraph>
       </CornerDialog>
 
+      {/* Corner Legend */}
+      <Box
+          width = "50%"
+          className={classes.cornerLegend}
+          box-shadow = {3}
+        >
+          <Image src = {floatingLegend} fluid />
+      
+        </Box>
+
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setShowSnackbar(false)}
+        key={ {vertical: 'top'} + {horizontal: 'center'}}
+      >
+        <MuiAlert severity="error">Please enter a valid time range!</MuiAlert>
+      </Snackbar>
+
       <Map
         center={mapCenter}
         zoom={mapZoom}
@@ -3451,12 +3496,36 @@ const useStyles = makeStyles({
     padding: 0,
     borderRadius: 50,
   },
+
+  dateTime: {
+    flexDirection: "column",
+    display: "flex",
+    flexWrap: "wrap",
+    zIndex: 2
+  },
+
   snapshotBox: {
     position: "absolute",
     right: 70,
-    top: 80,
-    zIndex: 1,
+    top: 75,
+    zIndex: 2,
     padding: 0,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    display: "flex",
+    flexWrap: "wrap"
+  },
+
+  cornerLegend: {
+    position: "absolute",
+    left: 20,
+    bottom: 15,
+    zIndex: 2,
+    padding: 0,
+    margin: 0,
+    alignItems: "center",
+    flexDirection: "row",
+    display: isMobile? "none" : "flex",
+    flexWrap: "wrap"
   },
 });

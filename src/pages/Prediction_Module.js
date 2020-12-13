@@ -68,9 +68,39 @@ export const PredictionModule = (props) => {
   const [showPopover, setShowPopover] = useState();
   const [noSummary, setNoSummary] = useState();
   const [inputOpen, setInputOpen] = useState();
+  const [inputOpenFlood, setInputOpenFlood] = useState();
   const [currentInputAddress, setCurrentInputAddress] = useState();
+  const [displayedRainIntensity, setDisplayedRainIntensity] = useState()
+  const [displayedFloodDepth, setDisplayedFloodDepth] = useState()
+  const [displayedDuration,setDisplayedDuration] = useState()
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [paramsEdited, setParamsEdited] = useState()
+  const [editedArea, setEditedArea] = useState()
+  const [colorLow, setColorLow] = useState()
+  const [colorMid, setColorMid] = useState()
+  const [colorHigh, setColorHigh] = useState()
+  const [RR_H1, setRR_H1] = useState()
+  const [RR_H2, setRR_H2] = useState()
+  const [RR_H3, setRR_H3] = useState()
+  const [RR_M1, setRR_M1] = useState()
+  const [RR_M2, setRR_M2] = useState()
+  const [RR_M3, setRR_M3] = useState()
+  const [RR_L1, setRR_L1] = useState()
+  const [RR_L2, setRR_L2] = useState()
+  const [RR_L3, setRR_L3] = useState()
+  const [T_M1,setT_M1] = useState()
+  const [T_M2,setT_M2] = useState()
+  const [T_M3,setT_M3] = useState()
+  const [T_H1,setT_H1] = useState()
+  const [T_H2,setT_H2] = useState()
+  const [T_H3,setT_H3] = useState()
+  const [T_L1,setT_L1] = useState()
+  const [T_L2,setT_L2] = useState()
+  const [T_L3,setT_L3] = useState()
+  const [FD_H_Prev, setFD_H_Prev] = useState()
+  const [FD_M_Prev, setFD_M_Prev] = useState()
+  const [FD_L_Prev, setFD_L_Prev] = useState()
+ 
 
  //const proxyurl = "";
   const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -200,8 +230,25 @@ export const PredictionModule = (props) => {
       return "#c12123";
     }
   }
+  function getMarkerColorRain(rainfall_rate) {
+    console.log(rainfall_rate)
+    if (rainfall_rate === 0) {
+      return "https://rainflow.live/api/images/marker/0_AA.png";
+    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
+      return "https://rainflow.live/api/images/marker/0_BB.png";
+    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
+      return "https://rainflow.live/api/images/marker/0_CC.png";
+    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
+      return "https://rainflow.live/api/images/marker/0_DD.png";
+    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
+      return "https://rainflow.live/api/images/marker/0_EE.png";
+    } else if (rainfall_rate >= 30) {
+      return "https://rainflow.live/api/images/marker/0_FF.png";
+    }
+  }
 
   function getFloodDepthTitle(flood_depth) {
+    console.log(flood_depth)
     if (flood_depth <= 10) {
       return "No Flood";
     } else if (flood_depth > 10 && flood_depth <= 25) {
@@ -236,128 +283,29 @@ export const PredictionModule = (props) => {
   }
 
   function getFloodDepthColor(flood_depth) {
-    if (flood_depth <= 10) {
+    console.log(flood_depth)
+    if (flood_depth <= 0.1) {
       return "#0eae4e";
-    } else if (flood_depth > 10 && flood_depth <= 25) {
+    } else if (flood_depth > 0.1 && flood_depth <= 0.25) {
       return "#b2cf35";
-    } else if (flood_depth > 25 && flood_depth <= 70) {
+    } else if (flood_depth > 0.25 && flood_depth <= 0.70) {
       return "#fece08";
-    } else if (flood_depth > 70 && flood_depth <= 120) {
+    } else if (flood_depth > 0.70 && flood_depth <= 1.20) {
       return "#f38f20";
-    } else if (flood_depth > 120 && flood_depth <= 160) {
+    } else if (flood_depth > 1.20 && flood_depth <= 1.60) {
       return "#bf2125";
-    } else if (flood_depth > 160 && flood_depth <= 200) {
+    } else if (flood_depth > 1.60 && flood_depth <= 2.00) {
       return "#c12123";
-    } else if (flood_depth > 200 && flood_depth <= 300) {
+    } else if (flood_depth > 2.00 && flood_depth <= 3.00) {
       return "#931518";
-    } else if (flood_depth > 300 && flood_depth <= 450) {
+    } else if (flood_depth > 3.00 && flood_depth <= 4.50) {
       return "#7a1331";
-    } else if (flood_depth > 450) {
+    } else if (flood_depth > 4.50) {
       return "#5e011c";
     }
   }
 
  
-  function markerPicker(rainfall_rate, flood_depth) {
-    var rain;
-    var flood;
-
-    if (rainfall_rate === 0) {
-      rain = "A";
-    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
-      rain = "B";
-    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
-      rain = "C";
-    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
-      rain = "D";
-    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
-      rain = "E";
-    } else if (rainfall_rate >= 30) {
-      rain = "F";
-    }
-
-    if (flood_depth <= 10) {
-      flood = "A";
-    } else if (flood_depth > 10 && flood_depth <= 25) {
-      flood = "B";
-    } else if (flood_depth > 25 && flood_depth <= 70) {
-      flood = "C";
-    } else if (flood_depth > 70 && flood_depth <= 120) {
-      flood = "D";
-    } else if (flood_depth > 120 && flood_depth <= 160) {
-      flood = "E";
-    } else if (flood_depth > 160 && flood_depth <= 200) {
-      flood = "F";
-    } else if (flood_depth > 200 && flood_depth <= 300) {
-      flood = "G";
-    } else if (flood_depth > 300 && flood_depth <= 450) {
-      flood = "H";
-    } else if (flood_depth > 450) {
-      flood = "I";
-    }
-
-    return L.icon({
-      iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${flood}.png`,
-      iconSize: [50, 50],
-      iconAnchor: [23, 44],
-      popupAnchor: [-2, -38],
-    });
-  }
-  function markerPickerFLOOD(rainfall_rate, flood_depth) {
-    var flood;
-
-    if (flood_depth <= 10) {
-      flood = "A";
-    } else if (flood_depth > 10 && flood_depth <= 25) {
-      flood = "B";
-    } else if (flood_depth > 25 && flood_depth <= 70) {
-      flood = "C";
-    } else if (flood_depth > 70 && flood_depth <= 120) {
-      flood = "D";
-    } else if (flood_depth > 120 && flood_depth <= 160) {
-      flood = "E";
-    } else if (flood_depth > 160 && flood_depth <= 200) {
-      flood = "F";
-    } else if (flood_depth > 200 && flood_depth <= 300) {
-      flood = "G";
-    } else if (flood_depth > 300 && flood_depth <= 450) {
-      flood = "H";
-    } else if (flood_depth > 450) {
-      flood = "I";
-    }
-
-    return L.icon({
-      iconUrl: `https://rainflow.live/api/images/marker/0_${flood}${flood}.png`,
-      iconSize: [50, 50],
-      iconAnchor: [23, 44],
-      popupAnchor: [-2, -38],
-    });
-  }
-
-  function markerPickerRAIN(rainfall_rate, flood_depth) {
-    var rain;
-
-    if (rainfall_rate === 0) {
-      rain = "A";
-    } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
-      rain = "B";
-    } else if (rainfall_rate >= 2.5 && rainfall_rate < 7.5) {
-      rain = "C";
-    } else if (rainfall_rate >= 7.5 && rainfall_rate < 15) {
-      rain = "D";
-    } else if (rainfall_rate >= 15 && rainfall_rate < 30) {
-      rain = "E";
-    } else if (rainfall_rate >= 30) {
-      rain = "F";
-    }
-
-    return L.icon({
-      iconUrl: `https://rainflow.live/api/images/marker/0_${rain}${rain}.png`,
-      iconSize: [50, 50],
-      iconAnchor: [23, 44],
-      popupAnchor: [-2, -38],
-    });
-  }
 
   const decodeToken = async () => {
     var token = await localStorage.getItem("token");
@@ -379,105 +327,38 @@ export const PredictionModule = (props) => {
   
   useEffect(() => { 
     setMapCenter([14.650569571271504, 121.10455520510294]);
+    setDisplayedDuration("")
+    setDisplayedRainIntensity("")
     setMapZoom(14);
     decodeToken();
     setShowPopover(false);
+    setRR_H1(0)
+    setRR_H2(0)
+    setRR_H3(0)
+    setRR_M1(0)
+    setRR_M2(0)
+    setRR_M3(0)
+    setRR_L1(0)
+    setRR_L2(0)
+    setRR_L3(0)
+    setT_H1(0)
+    setT_H2(0)
+    setT_H3(0)
+    setT_M1(0)
+    setT_M2(0)
+    setT_M3(0)
+    setT_L1(0)
+    setT_L2(0)
+    setT_L3(0)
+    setFD_H_Prev(0)
+    setFD_M_Prev(0)
+    setFD_L_Prev(0)
+    setColorHigh("#0eae4e")
+    setColorLow("#0eae4e")
+    setColorMid("#0eae4e")
   }, []);
 
 
-
-  const rainSwitch = (level, address, lat, lng) => {
-    switch (level) {
-      case "No Rain":
-        return setNoRain((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Light Rain":
-        return setLightRain((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Moderate Rain":
-        return setModRain((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Heavy Rain":
-        return setHeavyRain((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Intense Rain":
-        return setIntenseRain((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Torrential Rain":
-        return setTorrentialRain((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      default:
-        return null;
-    }
-  };
-
-  const floodSwitch = (level, address, lat, lng) => {
-    switch (level) {
-      case "No Flood":
-        return setNoFlood((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Ankle Deep":
-        return setAnkle((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Knee Deep":
-        return setKnee((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Waist Deep":
-        return setWaist((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Neck Deep":
-        return setNeck((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "Top of Head Deep":
-        return setHead((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "1-Storey High":
-        return setStorey1((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "1.5-Storey High":
-        return setStorey15((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      case "2-Storey or Higher":
-        return setStorey2((current) => [
-          ...current,
-          { address: address, lat: lat, lng: lng },
-        ]);
-      default:
-        return null;
-    }
-  };
-
-  const inputHandler = () =>{
-
-  }
 
 
   /* sets state of map center after map has been dragged around */
@@ -521,17 +402,81 @@ export const PredictionModule = (props) => {
     });
   };
 
-  const handleInputOpen = () => {
-    setInputOpen(true);
-  };
 
   const handleInputClose = () => {
     setInputOpen(false);
+  };
+  const handleInputCloseFlood = () => {
+    setInputOpenFlood(false);
   };
 
   const onSideSheetHandler = () => {
     setIsOpen(true);
   };
+
+  const applyRainProfile = (params) =>{
+    console.log(displayedRainIntensity, displayedDuration)
+    if(params === "LS-1"){
+        setRR_L1(displayedRainIntensity)
+        setT_L1(displayedDuration)
+    }
+    else if (params === "LS-2"){
+      setRR_L2(displayedRainIntensity)
+      setT_L2(displayedDuration)
+    }
+    
+    else if (params === "LS-3"){
+      setRR_L3(displayedRainIntensity)
+      setT_L3(displayedDuration)
+    }
+    
+    else if (params === "MS-1"){
+      setRR_M1(displayedRainIntensity)
+      setT_M1(displayedDuration)
+    }
+    
+    else if (params === "MS-2"){
+      setRR_M2(displayedRainIntensity)
+      setT_M2(displayedDuration)
+    }
+    
+    else if (params === "MS-3"){
+      setRR_M3(displayedRainIntensity)
+      setT_M3(displayedDuration)
+    }
+    
+    else if (params === "HS-1"){
+      setRR_H1(displayedRainIntensity)
+      setT_H1(displayedDuration)
+    }
+    
+    else if (params === "HS-2"){
+      setRR_H2(displayedRainIntensity)
+      setT_H2(displayedDuration)
+    }
+    
+    else if (params === "HS-3"){
+      setRR_H3(displayedRainIntensity)
+      setT_H3(displayedDuration)
+    }
+  }
+
+  const applyFloodDepth = (area) =>{
+  
+    if(area === "Lowstream"){
+        setFD_L_Prev(displayedFloodDepth)
+        setColorLow(getFloodDepthColor(displayedFloodDepth))
+    }
+    else if (area === "Midstream"){
+      setFD_M_Prev(displayedFloodDepth)
+      setColorMid(getFloodDepthColor(displayedFloodDepth))
+    }
+    
+    else if (area === "Highstream"){
+      setFD_H_Prev(displayedFloodDepth)
+      setColorHigh(getFloodDepthColor(displayedFloodDepth))
+    }
+  }
 
   return (
     <>
@@ -970,10 +915,27 @@ export const PredictionModule = (props) => {
           className={classes.snapshotBox}
           box-shadow = {3}
         >
-     
+          <TextField
+          id="filled-read-only-input"
+          label="Time in minutes"
+          defaultValue="Hello World"
+          InputProps={{
+            readOnly: true,
+          }}
+          variant="filled"
+        />
       
           <IconButton
             onClick={() => {
+              console.log(RR_L1)
+              console.log(RR_L2)
+              console.log(RR_L3)
+              console.log(RR_H1)
+              console.log(RR_H2)
+              console.log(RR_H3)
+              console.log(RR_M1)
+              console.log(RR_M2)
+              console.log(RR_M3)
             }}
             className={classes.snapshotButton}
             classes={{ label: classes.iconLabel }}
@@ -1701,9 +1663,9 @@ export const PredictionModule = (props) => {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
 
-      {/* Input Dialog Form */}
+      {/* Rain Input Dialog Form */}
       <Dialog open={inputOpen} onClose={handleInputClose} aria-labelledby="form-dialog-title">
-              <DialogTitle id="form-dialog-title">Add Rain Profile</DialogTitle>
+              <DialogTitle id="form-dialog-title">Add Rain Profile to {paramsEdited}</DialogTitle>
               <DialogContent>
                 <DialogContentText>
                   Address: {currentInputAddress}
@@ -1715,9 +1677,13 @@ export const PredictionModule = (props) => {
                   label="Rain Intensity in mm/hr"
                   type="email"
                   fullWidth
+                  value = {displayedRainIntensity}
+                  onChange = {(e)=> setDisplayedRainIntensity(e.target.value)}
+                 
                 />
                 <TextField
-                
+                 value = {displayedDuration}
+                 onChange = {(e)=> setDisplayedDuration(e.target.value)}
                   margin="dense"
                   id="name"
                   label="Duration in minutes"
@@ -1727,9 +1693,35 @@ export const PredictionModule = (props) => {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleInputClose} color="primary">
-                  Cancel
+                  Close
                 </Button>
-                <Button onClick={handleInputClose} color="primary">
+                <Button onClick={()=>{applyRainProfile(paramsEdited)}} color="primary">
+                  Apply
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+      {/* Flood Input Dialog Form */}
+      <Dialog open={inputOpenFlood} onClose={handleInputCloseFlood} aria-labelledby="form-dialog-title">
+              <DialogTitle id="form-dialog-title">Change flood level in {editedArea}</DialogTitle>
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="Flood in meters"
+                  type="email"
+                  fullWidth
+                  value = {displayedFloodDepth}
+                  onChange = {(e)=> setDisplayedFloodDepth(e.target.value)}
+                />
+          
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleInputCloseFlood} color="primary">
+                  Close
+                </Button>
+                <Button onClick={()=>{applyFloodDepth(editedArea)}} color="primary">
                   Apply
                 </Button>
               </DialogActions>
@@ -1740,20 +1732,33 @@ export const PredictionModule = (props) => {
                 center={[14.650569571271504, 121.10455520510294]}
                 radius={800}
                 fill="true"
-                color="green"
+            color = {colorLow}
                 onMouseClick={(e) => {
                   e.target.openPopup();
                   
                 }}
               >
-                <Popup>Low stream: 800m radius, 15 meters above water level</Popup>
+                <Popup>Low stream: 800m radius, 15 meters above water level {"\n"} Flood level: {FD_L_Prev} meters {"\n"}
+                <Button
+                      onClick={() => {
+                        setEditedArea("Lowstream")
+                        setDisplayedFloodDepth(FD_L_Prev)
+                        setInputOpenFlood(true)
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      Change flood level
+                    </Button>
+                </Popup>
 
               </Circle>
 
             <Marker
               position={[14.653747662508655, 121.1051702243884]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_L1),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1761,6 +1766,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Butihin Street, Concepcion Uno, Marikina, Metro Manila, 1807, Philippines")
                 setParamsEdited("LS-1")
+                setDisplayedDuration(T_L1)
+                setDisplayedRainIntensity(RR_L1)
                 setInputOpen(true)
               }}
             />
@@ -1775,13 +1782,15 @@ export const PredictionModule = (props) => {
             <Marker
               position={[14.650649334183358, 121.10587200717488 ]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_L2),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
               })}
               onClick = {()=>{
                 setCurrentInputAddress("Bayan-Bayanan Avenue, San Isidro Village, Concepcion Uno, Marikina, Metro Manila, 1807, Philippines")
+                setDisplayedDuration(T_L2)
+                setDisplayedRainIntensity(RR_L2)
                 setParamsEdited("LS-2")
                 setInputOpen(true)
               }}
@@ -1797,13 +1806,15 @@ export const PredictionModule = (props) => {
             <Marker
               position={[14.649056919352764, 121.10365836405028]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_L3),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
               })}
               onClick = {()=>{
                 setCurrentInputAddress("E. Santos, Better Homes Subdivision, Concepcion Uno, Marikina, Metro Manila, 1807, Philippines")
+                setDisplayedDuration(T_L3)
+                setDisplayedRainIntensity(RR_L3)
                 setParamsEdited("LS-3")
                 setInputOpen(true)
               }}
@@ -1822,19 +1833,32 @@ export const PredictionModule = (props) => {
                 center={[14.653865685032384, 121.1204273760795 ]}
                 radius={800}
                 fill="true"
-                color="green"
+                color= {colorMid}
                 onMouseClick={(e) => {
                   e.target.openPopup();
                 }}
               >
-                <Popup>Mid stream: 800m radius, 58 meters above water level</Popup>
+                <Popup>Mid stream: 800m radius, 58 meters above water level {"\n"} Flood level: {FD_M_Prev} meters {"\n"}
+                <Button
+                      onClick={() => {
+                        setEditedArea("Midstream")
+                        setDisplayedFloodDepth(FD_M_Prev)
+                        setInputOpenFlood(true)
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      Change flood level
+                    </Button>
+                </Popup>
 
               </Circle>
 
               <Marker
               position={[14.65505610958315, 121.11672977825452 ]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_M1),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1842,7 +1866,10 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Dao, J. J. Carlos PAG-IBIG Subdivision, Marikina Heights, Marikina, Metro Manila, 1810, Philippines")
                 setParamsEdited("MS-1")
+                setDisplayedDuration(T_M1)
+                setDisplayedRainIntensity(RR_M1)
                 setInputOpen(true)
+               
               }}
             />
 
@@ -1856,7 +1883,7 @@ export const PredictionModule = (props) => {
             <Marker
               position={[14.650143223871751, 121.11759734316708 ]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_M2),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1864,6 +1891,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Saint Marcellin Champagnat, Marikina Heights, Marikina, Metro Manila, 1810, Philippines")
                 setParamsEdited("MS-2")
+                setDisplayedDuration(T_M2)
+                setDisplayedRainIntensity(RR_M2)
                 setInputOpen(true)
               }}
             />
@@ -1877,7 +1906,7 @@ export const PredictionModule = (props) => {
             <Marker
               position={[14.649242042899639, 121.12131013573247]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_M3),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1885,6 +1914,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("General Ordonez, Sunnyville 2, Marikina Heights, Marikina, Metro Manila, 1810, Philippines")
                 setParamsEdited("MS-3")
+                setDisplayedDuration(T_M3)
+                setDisplayedRainIntensity(RR_M3)
                 setInputOpen(true)
               }}
             />
@@ -1901,18 +1932,31 @@ export const PredictionModule = (props) => {
                 center={[14.662078019422049, 121.14705419327173 ]}
                 radius={800}
                 fill="true"
-                color="green"
+                color= {colorHigh}
                 onMouseClick={(e) => {
                   e.target.openPopup();
                 }}
               >
-                <Popup>High stream: 800m radius, 96 meters above water level</Popup>
+                <Popup>High stream: 800m radius, 96 meters above water level {"\n"} Flood level: {FD_H_Prev} meters {"\n"}
+                <Button
+                      onClick={() => {
+                        setEditedArea("Highstream")
+                        setDisplayedFloodDepth(FD_H_Prev)
+                        setInputOpenFlood(true)
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      Change flood level
+                    </Button>
+                </Popup>
 
               </Circle>
               <Marker
               position={[14.662659288660977, 121.14690398946355]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_H1),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1920,6 +1964,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Langka Street, AFP Housing, Timberland Heights, Silangan, Rizal, Calabarzon, 1873, Philippines ")
                 setParamsEdited("HS-1")
+                setDisplayedDuration(T_H1)
+                setDisplayedRainIntensity(RR_H1)
                 setInputOpen(true)
               }}
             />
@@ -1934,7 +1980,7 @@ export const PredictionModule = (props) => {
             <Marker
               position={[14.664496472498195, 121.14383550568908]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_H2),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1942,6 +1988,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Santa Barbara Villas 1 Phase 1, Timberland Heights, Santo Niño, Rizal, Calabarzon, 1850, Philippines")
                 setParamsEdited("HS-2")
+                setDisplayedDuration(T_H2)
+                setDisplayedRainIntensity(RR_H2)
                 setInputOpen(true)
               }}
             />
@@ -1957,7 +2005,7 @@ export const PredictionModule = (props) => {
             <Marker
               position={[14.65933783832797, 121.14738675567922 ]}
               icon={L.icon({
-                iconUrl: `https://rainflow.live/api/images/marker/0_AA.png`,
+                iconUrl: getMarkerColorRain(RR_H3),
                 iconSize: [50, 50],
                 iconAnchor: [23, 44],
                 popupAnchor: [-2, -38],
@@ -1965,6 +2013,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Tierra Monte, Silangan, Rizal, Calabarzon, 1873, Philippines")
                 setParamsEdited("HS-3")
+                setDisplayedDuration(T_L3)
+                setDisplayedRainIntensity(RR_L3)
                 setInputOpen(true)
               }}
             />
@@ -1974,9 +2024,7 @@ export const PredictionModule = (props) => {
                 fill="true"
                 color="white"
               /> 
-        {/* <Polyline positions={[
-          [14.652940729113674, 121.13561771805901], [14.655211991875595, 121.13196864452978],
-        ]} color={'red'} /> */}
+       
       </Map>
     </>
   );
@@ -2128,7 +2176,7 @@ const useStyles = makeStyles({
 
   snapshotBox: {
     position: "absolute",
-    right: 10,
+    right: 15,
     top: 75,
     zIndex: 2,
     padding: 0,

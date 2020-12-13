@@ -193,7 +193,9 @@ const [dateTime, setDateTime] = useState(new Date())
             setColorLow(getFloodDepthColor(data.FD_L/100))
             setColorMid(getFloodDepthColor(data.FD_M/100))
             setColorHigh(getFloodDepthColor(data.FD_H/100))
-            setDateTime(dateTime.setHours( dateTime.getHours() + 2 ))
+            
+            let addTime = moment(dateTime).add(T_A, 'hours')
+            setDateTime(addTime)
           });
       })
       .catch((error) => console.error("Error:", error));

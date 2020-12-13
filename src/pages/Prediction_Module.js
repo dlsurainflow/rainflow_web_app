@@ -100,7 +100,7 @@ export const PredictionModule = (props) => {
   const [FD_H_Prev, setFD_H_Prev] = useState()
   const [FD_M_Prev, setFD_M_Prev] = useState()
   const [FD_L_Prev, setFD_L_Prev] = useState()
- 
+  const [T_A, setT_A] = useState()
 
  //const proxyurl = "";
   const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -138,62 +138,48 @@ export const PredictionModule = (props) => {
     WL1: [],
   });
 
-  const [reportInfo, setReportInfo] = useState({
-    id: null,
-    latitude: null,
-    longitude: null,
-    flood_depth: null,
-    rainfall_rate: null,
-    username: null,
-    updatedAt: null,
-    image: null,
-    upvote: null,
-    downvote: null,
-    address: null,
-    badge: null,
-    currentAction: null,
-    description: null,
-    rainfall_rate_title: null,
-    flood_depth_title: null,
-    rainfall_rate_subtitle: null,
-    flood_depth_subtitle: null,
-    rainfall_rate_color: null,
-    flood_depth_color: null,
-  });
-
-  const [noRain, setNoRain] = useState([]);
-  const [lightRain, setLightRain] = useState([]);
-  const [modRain, setModRain] = useState([]);
-  const [heavyRain, setHeavyRain] = useState([]);
-  const [intenseRain, setIntenseRain] = useState([]);
-  const [torrentialRain, setTorrentialRain] = useState([]);
-
-  const [noFlood, setNoFlood] = useState([]);
-  const [ankle, setAnkle] = useState([]);
-  const [waist, setWaist] = useState([]);
-  const [knee, setKnee] = useState([]);
-  const [neck, setNeck] = useState([]);
-  const [head, setHead] = useState([]);
-  const [storey1, setStorey1] = useState([]);
-  const [storey2, setStorey2] = useState([]);
-  const [storey15, setStorey15] = useState([]);
+  
 
   const windowWidth = window.innerWidth;
 
-  const fetchData = async () => {
-    const url = "https://rainflow.live/api/map/all";
+  const prediction_handler = async () => {
+    const url = "https://rainflow.live/api/prediction/predict";
 
     await fetch(proxyurl + url, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      body:JSON.stringify({
+        RR_H1,
+        T_H1,
+        RR_H2,
+        T_H2,
+        RR_H3,
+        T_H3,
+        RR_M1,
+        T_M1,
+        RR_M2,
+        T_M2,
+        RR_M3,
+        T_M3,
+        RR_L1,
+        T_L1,
+        RR_L2,
+        T_L2,
+        RR_L3,
+        T_L3,
+        FD_H_Prev,
+        FD_M_Prev,
+        FD_L_Prev,
+        T_A
+      })
     })
       .then((response) => {
         if (response.status === 200)
           response.json().then((data) => {
-            setMapData(data);
+            console.log(data);
           });
       })
       .catch((error) => console.error("Error:", error));
@@ -231,7 +217,7 @@ export const PredictionModule = (props) => {
     }
   }
   function getMarkerColorRain(rainfall_rate) {
-    console.log(rainfall_rate)
+    
     if (rainfall_rate === 0) {
       return "https://rainflow.live/api/images/marker/0_AA.png";
     } else if (rainfall_rate > 0 && rainfall_rate < 2.5) {
@@ -248,7 +234,7 @@ export const PredictionModule = (props) => {
   }
 
   function getFloodDepthTitle(flood_depth) {
-    console.log(flood_depth)
+  
     if (flood_depth <= 10) {
       return "No Flood";
     } else if (flood_depth > 10 && flood_depth <= 25) {
@@ -283,7 +269,7 @@ export const PredictionModule = (props) => {
   }
 
   function getFloodDepthColor(flood_depth) {
-    console.log(flood_depth)
+   
     if (flood_depth <= 0.1) {
       return "#0eae4e";
     } else if (flood_depth > 0.1 && flood_depth <= 0.25) {
@@ -356,6 +342,7 @@ export const PredictionModule = (props) => {
     setColorHigh("#0eae4e")
     setColorLow("#0eae4e")
     setColorMid("#0eae4e")
+    setT_A(0.5)
   }, []);
 
 
@@ -415,7 +402,7 @@ export const PredictionModule = (props) => {
   };
 
   const applyRainProfile = (params) =>{
-    console.log(displayedRainIntensity, displayedDuration)
+  
     if(params === "LS-1"){
         setRR_L1(displayedRainIntensity)
         setT_L1(displayedDuration)
@@ -506,230 +493,10 @@ export const PredictionModule = (props) => {
                 >
                   Legend
                 </Tab>
-                <Tab
-                  id="flood"
-                  onSelect={() => setTabIndex(1)}
-                  isSelected={tabIndex === 1}
-                  aria-controls={`panel-flood`}
-                >
-                  Areas by Flood Level
-                </Tab>
-                <Tab
-                  id="flood"
-                  onSelect={() => setTabIndex(2)}
-                  isSelected={tabIndex === 2}
-                  aria-controls={`panel-rain`}
-                >
-                  Areas by Rain Intensity Level
-                </Tab>
+                
               </Tablist>
 
-              <Pane
-                width="100%"
-                flexGrow={1}
-                overflow="auto"
-                padding={20}
-                backgroundColor="#F9F9FB"
-                id={`panel-flood`}
-                role="tabpanel"
-                aria-labelledby="flood"
-                aria-hidden={tabIndex === 1 ? false : true}
-                display={tabIndex === 1 ? "block" : "none"}
-              >
-                <Card
-                  flexDirection="column"
-                  display="inline-flex"
-                  marginBottom={10}
-                >
-                  <Heading size={200}>
-                    {noSummary === true
-                      ? "No monitored areas are flooded at the moment."
-                      : "Click any address to go to its marker."}
-                  </Heading>
-                </Card>
-                <Divider />
-
-                <Card
-                  flexDirection="column"
-                  display={noFlood.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>No flood (0 - 0.1 meters): </Heading>
-                  {noFlood.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={ankle.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Ankle Deep (0.1 - 0.25 meters): </Heading>
-                  {ankle.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={knee.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Knee Deep (0.25 - 0.7 meters): </Heading>
-                  {knee.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={waist.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Waist Deep (0.7 - 1.2 meters): </Heading>
-                  {waist.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={neck.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Neck Deep (1.2 - 1.6 meters): </Heading>
-                  {neck.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={head.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Top of Head Deep (1.6 - 2.0 meters): </Heading>
-                  {head.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey1.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>1-Storey High (2.0 - 3.0 meters):</Heading>
-                  {storey1.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey15.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>1.5-Storey High (3.0 - 4.5 meters): </Heading>
-                  {storey15.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={storey2.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>2-Storey or Higher (4.5+ meters):</Heading>
-                  {storey2.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-              </Pane>
+              
               <Pane
                 width="100%"
                 overflow="auto"
@@ -747,150 +514,7 @@ export const PredictionModule = (props) => {
               >
                 <Image src = {legendVertical} fluid />
               </Pane>
-              <Pane
-                width="100%"
-                flexGrow={1}
-                padding={20}
-                backgroundColor="#F9F9FB"
-                id={`panel-rain`}
-                role="tabpanel"
-                aria-labelledby="rain"
-                aria-hidden={tabIndex === 2 ? false : true}
-                display={tabIndex === 2 ? "block" : "none"}
-              >
-                <Card
-                  flexDirection="column"
-                  display="inline-flex"
-                  marginBottom={10}
-                >
-                  <Heading size={200}>
-                    {noSummary === true
-                      ? "No monitored areas are experiencing rain at the moment."
-                      : "Click any address to go to its marker."}
-                  </Heading>
-                </Card>
-                <Divider />
-                <Card
-                  flexDirection="column"
-                  display={noRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>No rain (0 mm/hr): </Heading>
-                  {noRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={lightRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Light Rain (0.01 - 2.5 mm/hr):</Heading>
-                  {lightRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={modRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Moderate Rain (2.5 - 7.5 mm/hr):</Heading>
-                  {modRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={heavyRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Heavy Rain (7.5 - 15 mm/hr):</Heading>
-                  {heavyRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={intenseRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Intense Rain (15 - 30 mm/hr):</Heading>
-                  {intenseRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-                <Card
-                  flexDirection="column"
-                  display={torrentialRain.length > 0 ? "inline-flex" : "none"}
-                  marginBottom={20}
-                >
-                  <Heading>Torrential Rain (30+ mm/hr):</Heading>
-                  {torrentialRain.map((data) => {
-                    return (
-                      <Text
-                        onClick={() => {
-                          setMapCenter([data.lat, data.lng]);
-                          setMapZoom(17);
-                        }}
-                        paddingBottom={4.5}
-                      >
-                        - {data.address}
-                      </Text>
-                    );
-                  })}
-                </Card>
-              </Pane>
+              
             </Pane>
           }
           position={Position.TOP_LEFT}
@@ -909,33 +533,28 @@ export const PredictionModule = (props) => {
       </Container>
 
     {/* Run prediction module */}
-    <Tooltip title="Run prediction module">
+  
         <Box
           width = "auto"
           className={classes.snapshotBox}
           box-shadow = {3}
         >
           <TextField
-          id="filled-read-only-input"
-          label="Time in minutes"
-          defaultValue="Hello World"
-          InputProps={{
-            readOnly: true,
-          }}
+          id="filled-input"
+          label="Hours"
+          value = {T_A}
           variant="filled"
+          size="small"
+          onChange = {(e)=> setT_A(e.target.value)}
         />
-      
+        <Tooltip title="Run prediction module">
           <IconButton
             onClick={() => {
-              console.log(RR_L1)
-              console.log(RR_L2)
-              console.log(RR_L3)
-              console.log(RR_H1)
-              console.log(RR_H2)
-              console.log(RR_H3)
-              console.log(RR_M1)
-              console.log(RR_M2)
-              console.log(RR_M3)
+              if(T_A <= 0) {
+                showSnackbar(true)
+              }else{
+                prediction_handler()
+              }
             }}
             className={classes.snapshotButton}
             classes={{ label: classes.iconLabel }}
@@ -944,8 +563,8 @@ export const PredictionModule = (props) => {
           >
             <Heading size={100}>RUN PREDICTION</Heading>
           </IconButton>
-        </Box>
       </Tooltip>
+        </Box>
 
 
       {/* Report/Raft Info Sidebar */}
@@ -1648,7 +1267,7 @@ export const PredictionModule = (props) => {
         onClose={() => setShowSnackbar(false)}
         key={ {vertical: 'top'} + {horizontal: 'center'}}
       >
-        <MuiAlert severity="error">Please enter a valid time range!</MuiAlert>
+        <MuiAlert severity="error">Please enter a valid time!</MuiAlert>
       </Snackbar>
 
       <Map

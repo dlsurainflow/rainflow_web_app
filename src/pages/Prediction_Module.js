@@ -56,6 +56,7 @@ import floatingLegend from "../assets/legend/floating-legend-21.png"
 import Snackbar from '@material-ui/core/Snackbar';
 
 export const PredictionModule = (props) => {
+const [dateTime, setDateTime] = useState(new Date())
   const history = useHistory();
   const windowHeight = window.innerHeight;
   const classes = useStyles();
@@ -68,6 +69,7 @@ export const PredictionModule = (props) => {
   const [showPopover, setShowPopover] = useState();
   const [noSummary, setNoSummary] = useState();
   const [inputOpen, setInputOpen] = useState();
+  const [isOpenSidebar, setIsOpenSidebar] = useState();
   const [inputOpenFlood, setInputOpenFlood] = useState();
   const [currentInputAddress, setCurrentInputAddress] = useState();
   const [displayedRainIntensity, setDisplayedRainIntensity] = useState()
@@ -79,6 +81,7 @@ export const PredictionModule = (props) => {
   const [colorLow, setColorLow] = useState()
   const [colorMid, setColorMid] = useState()
   const [colorHigh, setColorHigh] = useState()
+  const [areaAddress,setAreaAddress] = useState()
   const [RR_H1, setRR_H1] = useState()
   const [RR_H2, setRR_H2] = useState()
   const [RR_H3, setRR_H3] = useState()
@@ -101,41 +104,39 @@ export const PredictionModule = (props) => {
   const [FD_M_Prev, setFD_M_Prev] = useState()
   const [FD_L_Prev, setFD_L_Prev] = useState()
   const [T_A, setT_A] = useState()
+ 
 
  //const proxyurl = "";
   const proxyurl = "https://cors-anywhere.herokuapp.com/";
  //const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
-  const [raftInfo, setRaftInfo] = useState({
-    id: null,
-    latitude: null,
-    longitude: null,
-    altitude: null,
-    flood_depth: null,
-    rainfall_amount: null,
-    rainfall_rate: null,
-    rainfall_rate_title: null,
-    flood_depth_title: null,
-    rainfall_rate_subtitle: null,
-    flood_depth_subtitle: null,
-    rainfall_rate_color: null,
-    flood_depth_color: null,
-    water_level: null,
-    temperature: null,
-    pressure: null,
-    humidity: null,
-    username: null,
-    updatedAt: null,
-    charts: null,
-    address: null,
-    badge: null,
-    FD1: [],
-    TMP1: [],
+  const [LSinfo, setLSinfo] = useState({
     RA1: [],
-    PR1: [],
-    HU1: [],
-    WL1: [],
+    RA2: [],
+    RA3: [],
+    FD1: []
+  })
+  const [MSinfo, setMSinfo] = useState({
+    RA1: [],
+    RA2: [],
+    RA3: [],
+    FD1: []
+  })
+  const [HSinfo, setHSinfo] = useState({
+    RA1: [],
+    RA2: [],
+    RA3: [],
+    FD1: []
+  })
+
+  const [raftInfo, setRaftInfo] = useState({
+    RA1: [],
+    RA2: [],
+    RA3: [],
+    FD1: [],
+    flood_depth: null,
+    flood_depth_title: null
   });
 
   
@@ -144,7 +145,13 @@ export const PredictionModule = (props) => {
 
   const prediction_handler = async () => {
     const url = "https://rainflow.live/api/prediction/predict";
+    let FD_M_cm = FD_M_Prev*100
+    let FD_L_cm = FD_L_Prev*100
+    let FD_H_cm = FD_H_Prev*100
 
+    console.log("FD_H_Prev: ", FD_H_cm)
+    console.log("FD_M_Prev: ", FD_M_cm)
+    console.log("FD_L_Prev: ", FD_L_cm)
     await fetch(proxyurl + url, {
       method: "POST",
       headers: {
@@ -170,9 +177,9 @@ export const PredictionModule = (props) => {
         T_L2,
         RR_L3,
         T_L3,
-        FD_H_Prev,
-        FD_M_Prev,
-        FD_L_Prev,
+        FD_H_Prev: FD_H_cm,
+        FD_M_Prev: FD_M_cm,
+        FD_L_Prev: FD_L_cm,
         T_A
       })
     })
@@ -180,13 +187,13 @@ export const PredictionModule = (props) => {
         if (response.status === 200)
           response.json().then((data) => {
             console.log(data);
-            console.log("Low: ", data.FD_L);
-            setFD_H_Prev(data.FD_H)
-            setFD_M_Prev(data.FD_M)
-            setFD_L_Prev(data.FD_L)
-            setColorLow(getFloodDepthColor(data.FD_L))
-            setColorMid(getFloodDepthColor(data.FD_M))
-            setColorHigh(getFloodDepthColor(data.FD_H))
+            setFD_H_Prev((data.FD_H/100).toFixed(2))
+            setFD_M_Prev((data.FD_M/100).toFixed(2))
+            setFD_L_Prev((data.FD_L/100).toFixed(2))
+            setColorLow(getFloodDepthColor(data.FD_L/100))
+            setColorMid(getFloodDepthColor(data.FD_M/100))
+            setColorHigh(getFloodDepthColor(data.FD_H/100))
+            setDateTime(dateTime.setHours( dateTime.getHours() + 2 ))
           });
       })
       .catch((error) => console.error("Error:", error));
@@ -241,7 +248,6 @@ export const PredictionModule = (props) => {
   }
 
   function getFloodDepthTitle(flood_depth) {
-  
     if (flood_depth <= 10) {
       return "No Flood";
     } else if (flood_depth > 10 && flood_depth <= 25) {
@@ -364,35 +370,15 @@ export const PredictionModule = (props) => {
     setMapZoom(e.target.getZoom());
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
+  const handleCloseSidebar = () => {
+    setIsOpenSidebar(false);
     setRaftInfo({
-      id: null,
-      latitude: null,
-      longitude: null,
-      altitude: null,
-      flood_depth: null,
-      rainfall_amount: null,
-      temperature: null,
-      pressure: null,
-      humidity: null,
-      username: null,
-      updatedAt: null,
-      badge: null,
-      address: null,
-      water_level: null,
-      rainfall_rate_title: null,
-      flood_depth_title: null,
-      rainfall_rate_subtitle: null,
-      flood_depth_subtitle: null,
-      rainfall_rate_color: null,
-      flood_depth_color: null,
       FD1: [],
-      TMP1: [],
       RA1: [],
-      PR1: [],
-      HU1: [],
-      WL1: [],
+      RA2: [],
+      RA3: [],
+      flood_depth: null,
+      flood_depth_title: null
     });
   };
 
@@ -539,76 +525,12 @@ export const PredictionModule = (props) => {
         </Popover>
       </Container>
 
-    {/* Run prediction module */}
-  
-        <Box
-          width = "auto"
-          className={classes.snapshotBox}
-          box-shadow = {3}
-        >
-          <TextField
-          id="filled-input"
-          label="Hours"
-          value = {T_A}
-          variant="filled"
-          size="small"
-          onChange = {(e)=> setT_A(e.target.value)}
-        />
-        <Tooltip title="Run prediction module">
-          <IconButton
-            onClick={() => {
-              if(T_A <= 0) {
-                showSnackbar(true)
-              }else{
-                console.log("RR_L1", RR_L1)
-                console.log("RR_L2", RR_L2)
-                console.log("RR_L3", RR_L3)
-                console.log("RR_M1", RR_M1)
-                console.log("RR_M2", RR_M2)
-                console.log("RR_M3", RR_M3)
-                console.log("RR_H1", RR_H1)
-                console.log("RR_H2", RR_H2)
-                console.log("RR_H3", RR_H3)
-                console.log("T_L1", T_L1)
-                console.log("T_L2", T_L2)
-                console.log("T_L3", T_L3)
-                console.log("T_M1", T_M1)
-                console.log("T_M2", T_M2)
-                console.log("T_M3", T_M3)
-                console.log("T_H1", T_H1)
-                console.log("T_H2", T_H2)
-                console.log("T_H3", T_H3)
-                console.log("T_A", T_A)
-                console.log("FD_H_Prev", FD_H_Prev)
-                console.log("FD_L_Prev", FD_L_Prev)
-                console.log("FD_M_Prev", FD_M_Prev)
-                
-
-                prediction_handler()
-              }
-            }}
-            className={classes.snapshotButton}
-            classes={{ label: classes.iconLabel }}
-            size="medium"
-            aria-label="markers"
-          >
-            <Heading size={100}>RUN PREDICTION</Heading>
-          </IconButton>
-      </Tooltip>
-        </Box>
-
-
-      {/* Report/Raft Info Sidebar */}
-
       <Modal
-        show={isOpen}
-        onHide={handleClose}
+        show={isOpenSidebar}
+        onHide={handleCloseSidebar}
         dialogClassName={isMobile ? "modal-mobile-view" : "modal-main-web"}
         animation={false}
       >
-
-        {nodeType === "RAFT" ? (
-          <>
             <Modal.Header closeButton>
               <Modal.Title>
                 <Pane flex="1" flexDirection="row" backgroundColor="#fff">
@@ -618,39 +540,10 @@ export const PredictionModule = (props) => {
                     padding={10}
                   >
                     <Heading size={700}>
-                      {raftInfo.username}'s RAFT{" "}
-                      {raftInfo.badge !== null ? (
-                        <>
-                          <Image
-                            src={`https://rainflow.live/api/images/badges/${raftInfo.badge}`}
-                            height="20"
-                          />
-                        </>
-                      ) : null}
-                      <Image
-                        src="https://rainflow.live/api/images/badges/raft.png"
-                        height="20"
-                      />
+                      {editedArea}
                     </Heading>
-                    <Text size={500}>{raftInfo.updatedAt}</Text>
-                    <Text size={300}>{raftInfo.address}</Text>
-                    {/* <Text size={500}>Owned by {raftInfo.username}</Text> */}
+                    <Text size={300}>{areaAddress}</Text>
                   </Pane>
-                  {raftInfo.flood_depth_subtitle !== null ? (
-                    <Pane
-                      display="inline-flex"
-                      flexDirection="column"
-                      padding={5}
-                    >
-                      <Heading
-                        size={600}
-                        marginLeft={5}
-                        color={raftInfo.flood_depth_color}
-                      >
-                        {raftInfo.flood_depth_subtitle}
-                      </Heading>
-                    </Pane>
-                  ) : null}
                 </Pane>
               </Modal.Title>
             </Modal.Header>
@@ -664,7 +557,7 @@ export const PredictionModule = (props) => {
                 paddingX={5}
                 margin={0}
               >
-                {raftInfo.RA1 !== null ? (
+                {raftInfo.RA1 !== null || raftInfo.RA2 !== null || raftInfo.RA3 !== null ? (
                   <Card
                     backgroundColor="white"
                     elevation={0}
@@ -678,10 +571,7 @@ export const PredictionModule = (props) => {
                   >
                     <Pane
                       flex="1"
-                      // height={windowHeight * 0.8}
                       width="100%"
-                      // overflow={"auto"}
-                      // background="#F9F9FB"
                       justifyContent="flex-start"
                       alignItems="center"
                       paddingX={5}
@@ -692,56 +582,17 @@ export const PredictionModule = (props) => {
                       <Pane flex = "1" flexDirection = "row" width = "100%" alignItems = "center"  justifyContent="flex-start" display="inline-flex">
                       <WiRain size={30} color="black" />
                       <Heading size={100} marginLeft={5}>
-                        RAINFALL RATE{" "}
+                        RAINFALL RATES{" "}
                         <Tooltip title="The amount of rain that falls over time.">
                           <InfoSignIcon size={15} color="grey" />
                         </Tooltip>
                       </Heading>
-                      <Heading size={600} marginLeft={10}>
-                        {raftInfo.rainfall_rate}
-                      </Heading>
-                      <Heading size={400} marginLeft={5}>
-                        {"mm/hour"}
-                      </Heading>
+          
                       </Pane>
-                      <Heading
-                        size={500}
-                        marginLeft={70}
-                        width = "100%"  
-                        justifyContent="flex-start"
-                        color={raftInfo.rainfall_rate_color}
-                      >
-                      ({raftInfo.rainfall_rate_title})
-                      </Heading>
+    
                     </Pane>
-                    <Pane
-                      flex="1"
-                      // height={windowHeight * 0.8}
-                      width="100%"
-                      // overflow={"auto"}
-                      // background="#F9F9FB"
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      paddingX={5}
-                      margin={0}
-                      display="inline-flex"
-                      flexDirection="row"
-                    >
-                      <WiRaindrops size={30} color="black" />
-                      <Heading size={100} marginLeft={5}>
-                        TOTAL RAINFALL{" "}
-                        <Tooltip title="The total amount of rain that fell over the past 24 hours.">
-                          <InfoSignIcon size={15} color="grey" />
-                        </Tooltip>
-                      </Heading>
-                      <Heading size={600} marginLeft={10}>
-                        {raftInfo.rainfall_amount}
-                      </Heading>
-                      <Heading size={300} marginLeft={5}>
-                        {"mm/day"}
-                      </Heading>
-                    </Pane>
-                    {raftInfo.RA1.length > 0 ? (
+                    
+                   
                       <Pane flex="1" width="100%">
                         <Line
                           data={{
@@ -755,6 +606,22 @@ export const PredictionModule = (props) => {
                                 // width: "125%",
                                 // height: "75%",
                                 backgroundColor: "#00695c",
+                                borderColor: "#00796b",
+                              },
+                              {
+                                data: raftInfo.RA2.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                // height: "75%",
+                                backgroundColor: "yellow",
+                                borderColor: "#00796b",
+                              },
+                              {
+                                data: raftInfo.RA3.map((k) => k.value),
+                                fill: true,
+                                // width: "125%",
+                                // height: "75%",
+                                backgroundColor: "green",
                                 borderColor: "#00796b",
                               },
                             ],
@@ -788,7 +655,7 @@ export const PredictionModule = (props) => {
                           }}
                         />
                       </Pane>
-                    ) : null}
+                   
                   </Card>
                 ) : null}
                 {raftInfo.FD1 !== null ? (
@@ -834,12 +701,11 @@ export const PredictionModule = (props) => {
                         justifyContent="flex-start"
                         width = "100%"
                         marginBottom = {10} 
-                        color={raftInfo.flood_depth_color}
                       >
                         ({raftInfo.flood_depth_title})
                       </Heading>
                     </Pane>
-                    {raftInfo.FD1.length > 0 ? (
+                   
                       <Pane flex="1" width="100%" height="50%">
                         <Line
                           data={{
@@ -886,368 +752,121 @@ export const PredictionModule = (props) => {
                           }}
                         />
                       </Pane>
-                    ) : null}
-                  </Card>
-                ) : null}
-                {raftInfo.temperature !== null ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    alignContent="center"
-                    padding={20}
-                    marginY={10}
-                    flexDirection="column"
-                  >
-                    <Pane
-                      flex="1"
-                      // height={windowHeight * 0.8}
-                      width="100%"
-                      // overflow={"auto"}
-                      // background="#F9F9FB"
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      paddingX={5}
-                      margin={0}
-                      display="inline-flex"
-                      flexDirection="row"
-                    >
-                      <WiThermometer size={30} color="black" />
-                      <Heading size={100} marginLeft={5}>
-                        Temperature
-                      </Heading>
-                      <Heading size={600} marginLeft={10}>
-                        {raftInfo.temperature}
-                      </Heading>
-                      <Heading size={300} marginLeft={5}>
-                        {"°C"}
-                      </Heading>
-                    </Pane>
-                    {raftInfo.TMP1.length > 0 ? (
-                      <Pane flex="1" width="100%" height="50%">
-                        <Line
-                          data={{
-                            labels: raftInfo.TMP1.map((k) =>
-                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
-                            ),
-                            datasets: [
-                              {
-                                data: raftInfo.TMP1.map((k) => k.value),
-                                fill: true,
-                                // width: "125%",
-                                height: "50%",
-                                backgroundColor: "#00695c",
-                                borderColor: "#00796b",
-                              },
-                            ],
-                          }}
-                          options={{
-                            aspectRatio: 0.5,
-                            // maintainAspectRatio: false,
-                            legend: {
-                              display: false,
-                            },
-                            scales: {
-                              xAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                              yAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                            },
-                          }}
-                        />
-                      </Pane>
-                    ) : null}
-                  </Card>
-                ) : null}
-                {raftInfo.pressure !== null ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    alignContent="center"
-                    padding={20}
-                    marginY={10}
-                    flexDirection="column"
-                  >
-                    <Pane
-                      flex="1"
-                      // height={windowHeight * 0.8}
-                      width="100%"
-                      // overflow={"auto"}
-                      // background="#F9F9FB"
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      paddingX={5}
-                      margin={0}
-                      display="inline-flex"
-                      flexDirection="row"
-                    >
-                      <WiBarometer size={30} color="black" />
-                      <Heading size={100} marginLeft={5}>
-                        Air Pressure{" "}
-                        <Tooltip title="The force exerted on the Earth’s surface by the weight of the air above the surface. Low pressure is usually associated with high winds, warm air, and atmospheric lifting.">
-                          <InfoSignIcon size={15} color="grey" />
-                        </Tooltip>
-                      </Heading>
-                      <Heading size={600} marginLeft={10}>
-                        {raftInfo.pressure}
-                      </Heading>
-                      <Heading size={300} marginLeft={5}>
-                        {"mmBar"}
-                      </Heading>
-                    </Pane>
-                    {raftInfo.PR1.length > 0 ? (
-                      <Pane flex="1" width="100%" height="50%">
-                        <Line
-                          data={{
-                            labels: raftInfo.PR1.map((k) =>
-                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
-                            ),
-                            datasets: [
-                              {
-                                data: raftInfo.PR1.map((k) => k.value),
-                                fill: true,
-                                // width: "125%",
-                                height: "50%",
-                                backgroundColor: "#00695c",
-                                borderColor: "#00796b",
-                              },
-                            ],
-                          }}
-                          options={{
-                            aspectRatio: 0.5,
-                            // maintainAspectRatio: false,
-                            legend: {
-                              display: false,
-                            },
-                            scales: {
-                              xAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                              yAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                            },
-                          }}
-                        />
-                      </Pane>
-                    ) : null}
-                  </Card>
-                ) : null}
-                {raftInfo.humidity !== null && raftInfo.humidity !== 0 ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    alignContent="center"
-                    padding={20}
-                    marginY={10}
-                    flexDirection="column"
-                  >
-                    <Pane
-                      flex="1"
-                      // height={windowHeight * 0.8}
-                      width="100%"
-                      // overflow={"auto"}
-                      // background="#F9F9FB"
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      paddingX={5}
-                      margin={0}
-                      display="inline-flex"
-                      flexDirection="row"
-                    >
-                      <WiHumidity size={30} color="black" />
-                      <Heading size={100} marginLeft={5}>
-                        HUMIDITY{" "}
-                        <Tooltip title="The amount of water vapour in the air.">
-                          <InfoSignIcon size={15} color="grey" />
-                        </Tooltip>
-                      </Heading>
-                      <Heading size={600} marginLeft={10}>
-                        {raftInfo.humidity}
-                      </Heading>
-                      <Heading size={300} marginLeft={5}>
-                        {"%"}
-                      </Heading>
-                    </Pane>
-                    {raftInfo.HU1.length > 0 ? (
-                      <Pane flex="1" width="100%" height="50%">
-                        <Line
-                          data={{
-                            labels: raftInfo.HU1.map((k) =>
-                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
-                            ),
-                            datasets: [
-                              {
-                                data: raftInfo.HU1.map((k) => k.value),
-                                fill: true,
-                                // width: "125%",
-                                height: "50%",
-                                backgroundColor: "#00695c",
-                                borderColor: "#00796b",
-                              },
-                            ],
-                          }}
-                          options={{
-                            aspectRatio: 0.5,
-                            // maintainAspectRatio: false,
-                            legend: {
-                              display: false,
-                            },
-                            scales: {
-                              xAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                              yAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                            },
-                          }}
-                        />
-                      </Pane>
-                    ) : null}
-                  </Card>
-                ) : null}
-                {raftInfo.water_level !== null ? (
-                  <Card
-                    backgroundColor="white"
-                    elevation={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    alignContent="center"
-                    padding={20}
-                    marginY={10}
-                    flexDirection="column"
-                  >
-                    <Pane
-                      flex="1"
-                      // height={windowHeight * 0.8}
-                      width="100%"
-                      // overflow={"auto"}
-                      // background="#F9F9FB"
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      paddingX={5}
-                      margin={0}
-                      display="inline-flex"
-                      flexDirection="row"
-                    >
-                      <WiFlood size={30} color="black" />
-                      <Heading size={100} marginLeft={5}>
-                        WATER LEVEL{" "}
-                        <Tooltip title="The height of river water.">
-                          <InfoSignIcon size={15} color="grey" />
-                        </Tooltip>
-                      </Heading>
-                      <Heading size={600} marginLeft={10}>
-                        {raftInfo.water_level}
-                      </Heading>
-                      <Heading size={300} marginLeft={5}>
-                        {"meters"}
-                      </Heading>
-                    </Pane>
-                    {raftInfo.WL1.length > 0 ? (
-                      <Pane flex="1" width="100%" height="50%">
-                        <Line
-                          data={{
-                            labels: raftInfo.WL1.map((k) =>
-                              moment.unix(k.time).format("MM/DD/YYYY h:mm A")
-                            ),
-                            datasets: [
-                              {
-                                data: raftInfo.WL1.map((k) => k.value),
-                                fill: true,
-                                // width: "125%",
-                                height: "50%",
-                                backgroundColor: "#00695c",
-                                borderColor: "#00796b",
-                              },
-                            ],
-                          }}
-                          options={{
-                            aspectRatio: 0.5,
-                            // maintainAspectRatio: false,
-                            legend: {
-                              display: false,
-                            },
-                            scales: {
-                              xAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                              yAxes: [
-                                {
-                                  display: true,
-                                  ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 5,
-                                  },
-                                },
-                              ],
-                            },
-                          }}
-                        />
-                      </Pane>
-                    ) : null}
+                 
                   </Card>
                 ) : null}
               </Pane>
             </Modal.Body>
-          </>
-        ) : null}
+          
+       
       </Modal>
 
+    {/* Run prediction module */}
+  
+        <Box
+          width = "auto"
+          className={classes.snapshotBox}
+          box-shadow = {3}
+        >
+          <TextField
+          id="filled-input"
+          label="Hours"
+          value = {T_A}
+          variant="filled"
+          size="small"
+          onChange = {(e)=> setT_A(e.target.value)}
+        />
+        <Tooltip title="Run prediction module">
+          <IconButton
+            onClick={() => {
+              if(T_A <= 0) {
+                showSnackbar(true)
+              }else{
+                console.log("RR_L1", RR_L1)
+                console.log("RR_L2", RR_L2)
+                console.log("RR_L3", RR_L3)
+                console.log("RR_M1", RR_M1)
+                console.log("RR_M2", RR_M2)
+                console.log("RR_M3", RR_M3)
+                console.log("RR_H1", RR_H1)
+                console.log("RR_H2", RR_H2)
+                console.log("RR_H3", RR_H3)
+                console.log("T_L1", T_L1)
+                console.log("T_L2", T_L2)
+                console.log("T_L3", T_L3)
+                console.log("T_M1", T_M1)
+                console.log("T_M2", T_M2)
+                console.log("T_M3", T_M3)
+                console.log("T_H1", T_H1)
+                console.log("T_H2", T_H2)
+                console.log("T_H3", T_H3)
+                console.log("T_A", T_A)
+                // console.log("FD_H_Prev", FD_H_Prev)
+                // console.log("FD_L_Prev", FD_L_Prev)
+                // console.log("FD_M_Prev", FD_M_Prev)
+                let LS_rain1 = LSinfo.RA1.slice()
+                LS_rain1.push({time: dateTime, value: RR_L1})
+                let LS_rain2 = LSinfo.RA2.slice()
+                LS_rain1.push({time: dateTime, value: RR_L2})
+                let LS_rain3 = LSinfo.RA3.slice()
+                LS_rain1.push({time: dateTime, value: RR_L3})
+                let LS_flood = LSinfo.FD1.slice()
+                LS_rain1.push({time: dateTime, value: FD_L_Prev})
+
+                let MS_rain1 = MSinfo.RA1.slice()
+                MS_rain1.push({time: dateTime, value: RR_M1})
+                let MS_rain2 = MSinfo.RA2.slice()
+                MS_rain1.push({time: dateTime, value: RR_M2})
+                let MS_rain3 = MSinfo.RA3.slice()
+                MS_rain1.push({time: dateTime, value: RR_M3})
+                let MS_flood = MSinfo.FD1.slice()
+                MS_rain1.push({time: dateTime, value: FD_M_Prev})
+
+                let HS_rain1 = HSinfo.RA1.slice()
+                HS_rain1.push({time: dateTime, value: RR_H1})
+                let HS_rain2 = HSinfo.RA2.slice()
+                HS_rain1.push({time: dateTime, value: RR_H2})
+                let HS_rain3 = HSinfo.RA3.slice()
+                HS_rain1.push({time: dateTime, value: RR_H3})
+                let HS_flood = HSinfo.FD1.slice()
+                HS_rain1.push({time: dateTime, value: FD_H_Prev})
+
+               setLSinfo({
+                 FD1 : LS_flood,
+                 RA1 : LS_rain1,
+                 RA2 : LS_rain2,
+                 RA3 : LS_rain3,
+                })
+               setMSinfo({
+                 FD1 : MS_flood,
+                 RA1 : MS_rain1,
+                 RA2 : MS_rain2,
+                 RA3 : MS_rain3,
+                })
+               setMSinfo({
+                 FD1 : HS_flood,
+                 RA1 : HS_rain1,
+                 RA2 : HS_rain2,
+                 RA3 : HS_rain3,
+                })
+             
+                console.log(LSinfo)
+                console.log(LS_flood)
+                prediction_handler()
+              }
+            }}
+            className={classes.snapshotButton}
+            classes={{ label: classes.iconLabel }}
+            size="medium"
+            aria-label="markers"
+          >
+            <Heading size={100}>RUN PREDICTION</Heading>
+          </IconButton>
+      </Tooltip>
+        </Box>
+
+
+     
       {/* <CornerDialog
         width={isMobile ? windowWidth * 0.75 : windowWidth * 0.3}
         title={
@@ -1401,6 +1020,24 @@ export const PredictionModule = (props) => {
                     >
                       Change flood level
                     </Button>
+                <Button
+                      onClick={() => {
+                        setAreaAddress("Concepcion Uno, Marikina, Metro Manila, 1807, Philippines")
+                      setRaftInfo({
+                        RA1: LSinfo.RA1,
+                        RA2: LSinfo.RA2,
+                        RA3: LSinfo.RA3,
+                        flood_depth: FD_L_Prev,
+                        flood_depth_title: getFloodDepthTitle(FD_L_Prev*100)
+                      })
+                        setIsOpenSidebar(true)
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      Show Sidebar
+                    </Button>
                 </Popup>
 
               </Circle>
@@ -1501,6 +1138,24 @@ export const PredictionModule = (props) => {
                     >
                       Change flood level
                     </Button>
+                    <Button
+                      onClick={() => {
+                        setAreaAddress("Marikina Heights, Marikina, Metro Manila, 1810, Philippines")
+                      setRaftInfo({
+                        RA1: MSinfo.RA1,
+                        RA2: MSinfo.RA2,
+                        RA3: MSinfo.RA3,
+                        flood_depth: FD_M_Prev,
+                        flood_depth_title: getFloodDepthTitle(FD_M_Prev*100)
+                      })
+                      setIsOpenSidebar(true)
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      Show Sidebar
+                    </Button>
                 </Popup>
 
               </Circle>
@@ -1599,6 +1254,24 @@ export const PredictionModule = (props) => {
                       size="sm"
                     >
                       Change flood level
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setAreaAddress("San Mateo, Rizal, Calabarzon, 1850, Philippines")
+                      setRaftInfo({
+                        RA1: HSinfo.RA1,
+                        RA2: HSinfo.RA2,
+                        RA3: HSinfo.RA3,
+                        flood_depth: FD_H_Prev,
+                        flood_depth_title: getFloodDepthTitle(FD_H_Prev*100)
+                      })
+                      setIsOpenSidebar(true)
+                      }}
+                      variant="info"
+                      block
+                      size="sm"
+                    >
+                      Show Sidebar
                     </Button>
                 </Popup>
 

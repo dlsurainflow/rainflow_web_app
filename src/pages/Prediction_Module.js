@@ -180,6 +180,13 @@ export const PredictionModule = (props) => {
         if (response.status === 200)
           response.json().then((data) => {
             console.log(data);
+            console.log("Low: ", data.FD_L);
+            setFD_H_Prev(data.FD_H)
+            setFD_M_Prev(data.FD_M)
+            setFD_L_Prev(data.FD_L)
+            setColorLow(getFloodDepthColor(data.FD_L))
+            setColorMid(getFloodDepthColor(data.FD_M))
+            setColorHigh(getFloodDepthColor(data.FD_H))
           });
       })
       .catch((error) => console.error("Error:", error));
@@ -553,6 +560,30 @@ export const PredictionModule = (props) => {
               if(T_A <= 0) {
                 showSnackbar(true)
               }else{
+                console.log("RR_L1", RR_L1)
+                console.log("RR_L2", RR_L2)
+                console.log("RR_L3", RR_L3)
+                console.log("RR_M1", RR_M1)
+                console.log("RR_M2", RR_M2)
+                console.log("RR_M3", RR_M3)
+                console.log("RR_H1", RR_H1)
+                console.log("RR_H2", RR_H2)
+                console.log("RR_H3", RR_H3)
+                console.log("T_L1", T_L1)
+                console.log("T_L2", T_L2)
+                console.log("T_L3", T_L3)
+                console.log("T_M1", T_M1)
+                console.log("T_M2", T_M2)
+                console.log("T_M3", T_M3)
+                console.log("T_H1", T_H1)
+                console.log("T_H2", T_H2)
+                console.log("T_H3", T_H3)
+                console.log("T_A", T_A)
+                console.log("FD_H_Prev", FD_H_Prev)
+                console.log("FD_L_Prev", FD_L_Prev)
+                console.log("FD_M_Prev", FD_M_Prev)
+                
+
                 prediction_handler()
               }
             }}
@@ -1632,8 +1663,8 @@ export const PredictionModule = (props) => {
               onClick = {()=>{
                 setCurrentInputAddress("Tierra Monte, Silangan, Rizal, Calabarzon, 1873, Philippines")
                 setParamsEdited("HS-3")
-                setDisplayedDuration(T_L3)
-                setDisplayedRainIntensity(RR_L3)
+                setDisplayedDuration(T_H3)
+                setDisplayedRainIntensity(RR_H3)
                 setInputOpen(true)
               }}
             />

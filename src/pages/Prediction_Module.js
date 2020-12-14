@@ -5,7 +5,6 @@ import TextField from "@material-ui/core/TextField";
 import { Container } from "react-bootstrap";
 import "../App.css";
 
-
 import {
   Pane,
   Heading,
@@ -47,7 +46,8 @@ import { isMobile } from "react-device-detect";
 import MuiAlert from "@material-ui/lab/Alert";
 import Box from "@material-ui/core/Box";
 import L from "leaflet";
-import Divider from "@material-ui/core/Divider";
+// import Divider from "@material-ui/core/Divider";
+import HashLoader from "react-spinners/HashLoader";
 
 import { Line } from "react-chartjs-2";
 import jwt_decode from "jwt-decode";
@@ -109,6 +109,7 @@ export const PredictionModule = (props) => {
   const [FD_M, setFD_M] = useState([]);
   const [FD_L, setFD_L] = useState([]);
   const [T_A, setT_A] = useState();
+  const [loading, setLoading] = useState(false);
 
   //const proxyurl = "";
   const proxyurl = "https://cors-anywhere.herokuapp.com/";
@@ -150,6 +151,7 @@ export const PredictionModule = (props) => {
     if (T_A <= 0) {
       showSnackbar(true);
     } else {
+      setLoading(true);
       console.log("RR_L1", RR_L1);
       console.log("RR_L2", RR_L2);
       console.log("RR_L3", RR_L3);
@@ -170,61 +172,61 @@ export const PredictionModule = (props) => {
       console.log("T_H3", T_H3);
       console.log("T_A", T_A);
 
-      let date = moment(dateTime)
-      
+      let date = moment(dateTime);
+
       let LS_rain1 = LSinfo.RA1;
       LS_rain1.push({ time: dateTime, value: RR_L1 });
-      LS_rain1.push({ time: dateTime, value: RR_L1 }); 
-      if(T_L1 <= T_A){
-        LS_rain1.push({ time: date.add(T_L1, "m"), value: 0}); 
+      LS_rain1.push({ time: dateTime, value: RR_L1 });
+      if (T_L1 <= T_A) {
+        LS_rain1.push({ time: date.add(T_L1, "m"), value: 0 });
       }
       let LS_rain2 = LSinfo.RA2;
       LS_rain2.push({ time: dateTime, value: RR_L2 });
-      if(T_L2 <= T_A){
-        LS_rain2.push({ time: date.add(T_L2, "m"), value: 0 }); 
+      if (T_L2 <= T_A) {
+        LS_rain2.push({ time: date.add(T_L2, "m"), value: 0 });
       }
-      
+
       let LS_rain3 = LSinfo.RA3;
       LS_rain3.push({ time: dateTime, value: RR_L3 });
-      if(T_L3 <= T_A){
-        LS_rain3.push({ time: date.add(T_L3, "m"), value: 0 }); 
+      if (T_L3 <= T_A) {
+        LS_rain3.push({ time: date.add(T_L3, "m"), value: 0 });
       }
-     
+
       let LS_flood = LSinfo.FD1;
       LS_flood.push({ time: dateTime, value: FD_L_Prev });
 
       let MS_rain1 = MSinfo.RA1.slice();
       MS_rain1.push({ time: dateTime, value: RR_M1 });
-      if(T_M1 <= T_A){
-        MS_rain1.push({ time: date.add(T_M1, "m"), value: 0 }); 
+      if (T_M1 <= T_A) {
+        MS_rain1.push({ time: date.add(T_M1, "m"), value: 0 });
       }
       let MS_rain2 = MSinfo.RA2.slice();
       MS_rain2.push({ time: dateTime, value: RR_M2 });
-      if(T_M2 <= T_A){
-        MS_rain2.push({ time: date.add(T_M2, "m"), value: 0 }); 
+      if (T_M2 <= T_A) {
+        MS_rain2.push({ time: date.add(T_M2, "m"), value: 0 });
       }
       let MS_rain3 = MSinfo.RA3.slice();
       MS_rain3.push({ time: dateTime, value: RR_M3 });
-      if(T_M3 <= T_A){
-        MS_rain3.push({ time: date.add(T_M3, "m"), value: 0 }); 
+      if (T_M3 <= T_A) {
+        MS_rain3.push({ time: date.add(T_M3, "m"), value: 0 });
       }
       let MS_flood = MSinfo.FD1.slice();
       MS_flood.push({ time: dateTime, value: FD_M_Prev });
 
       let HS_rain1 = HSinfo.RA1.slice();
       HS_rain1.push({ time: dateTime, value: RR_H1 });
-      if(T_H1 <= T_A){
-        HS_rain1.push({ time: date.add(T_H1, "m"), value: 0 }); 
+      if (T_H1 <= T_A) {
+        HS_rain1.push({ time: date.add(T_H1, "m"), value: 0 });
       }
       let HS_rain2 = HSinfo.RA2.slice();
       HS_rain2.push({ time: dateTime, value: RR_H2 });
-      if(T_H2 <= T_A){
-        HS_rain2.push({ time: date.add(T_H2, "m"), value: 0 }); 
+      if (T_H2 <= T_A) {
+        HS_rain2.push({ time: date.add(T_H2, "m"), value: 0 });
       }
       let HS_rain3 = HSinfo.RA3.slice();
       HS_rain3.push({ time: dateTime, value: RR_H3 });
-      if(T_H3 <= T_A){
-        HS_rain3.push({ time: date.add(T_H3, "m"), value: 0 }); 
+      if (T_H3 <= T_A) {
+        HS_rain3.push({ time: date.add(T_H3, "m"), value: 0 });
       }
       let HS_flood = HSinfo.FD1.slice();
       HS_flood.push({ time: dateTime, value: FD_H_Prev });
@@ -293,13 +295,13 @@ export const PredictionModule = (props) => {
           if (response.status === 200)
             response.json().then((data) => {
               console.log(data);
-              setFD_H_Prev((data.FD_H).toFixed(2));
-              setFD_M_Prev((data.FD_M).toFixed(2));
-              setFD_L_Prev((data.FD_L).toFixed(2));
-              setColorLow(getFloodDepthColor(data.FD_L / 100));
-              setColorMid(getFloodDepthColor(data.FD_M / 100));
-              setColorHigh(getFloodDepthColor(data.FD_H / 100));
-              let date = moment(dateTime)
+              setFD_H_Prev(data.FD_H.toFixed(2));
+              setFD_M_Prev(data.FD_M.toFixed(2));
+              setFD_L_Prev(data.FD_L.toFixed(2));
+              setColorLow(getFloodDepthColor(data.FD_L));
+              setColorMid(getFloodDepthColor(data.FD_M));
+              setColorHigh(getFloodDepthColor(data.FD_H));
+              let date = moment(dateTime);
               let _FD_H = FD_H;
               _FD_H.push({
                 time: date,
@@ -318,7 +320,8 @@ export const PredictionModule = (props) => {
                 value: data.FD_L.toFixed(2),
               });
               setFD_L(_FD_L);
-              setDateTime(date.add(T_A*60, 'm'));
+              setDateTime(date.add(T_A * 60, "m"));
+              setLoading(false);
             });
         })
         .catch((error) => console.error("Error:", error));
@@ -407,23 +410,23 @@ export const PredictionModule = (props) => {
   }
 
   function getFloodDepthColor(flood_depth) {
-    if (flood_depth <= 0.1) {
+    if (flood_depth <= 10) {
       return "#0eae4e";
-    } else if (flood_depth > 0.1 && flood_depth <= 0.25) {
+    } else if (flood_depth > 10 && flood_depth <= 25) {
       return "#b2cf35";
-    } else if (flood_depth > 0.25 && flood_depth <= 0.7) {
+    } else if (flood_depth > 25 && flood_depth <= 70) {
       return "#fece08";
-    } else if (flood_depth > 0.7 && flood_depth <= 1.2) {
+    } else if (flood_depth > 70 && flood_depth <= 120) {
       return "#f38f20";
-    } else if (flood_depth > 1.2 && flood_depth <= 1.6) {
+    } else if (flood_depth > 120 && flood_depth <= 160) {
       return "#bf2125";
-    } else if (flood_depth > 1.6 && flood_depth <= 2.0) {
+    } else if (flood_depth > 160 && flood_depth <= 200) {
       return "#c12123";
-    } else if (flood_depth > 2.0 && flood_depth <= 3.0) {
+    } else if (flood_depth > 200 && flood_depth <= 300) {
       return "#931518";
-    } else if (flood_depth > 3.0 && flood_depth <= 4.5) {
+    } else if (flood_depth > 300 && flood_depth <= 450) {
       return "#7a1331";
-    } else if (flood_depth > 4.5) {
+    } else if (flood_depth > 450) {
       return "#5e011c";
     }
   }
@@ -555,9 +558,26 @@ export const PredictionModule = (props) => {
     }
   };
 
+  const style = {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+  };
+
   return (
     <>
       <Container maxWidth={false} className={classes.popover}>
+        {loading === true ? (
+          <div style={style}>
+            <HashLoader
+              // css={override}
+              size={100}
+              color={"#26c6da"}
+              loading={loading}
+            />
+          </div>
+        ) : null}
         <Popover
           className={classes.root}
           isShown={showPopover}
@@ -644,839 +664,833 @@ export const PredictionModule = (props) => {
             paddingX={5}
             margin={0}
           >
-
             {editedArea === "Lowstream" ? (
-                <>
-              <Card
-              backgroundColor="white"
-              elevation={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-start"
-              alignContent="center"
-              padding={20}
-              marginY={10}
-              flexDirection="column"
-            >
-              <Pane
-                flex="1"
-                width="100%"
-                justifyContent="flex-start"
-                alignItems="center"
-                paddingX={5}
-                margin={0}
-                display="inline-flex"
-                flexDirection="column"
-              >
-                <Pane
-                  flex="1"
-                  flexDirection="row"
-                  width="100%"
-                  alignItems="center"
-                  justifyContent="flex-start"
-                  display="inline-flex"
-                >
-                  <WiRain size={30} color="black" />
-                  <Heading size={100} marginLeft={5}>
-                    RAINFALL RATE{" "}
-                    <Tooltip title="The amount of rain that falls over time.">
-                      <InfoSignIcon size={15} color="grey" />
-                    </Tooltip>
-                  </Heading>
-                </Pane>
-              </Pane>
-
-              <Pane flex="1" width="100%">
-                <Heading size={100} marginLeft={5} marginTop={10}>
-                  {editedArea} RAINFALL RATE 1
-                </Heading>
-                <Line
-                  data={{
-                    labels: LSinfo.RA1.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: LSinfo.RA1.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-              <Pane flex="1" width="100%">
-                <Heading size={100} marginLeft={5} marginTop={10}>
-                  LOW STREAM RAINFALL RATE 2
-                </Heading>
-                <Line
-                  data={{
-                    labels: LSinfo.RA2.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: LSinfo.RA2.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-              <Pane flex="1" width="100%">
-                <Heading size={100} marginLeft={5} marginTop={10}>
-                  LOW STREAM RAINFALL RATE 3
-                </Heading>
-                <Line
-                  data={{
-                    labels: LSinfo.RA3.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: LSinfo.RA3.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-            </Card>
-          
-
-          <Card
-            backgroundColor="white"
-            elevation={0}
-            display="flex"
-            alignItems="center"
-            justifyContent="flex-start"
-            alignContent="center"
-            padding={20}
-            marginY={10}
-            flexDirection="column"
-          >
-            <Pane
-              flex="1"
-              width="100%"
-              justifyContent="flex-start"
-              alignItems="center"
-              paddingX={5}
-              margin={0}
-              display="inline-flex"
-              flexDirection="column"
-            >
-              <Pane
-                flex="1"
-                flexDirection="row"
-                width="100%"
-                alignItems="center"
-                justifyContent="flex-start"
-                display="inline-flex"
-              >
-                <WiRain size={30} color="black" />
-                <Heading size={100} marginLeft={5}>
-                  Flood Depth in cm{" "}
-                </Heading>
-              </Pane>
-            </Pane>
-
-            <Pane flex="1" width="100%">
-              <Line
-                data={{
-                  labels: FD_L.map((k) =>
-                    moment(k.time).format("MM/DD/YYYY h:mm A")
-                  ),
-                  datasets: [
-                    {
-                      data: FD_L.map((k) => k.value),
-                      fill: true,
-                      // width: "125%",
-                      // height: "75%",
-                      backgroundColor: "#00695c",
-                      borderColor: "#00796b",
-                    },
-                  ],
-                }}
-                options={{
-                  aspectRatio: 1,
-                  // maintainAspectRatio: false,
-                  legend: {
-                    display: false,
-                  },
-                  scales: {
-                    xAxes: [
-                      {
-                        display: true,
-                        ticks: {
-                          autoSkip: true,
-                          maxTicksLimit: 5,
-                        },
-                      },
-                    ],
-                    yAxes: [
-                      {
-                        display: true,
-                        ticks: {
-                          autoSkip: true,
-                          maxTicksLimit: 5,
-                        },
-                      },
-                    ],
-                  },
-                }}
-              />
-            </Pane>
-          </Card>
-          </>
-            ): null}
-
-          {editedArea === "Midstream" ? (
-                <>
-              <Card
-              backgroundColor="white"
-              elevation={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-start"
-              alignContent="center"
-              padding={20}
-              marginY={10}
-              flexDirection="column"
-            >
-              <Pane
-                flex="1"
-                width="100%"
-                justifyContent="flex-start"
-                alignItems="center"
-                paddingX={5}
-                margin={0}
-                display="inline-flex"
-                flexDirection="column"
-              >
-                <Pane
-                  flex="1"
-                  flexDirection="row"
-                  width="100%"
-                  alignItems="center"
-                  justifyContent="flex-start"
-                  display="inline-flex"
-                >
-                  <WiRain size={30} color="black" />
-                  <Heading size={100} marginLeft={5}>
-                    RAINFALL RATE{" "}
-                    <Tooltip title="The amount of rain that falls over time.">
-                      <InfoSignIcon size={15} color="grey" />
-                    </Tooltip>
-                  </Heading>
-                </Pane>
-              </Pane>
-
-              <Pane flex="1" width="100%">
-                <Heading size={100} marginLeft={5} marginTop={10}>
-                  {editedArea} RAINFALL RATE 1
-                </Heading>
-                <Line
-                  data={{
-                    labels: MSinfo.RA1.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: MSinfo.RA1.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-              <Pane flex="1" width="100%">
-                <Heading size={100} marginLeft={5} marginTop={10}>
-                  {editedArea} RAINFALL RATE 2
-                </Heading>
-                <Line
-                  data={{
-                    labels: MSinfo.RA2.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: MSinfo.RA2.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-              <Pane flex="1" width="100%">
-                <Heading size={100} marginLeft={5} marginTop={10}>
-                  {editedArea} RAINFALL RATE 3
-                </Heading>
-                <Line
-                  data={{
-                    labels: MSinfo.RA3.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: MSinfo.RA3.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-            </Card>
-          
-
-          <Card
-            backgroundColor="white"
-            elevation={0}
-            display="flex"
-            alignItems="center"
-            justifyContent="flex-start"
-            alignContent="center"
-            padding={20}
-            marginY={10}
-            flexDirection="column"
-          >
-            <Pane
-              flex="1"
-              width="100%"
-              justifyContent="flex-start"
-              alignItems="center"
-              paddingX={5}
-              margin={0}
-              display="inline-flex"
-              flexDirection="column"
-            >
-              <Pane
-                flex="1"
-                flexDirection="row"
-                width="100%"
-                alignItems="center"
-                justifyContent="flex-start"
-                display="inline-flex"
-              >
-                <WiRain size={30} color="black" />
-                <Heading size={100} marginLeft={5}>
-                  Flood Depth{" "}
-                </Heading>
-              </Pane>
-            </Pane>
-
-            <Pane flex="1" width="100%">
-              <Line
-                data={{
-                  labels: FD_M.map((k) =>
-                    moment(k.time).format("MM/DD/YYYY h:mm A")
-                  ),
-                  datasets: [
-                    {
-                      data: FD_M.map((k) => k.value),
-                      fill: true,
-                      // width: "125%",
-                      // height: "75%",
-                      backgroundColor: "#00695c",
-                      borderColor: "#00796b",
-                    },
-                  ],
-                }}
-                options={{
-                  aspectRatio: 1,
-                  // maintainAspectRatio: false,
-                  legend: {
-                    display: false,
-                  },
-                  scales: {
-                    xAxes: [
-                      {
-                        display: true,
-                        ticks: {
-                          autoSkip: true,
-                          maxTicksLimit: 5,
-                        },
-                      },
-                    ],
-                    yAxes: [
-                      {
-                        display: true,
-                        ticks: {
-                          autoSkip: true,
-                          maxTicksLimit: 5,
-                        },
-                      },
-                    ],
-                  },
-                }}
-              />
-            </Pane>
-          </Card>
-          </>
-          ) : null}
-
-
-          {editedArea === "Highstream" ? (
               <>
-              <Card
-                backgroundColor="white"
-                elevation={0}
-                display="flex"
-                alignItems="center"
-                justifyContent="flex-start"
-                alignContent="center"
-                padding={20}
-                marginY={10}
-                flexDirection="column"
-              >
-                <Pane
-                  flex="1"
-                  width="100%"
-                  justifyContent="flex-start"
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
                   alignItems="center"
-                  paddingX={5}
-                  margin={0}
-                  display="inline-flex"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
                   flexDirection="column"
                 >
                   <Pane
                     flex="1"
-                    flexDirection="row"
                     width="100%"
-                    alignItems="center"
                     justifyContent="flex-start"
+                    alignItems="center"
+                    paddingX={5}
+                    margin={0}
                     display="inline-flex"
+                    flexDirection="column"
                   >
-                    <WiRain size={30} color="black" />
-                    <Heading size={100} marginLeft={5}>
-                      RAINFALL RATE{" "}
-                      <Tooltip title="The amount of rain that falls over time.">
-                        <InfoSignIcon size={15} color="grey" />
-                      </Tooltip>
-                    </Heading>
+                    <Pane
+                      flex="1"
+                      flexDirection="row"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      display="inline-flex"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        RAINFALL RATE{" "}
+                        <Tooltip title="The amount of rain that falls over time.">
+                          <InfoSignIcon size={15} color="grey" />
+                        </Tooltip>
+                      </Heading>
+                    </Pane>
                   </Pane>
-                </Pane>
 
-                <Pane flex="1" width="100%">
-                  <Heading size={100} marginLeft={5} marginTop={10}>
-                    {editedArea} RAINFALL RATE 1
-                  </Heading>
-                  <Line
-                    data={{
-                      labels: HSinfo.RA1.map((k) =>
-                        moment(k.time).format("MM/DD/YYYY h:mm A")
-                      ),
-                      datasets: [
-                        {
-                          data: HSinfo.RA1.map((k) => k.value),
-                          fill: true,
-                          // width: "125%",
-                          // height: "75%",
-                          backgroundColor: "#00695c",
-                          borderColor: "#00796b",
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 1
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: LSinfo.RA1.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: LSinfo.RA1.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
                         },
-                      ],
-                    }}
-                    options={{
-                      aspectRatio: 1,
-                      // maintainAspectRatio: false,
-                      legend: {
-                        display: false,
-                      },
-                      scales: {
-                        xAxes: [
-                          {
-                            display: true,
-                            ticks: {
-                              autoSkip: true,
-                              maxTicksLimit: 5,
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
                             },
-                          },
-                        ],
-                        yAxes: [
-                          {
-                            display: true,
-                            ticks: {
-                              autoSkip: true,
-                              maxTicksLimit: 5,
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
                             },
-                          },
-                        ],
-                      },
-                    }}
-                  />
-                </Pane>
-                <Pane flex="1" width="100%">
-                  <Heading size={100} marginLeft={5} marginTop={10}>
-                   {editedArea} RAINFALL RATE 2
-                  </Heading>
-                  <Line
-                    data={{
-                      labels: HSinfo.RA2.map((k) =>
-                        moment(k.time).format("MM/DD/YYYY h:mm A")
-                      ),
-                      datasets: [
-                        {
-                          data: HSinfo.RA2.map((k) => k.value),
-                          fill: true,
-                          // width: "125%",
-                          // height: "75%",
-                          backgroundColor: "#00695c",
-                          borderColor: "#00796b",
+                          ],
                         },
-                      ],
-                    }}
-                    options={{
-                      aspectRatio: 1,
-                      // maintainAspectRatio: false,
-                      legend: {
-                        display: false,
-                      },
-                      scales: {
-                        xAxes: [
+                      }}
+                    />
+                  </Pane>
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      LOW STREAM RAINFALL RATE 2
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: LSinfo.RA2.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
                           {
-                            display: true,
-                            ticks: {
-                              autoSkip: true,
-                              maxTicksLimit: 5,
-                            },
+                            data: LSinfo.RA2.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
                           },
                         ],
-                        yAxes: [
-                          {
-                            display: true,
-                            ticks: {
-                              autoSkip: true,
-                              maxTicksLimit: 5,
-                            },
-                          },
-                        ],
-                      },
-                    }}
-                  />
-                </Pane>
-                <Pane flex="1" width="100%">
-                  <Heading size={100} marginLeft={5} marginTop={10}>
-                    {editedArea} RAINFALL RATE 3
-                  </Heading>
-                  <Line
-                    data={{
-                      labels: HSinfo.RA3.map((k) =>
-                        moment(k.time).format("MM/DD/YYYY h:mm A")
-                      ),
-                      datasets: [
-                        {
-                          data: HSinfo.RA3.map((k) => k.value),
-                          fill: true,
-                          // width: "125%",
-                          // height: "75%",
-                          backgroundColor: "#00695c",
-                          borderColor: "#00796b",
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
                         },
-                      ],
-                    }}
-                    options={{
-                      aspectRatio: 1,
-                      // maintainAspectRatio: false,
-                      legend: {
-                        display: false,
-                      },
-                      scales: {
-                        xAxes: [
-                          {
-                            display: true,
-                            ticks: {
-                              autoSkip: true,
-                              maxTicksLimit: 5,
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
                             },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      LOW STREAM RAINFALL RATE 3
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: LSinfo.RA3.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: LSinfo.RA3.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
                           },
                         ],
-                        yAxes: [
-                          {
-                            display: true,
-                            ticks: {
-                              autoSkip: true,
-                              maxTicksLimit: 5,
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
                             },
-                          },
-                        ],
-                      },
-                    }}
-                  />
-                </Pane>
-              </Card>
-            
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                </Card>
 
-            <Card
-              backgroundColor="white"
-              elevation={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-start"
-              alignContent="center"
-              padding={20}
-              marginY={10}
-              flexDirection="column"
-            >
-              <Pane
-                flex="1"
-                width="100%"
-                justifyContent="flex-start"
-                alignItems="center"
-                paddingX={5}
-                margin={0}
-                display="inline-flex"
-                flexDirection="column"
-              >
-                <Pane
-                  flex="1"
-                  flexDirection="row"
-                  width="100%"
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
                   alignItems="center"
                   justifyContent="flex-start"
-                  display="inline-flex"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
                 >
-                  <WiRain size={30} color="black" />
-                  <Heading size={100} marginLeft={5}>
-                    Flood Depth{" "}
-                  </Heading>
-                </Pane>
-              </Pane>
+                  <Pane
+                    flex="1"
+                    width="100%"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      flexDirection="row"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      display="inline-flex"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        Flood Depth in cm{" "}
+                      </Heading>
+                    </Pane>
+                  </Pane>
 
-              <Pane flex="1" width="100%">
-                <Line
-                  data={{
-                    labels: FD_H.map((k) =>
-                      moment(k.time).format("MM/DD/YYYY h:mm A")
-                    ),
-                    datasets: [
-                      {
-                        data: FD_H.map((k) => k.value),
-                        fill: true,
-                        // width: "125%",
-                        // height: "75%",
-                        backgroundColor: "#00695c",
-                        borderColor: "#00796b",
-                      },
-                    ],
-                  }}
-                  options={{
-                    aspectRatio: 1,
-                    // maintainAspectRatio: false,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      xAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
+                  <Pane flex="1" width="100%">
+                    <Line
+                      data={{
+                        labels: FD_L.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: FD_L.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
                           },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
                         },
-                      ],
-                      yAxes: [
-                        {
-                          display: true,
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 5,
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                </Card>
+              </>
+            ) : null}
+
+            {editedArea === "Midstream" ? (
+              <>
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    width="100%"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      flexDirection="row"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      display="inline-flex"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        RAINFALL RATE{" "}
+                        <Tooltip title="The amount of rain that falls over time.">
+                          <InfoSignIcon size={15} color="grey" />
+                        </Tooltip>
+                      </Heading>
+                    </Pane>
+                  </Pane>
+
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 1
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: MSinfo.RA1.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: MSinfo.RA1.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
                           },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
                         },
-                      ],
-                    },
-                  }}
-                />
-              </Pane>
-            </Card>
-            </>
-          ) : null}
-            
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 2
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: MSinfo.RA2.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: MSinfo.RA2.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 3
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: MSinfo.RA3.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: MSinfo.RA3.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                </Card>
+
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    width="100%"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      flexDirection="row"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      display="inline-flex"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        Flood Depth{" "}
+                      </Heading>
+                    </Pane>
+                  </Pane>
+
+                  <Pane flex="1" width="100%">
+                    <Line
+                      data={{
+                        labels: FD_M.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: FD_M.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                </Card>
+              </>
+            ) : null}
+
+            {editedArea === "Highstream" ? (
+              <>
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    width="100%"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      flexDirection="row"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      display="inline-flex"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        RAINFALL RATE{" "}
+                        <Tooltip title="The amount of rain that falls over time.">
+                          <InfoSignIcon size={15} color="grey" />
+                        </Tooltip>
+                      </Heading>
+                    </Pane>
+                  </Pane>
+
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 1
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: HSinfo.RA1.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: HSinfo.RA1.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 2
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: HSinfo.RA2.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: HSinfo.RA2.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                  <Pane flex="1" width="100%">
+                    <Heading size={100} marginLeft={5} marginTop={10}>
+                      {editedArea} RAINFALL RATE 3
+                    </Heading>
+                    <Line
+                      data={{
+                        labels: HSinfo.RA3.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: HSinfo.RA3.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                </Card>
+
+                <Card
+                  backgroundColor="white"
+                  elevation={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  alignContent="center"
+                  padding={20}
+                  marginY={10}
+                  flexDirection="column"
+                >
+                  <Pane
+                    flex="1"
+                    width="100%"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    paddingX={5}
+                    margin={0}
+                    display="inline-flex"
+                    flexDirection="column"
+                  >
+                    <Pane
+                      flex="1"
+                      flexDirection="row"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      display="inline-flex"
+                    >
+                      <WiRain size={30} color="black" />
+                      <Heading size={100} marginLeft={5}>
+                        Flood Depth{" "}
+                      </Heading>
+                    </Pane>
+                  </Pane>
+
+                  <Pane flex="1" width="100%">
+                    <Line
+                      data={{
+                        labels: FD_H.map((k) =>
+                          moment(k.time).format("MM/DD/YYYY h:mm A")
+                        ),
+                        datasets: [
+                          {
+                            data: FD_H.map((k) => k.value),
+                            fill: true,
+                            // width: "125%",
+                            // height: "75%",
+                            backgroundColor: "#00695c",
+                            borderColor: "#00796b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        aspectRatio: 1,
+                        // maintainAspectRatio: false,
+                        legend: {
+                          display: false,
+                        },
+                        scales: {
+                          xAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                          yAxes: [
+                            {
+                              display: true,
+                              ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 5,
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    />
+                  </Pane>
+                </Card>
+              </>
+            ) : null}
           </Pane>
         </Modal.Body>
       </Modal>
@@ -1603,7 +1617,11 @@ export const PredictionModule = (props) => {
             </Button>
             <Button
               onClick={() => {
-                console.log("hello: ", displayedRainIntensity, displayedDuration)
+                console.log(
+                  "hello: ",
+                  displayedRainIntensity,
+                  displayedDuration
+                );
                 applyRainProfile(paramsEdited);
               }}
               color="primary"
@@ -1661,7 +1679,7 @@ export const PredictionModule = (props) => {
         >
           <Popup>
             Low stream: 800m radius, 15 meters above water level {"\n"} Flood
-            level: {FD_L_Prev*100} meters {"\n"}
+            level: {FD_L_Prev / 100} meters {"\n"}
             <Button
               onClick={() => {
                 setEditedArea("Lowstream");
@@ -1788,7 +1806,7 @@ export const PredictionModule = (props) => {
         >
           <Popup>
             Mid stream: 800m radius, 58 meters above water level {"\n"} Flood
-            level: {FD_M_Prev*100} meters {"\n"}
+            level: {FD_M_Prev / 100} meters {"\n"}
             <Button
               onClick={() => {
                 setEditedArea("Midstream");
@@ -1914,7 +1932,7 @@ export const PredictionModule = (props) => {
         >
           <Popup>
             High stream: 800m radius, 96 meters above water level {"\n"} Flood
-            level: {FD_H_Prev*100} meters {"\n"}
+            level: {FD_H_Prev / 100} meters {"\n"}
             <Button
               onClick={() => {
                 setEditedArea("Highstream");

@@ -37,7 +37,7 @@ export const NavigationBar = (props) => {
           <NavDropdown.Item href="/dashboard">Dashboard</NavDropdown.Item>
           <NavDropdown.Item href="/about">About</NavDropdown.Item>
           <NavDropdown.Item href="/badge-index">Badge Index</NavDropdown.Item>
-          <NavDropdown.Item href="/docs">Docs</NavDropdown.Item>
+          {/* <NavDropdown.Item href="/docs">Docs</NavDropdown.Item> */}
           <NavDropdown.Divider />
 
           {props.isLoggedin ? (

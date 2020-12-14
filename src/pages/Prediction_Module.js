@@ -111,8 +111,8 @@ export const PredictionModule = (props) => {
   const [T_A, setT_A] = useState();
   const [loading, setLoading] = useState(false);
 
-  //const proxyurl = "";
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const proxyurl = "";
+  // const proxyurl = "https://cors-anywhere.herokuapp.com/";
   //const proxyurl = "http://localhost:8800/";
   //const proxyurl = "http://localhost:8080/";
 

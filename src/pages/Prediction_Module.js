@@ -170,30 +170,62 @@ export const PredictionModule = (props) => {
       console.log("T_H3", T_H3);
       console.log("T_A", T_A);
 
+      let date = moment(dateTime)
+      
       let LS_rain1 = LSinfo.RA1;
       LS_rain1.push({ time: dateTime, value: RR_L1 });
+      LS_rain1.push({ time: dateTime, value: RR_L1 }); 
+      if(T_L1 <= T_A){
+        LS_rain1.push({ time: date.add(T_L1, "m"), value: 0}); 
+      }
       let LS_rain2 = LSinfo.RA2;
       LS_rain2.push({ time: dateTime, value: RR_L2 });
+      if(T_L2 <= T_A){
+        LS_rain2.push({ time: date.add(T_L2, "m"), value: 0 }); 
+      }
+      
       let LS_rain3 = LSinfo.RA3;
       LS_rain3.push({ time: dateTime, value: RR_L3 });
+      if(T_L3 <= T_A){
+        LS_rain3.push({ time: date.add(T_L3, "m"), value: 0 }); 
+      }
+     
       let LS_flood = LSinfo.FD1;
       LS_flood.push({ time: dateTime, value: FD_L_Prev });
 
       let MS_rain1 = MSinfo.RA1.slice();
       MS_rain1.push({ time: dateTime, value: RR_M1 });
+      if(T_M1 <= T_A){
+        MS_rain1.push({ time: date.add(T_M1, "m"), value: 0 }); 
+      }
       let MS_rain2 = MSinfo.RA2.slice();
       MS_rain2.push({ time: dateTime, value: RR_M2 });
+      if(T_M2 <= T_A){
+        MS_rain2.push({ time: date.add(T_M2, "m"), value: 0 }); 
+      }
       let MS_rain3 = MSinfo.RA3.slice();
       MS_rain3.push({ time: dateTime, value: RR_M3 });
+      if(T_M3 <= T_A){
+        MS_rain3.push({ time: date.add(T_M3, "m"), value: 0 }); 
+      }
       let MS_flood = MSinfo.FD1.slice();
       MS_flood.push({ time: dateTime, value: FD_M_Prev });
 
       let HS_rain1 = HSinfo.RA1.slice();
       HS_rain1.push({ time: dateTime, value: RR_H1 });
+      if(T_H1 <= T_A){
+        HS_rain1.push({ time: date.add(T_H1, "m"), value: 0 }); 
+      }
       let HS_rain2 = HSinfo.RA2.slice();
       HS_rain2.push({ time: dateTime, value: RR_H2 });
+      if(T_H2 <= T_A){
+        HS_rain2.push({ time: date.add(T_H2, "m"), value: 0 }); 
+      }
       let HS_rain3 = HSinfo.RA3.slice();
       HS_rain3.push({ time: dateTime, value: RR_H3 });
+      if(T_H3 <= T_A){
+        HS_rain3.push({ time: date.add(T_H3, "m"), value: 0 }); 
+      }
       let HS_flood = HSinfo.FD1.slice();
       HS_flood.push({ time: dateTime, value: FD_H_Prev });
 

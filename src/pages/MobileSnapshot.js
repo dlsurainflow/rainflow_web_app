@@ -1802,7 +1802,8 @@ function MapFunction() {
                   <Pane
                     display="inline-flex"
                     flexDirection="column"
-                    padding={10}
+                    paddingX={10}
+                    paddingY={2}
                   >
                     <Heading size={700}>
                       {reportInfo.username}'s Report ({reportInfo.id}){" "}
@@ -1823,7 +1824,8 @@ function MapFunction() {
                     <Pane
                       display="inline-flex"
                       flexDirection="column"
-                      padding={10}
+                      paddingX={10}
+                     paddingY={2}
                     >
                       {reportInfo.flood_depth_subtitle ===
                       "Passable to All Types of Vehicles" ? (
@@ -1850,7 +1852,8 @@ function MapFunction() {
                     flexDirection="column"
                     justifyContent="center"
                     alignItems="center"
-                    padding={10}
+                    paddingX={10}
+                     paddingY={2}
                   >
                     <Button
                       variant="success"
@@ -1871,7 +1874,7 @@ function MapFunction() {
             <Modal.Body className="modal-body">
               <Pane
                 flex="1"
-                height={windowHeight * 0.5}
+                height={windowHeight * 0.2}
                 overflow-y={"auto"}
                 overflow-x={"hidden"}
                 background="#F9F9FB"
@@ -2032,7 +2035,7 @@ function MapFunction() {
             <Modal.Body className="modal-body">
               <Pane
                 flex="1"
-                height={windowHeight * 0.5}
+                height={windowHeight * 0.3}
                 overflow-y={"auto"}
                 overflow-x={"hidden"}
                 background="#F9F9FB"

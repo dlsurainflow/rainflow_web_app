@@ -283,9 +283,9 @@ export const PredictionModule = (props) => {
           T_L2,
           RR_L3,
           T_L3,
-          FD_H_Prev: FD_H_cm,
-          FD_M_Prev: FD_M_cm,
-          FD_L_Prev: FD_L_cm,
+          FD_H_Prev,
+          FD_M_Prev,
+          FD_L_Prev,
           T_A,
         }),
       })
@@ -293,9 +293,9 @@ export const PredictionModule = (props) => {
           if (response.status === 200)
             response.json().then((data) => {
               console.log(data);
-              setFD_H_Prev((data.FD_H/100).toFixed(2));
-              setFD_M_Prev((data.FD_M/100).toFixed(2));
-              setFD_L_Prev((data.FD_L/100).toFixed(2));
+              setFD_H_Prev((data.FD_H).toFixed(2));
+              setFD_M_Prev((data.FD_M).toFixed(2));
+              setFD_L_Prev((data.FD_L).toFixed(2));
               setColorLow(getFloodDepthColor(data.FD_L / 100));
               setColorMid(getFloodDepthColor(data.FD_M / 100));
               setColorHigh(getFloodDepthColor(data.FD_H / 100));
@@ -867,7 +867,7 @@ export const PredictionModule = (props) => {
               >
                 <WiRain size={30} color="black" />
                 <Heading size={100} marginLeft={5}>
-                  Flood Depth{" "}
+                  Flood Depth in cm{" "}
                 </Heading>
               </Pane>
             </Pane>
@@ -1627,7 +1627,7 @@ export const PredictionModule = (props) => {
               autoFocus
               margin="dense"
               id="name"
-              label="Flood in meters"
+              label="Flood in centimeters"
               type="email"
               fullWidth
               value={displayedFloodDepth}
@@ -1661,7 +1661,7 @@ export const PredictionModule = (props) => {
         >
           <Popup>
             Low stream: 800m radius, 15 meters above water level {"\n"} Flood
-            level: {FD_L_Prev} meters {"\n"}
+            level: {FD_L_Prev*100} meters {"\n"}
             <Button
               onClick={() => {
                 setEditedArea("Lowstream");
@@ -1788,7 +1788,7 @@ export const PredictionModule = (props) => {
         >
           <Popup>
             Mid stream: 800m radius, 58 meters above water level {"\n"} Flood
-            level: {FD_M_Prev} meters {"\n"}
+            level: {FD_M_Prev*100} meters {"\n"}
             <Button
               onClick={() => {
                 setEditedArea("Midstream");
@@ -1914,7 +1914,7 @@ export const PredictionModule = (props) => {
         >
           <Popup>
             High stream: 800m radius, 96 meters above water level {"\n"} Flood
-            level: {FD_H_Prev} meters {"\n"}
+            level: {FD_H_Prev*100} meters {"\n"}
             <Button
               onClick={() => {
                 setEditedArea("Highstream");

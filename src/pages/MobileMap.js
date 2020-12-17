@@ -85,9 +85,9 @@ function MapFunction() {
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  const proxyurl = "";
-  //const proxyurl = "http://localhost:8800/";
-   //const proxyurl = "https://cors-anywhere.herokuapp.com/";
+const proxyurl = "";
+  // const proxyurl = "http://localhost:8800/";
+  //  const proxyurl = "https://cors-anywhere.herokuapp.com/";
   // const proxyurl = "http://192.168.1.4:8080/";
 
   const [raftInfo, setRaftInfo] = useState({
@@ -1989,7 +1989,7 @@ function MapFunction() {
                 let end = moment(addDay).format("YYYY-MM-DD");
                 let time1 =  `T${snapshotTime[0]}:00.000Z`;
                 let time2 = `T${snapshotTime[1]}:00.000Z`;
-                history.push(`/mobile/map/snapshot/${token_params}/${latitude_params}/${longitude_params}/${start}${time1}/${end}${time2}`)
+                history.push(`/mobile/map/snapshot/${token_params}/${latitude_params}/${longitude_params}/${start}${time1}/${start}${time2}`)
               }
             }}
             className={classes.snapshotButton}

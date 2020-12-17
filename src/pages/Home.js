@@ -90,7 +90,7 @@ export const Home = (props) => {
 
  const proxyurl = "";
   // const proxyurl = "https://cors-anywhere.herokuapp.com/";
- //const proxyurl = "http://localhost:8800/";
+//  const proxyurl = "http://localhost:8800/";
    //const proxyurl = "http://localhost:8080/";
 
   const [raftInfo, setRaftInfo] = useState({
@@ -2060,7 +2060,7 @@ export const Home = (props) => {
                 let end = moment(addDay).format("YYYY-MM-DD");
                 let time1 =  `T${snapshotTime[0]}:00.000Z`;
                 let time2 = `T${snapshotTime[1]}:00.000Z`;
-                history.push(`/snapshot/${start}${time1}/${end}${time2}`)
+                history.push(`/snapshot/${start}${time1}/${start}${time2}`)
               }else if(snapshotTime[0] > snapshotTime[1]){
                 setShowSnackbar(true)
               }

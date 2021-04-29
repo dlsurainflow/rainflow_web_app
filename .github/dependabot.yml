@@ -1,0 +1,47 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: y18n
+    versions:
+    - 4.0.1
+    - 4.0.2
+  - dependency-name: "@testing-library/jest-dom"
+    versions:
+    - 5.11.10
+    - 5.11.9
+  - dependency-name: "@material-ui/data-grid"
+    versions:
+    - 4.0.0-alpha.18
+    - 4.0.0-alpha.19
+    - 4.0.0-alpha.20
+    - 4.0.0-alpha.21
+    - 4.0.0-alpha.22
+    - 4.0.0-alpha.23
+  - dependency-name: mapbox-gl
+    versions:
+    - 1.13.1
+    - 2.0.1
+    - 2.1.0
+    - 2.1.1
+  - dependency-name: react-scripts
+    versions:
+    - 4.0.1
+    - 4.0.2
+  - dependency-name: "@testing-library/react"
+    versions:
+    - 11.2.3
+    - 11.2.5
+  - dependency-name: "@material-ui/core"
+    versions:
+    - 4.11.3
+  - dependency-name: node-notifier
+    versions:
+    - 8.0.1
+  - dependency-name: validator
+    versions:
+    - 13.5.2
